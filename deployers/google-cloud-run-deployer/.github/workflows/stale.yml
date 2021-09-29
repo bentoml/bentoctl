@@ -1,0 +1,21 @@
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+  - cron: 55 17 4 * *
+
+jobs:
+  stale:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: "Beep boop! 🤖 This issue hasn't had any activity in a while. I'll close it if I don't hear back soon."
+        stale-pr-message: "Beep boop! 🤖 This pull request hasn't had any activity in a while. I'll close it if I don't hear back soon."
+        stale-issue-label: 'no-issue-activity'
+        stale-pr-label: 'no-pr-activity'
+        days-before-stale: 30
+        days-before-close: 15

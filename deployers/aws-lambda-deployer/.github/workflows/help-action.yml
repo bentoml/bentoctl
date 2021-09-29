@@ -1,0 +1,23 @@
+name: help action
+on:
+  repository_dispatch:
+    types: [help-command]
+
+jobs:
+  display-help-info:
+    runs-on: ubuntu-latest
+    if:
+      github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.command == 'help'
+    steps:
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
+          body: |
+            Hello @${{ github.event.client_payload.github.actor }}!
+            These are the list of commands available in this repo.
+
+            | Command | Description |
+            | ------- | ----------- |
+            | /test-e2e-deploy sha=_"first 7 char of commit sha"_ | Runs the e2e test for this deployment tool. |
