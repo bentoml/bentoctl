@@ -9,7 +9,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'bcdt = cli:functional',
+            'bcdt = cli:bcdt',
         ],
     },
 )
