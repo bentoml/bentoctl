@@ -75,3 +75,16 @@ def install_deps():
         ["pip", "install", "-r", os.path.join(deployer_path, "requirements.txt")]
     )
     print(outs)
+
+
+def list_deployers():
+    """
+    List all the deployers available in the path ~/btcd/deployers or BTDC_DEPLOYER_PATH
+    """
+    BTDC_DEPLOYER_PATH = "../deployers"
+    deployers = []
+    for d in os.listdir(BTDC_DEPLOYER_PATH):
+        if os.path.exists(os.path.join(BTDC_DEPLOYER_PATH, d, "deployer_conf.py")):
+            deployers.append(d)
+
+    return deployers
