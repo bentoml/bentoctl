@@ -1,5 +1,5 @@
 import click
-from bcdt.deployers import add_deployer
+from bcdt.deployers import add_deployer, list_deployers
 
 
 def get_deployer_management_subcommands():
@@ -15,7 +15,7 @@ def get_deployer_management_subcommands():
         """
         List all the available deployers.
         """
-        print("list all commands")
+        list_deployers()
 
     @deployer_management.command()
     @click.argument('name', type=click.STRING)
