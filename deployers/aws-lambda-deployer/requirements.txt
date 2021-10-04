@@ -1,5 +1,0 @@
-bentoml
-boto3
-aws-sam-cli
-pandas
-rich
