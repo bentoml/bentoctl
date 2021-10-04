@@ -1,5 +1,5 @@
 import click
-from bcdt.deployers import add_deployer, list_deployers
+from bcdt.deployer_mng import add_deployer, list_deployers
 
 
 def get_deployer_management_subcommands():
