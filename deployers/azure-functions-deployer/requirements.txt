@@ -1,6 +1,0 @@
-bentoml
-docker
-pandas
-rich
-numpy
-pillow
