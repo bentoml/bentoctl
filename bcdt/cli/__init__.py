@@ -1,6 +1,11 @@
 import click
-from bcdt.cli.deployer_management import get_deployer_management_subcommands
-from bcdt.ops import deploy_bundle, describe_deployment, delete_deployment, update_deployment
+from bcdt.cli.plugin_management import get_plugin_management_subcommands
+from bcdt.ops import (
+    deploy_bundle,
+    describe_deployment,
+    delete_deployment,
+    update_deployment,
+)
 
 
 @click.group()
@@ -19,15 +24,14 @@ def bcdt():
     help="Path to config file for deployment",
 )
 @click.option(
-    "--deployer", "-d", type=click.STRING, help="The deployer of choice to deploy"
+    "--plugin", "-d", type=click.STRING, help="The plugin of choice to deploy"
 )
 @click.argument("bento_bundle")
-def deploy(bento_bundle, name, config, deployer):
+def deploy(bento_bundle, name, config, plugin):
     """
     Deploy a bentoml bundle to cloud.
     """
-    print("deploying")
-    deploy_bundle(bento_bundle, name, config, deployer)
+    deploy_bundle(bento_bundle, name, config, plugin)
 
 
 @bcdt.command()
@@ -41,11 +45,11 @@ def deploy(bento_bundle, name, config, deployer):
     help="Path to config file for deployment",
 )
 @click.option(
-    "--deployer", "-d", type=click.STRING, help="The deployer of choice to deploy"
+    "--plugin", "-d", type=click.STRING, help="The plugin of choice to deploy"
 )
-def delete(name, config, deployer):
+def delete(name, config, plugin):
     print("deleting")
-    delete_deployment(name, config, deployer)
+    delete_deployment(name, config, plugin)
 
 
 @bcdt.command()
@@ -59,10 +63,10 @@ def delete(name, config, deployer):
     help="Path to config file for deployment",
 )
 @click.option(
-    "--deployer", "-d", type=click.STRING, help="The deployer of choice to deploy"
+    "--plugin", "-d", type=click.STRING, help="The plugin of choice to deploy"
 )
-def describe(name, config, deployer):
-    describe_deployment(name, config, deployer)
+def describe(name, config, plugin):
+    describe_deployment(name, config, plugin)
 
 
 @bcdt.command()
@@ -76,11 +80,11 @@ def describe(name, config, deployer):
     help="Path to config file for deployment",
 )
 @click.option(
-    "--deployer", "-d", type=click.STRING, help="The deployer of choice to deploy"
+    "--plugin", "-d", type=click.STRING, help="The plugin of choice to deploy"
 )
-@click.argument('bento_bundle', type=click.STRING)
-def update(bento_bundle, name, config, deployer):
-    update_deployment(bento_bundle, name, config, deployer)
+@click.argument("bento_bundle", type=click.STRING)
+def update(bento_bundle, name, config, plugin):
+    update_deployment(bento_bundle, name, config, plugin)
 
 
-bcdt.add_command(get_deployer_management_subcommands())
+bcdt.add_command(get_plugin_management_subcommands())
