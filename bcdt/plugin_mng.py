@@ -1,12 +1,13 @@
 import os
 import json
-import sys
 import tempfile
 import shutil
 import zipfile
 from urllib.request import urlopen, Request
 
 from rich.pretty import pprint
+
+from .plugin_loader import Plugin
 
 
 MASTER_BRANCH = "main"
@@ -39,10 +40,6 @@ def _get_plugin_list():
     return plugin_list
 
 
-def load_plugin(path):
-    pass
-
-
 def install_plugin(path):
     """
     Adds a new name and path to plugin_list
@@ -52,7 +49,7 @@ def install_plugin(path):
     plugin_list = _get_plugin_list()
     print("installing", path)
     with open(plugin_list_path, "w") as f:
-        plugin = load_plugin(path=path)
+        plugin = Plugin(path)
         if plugin.name in plugin_list:
             print(f"Existing {plugin.name} found! Updating...")
         plugin_list[plugin.name] = path
@@ -125,7 +122,7 @@ def add_plugin(github):
 
     plugin_dir_name = repo_name
     if repo_branch != MASTER_BRANCH:
-        plugin_dir_name += f"_{repo_branch}"
+        plugin_dir_name += f":{repo_branch}"
     plugin_dir = os.path.join(plugin_home, plugin_dir_name)
 
     # download the repo as zipfile and extract it

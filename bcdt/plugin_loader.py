@@ -43,7 +43,8 @@ class Plugin:
 
     def describe(self, deployment_name, config_dict):
         describer = import_module("plugin_describer", self.path / "describe.py")
-        describer.describe(deployment_name, config_dict)
+        info_json = describer.describe(deployment_name, config_dict)
+        return info_json
 
     def delete(self, deployment_name, config_dict):
         deleter = import_module("plugin_deleter", self.path / "delete.py")
