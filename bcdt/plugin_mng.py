@@ -28,7 +28,7 @@ def _get_bcdt_home():
     return bcdt_home
 
 
-def _get_plugin_list():
+def get_plugin_list():
     """
     returns the plugin_list from BCDT_HOME/plugins/plugin_list.json
     """
@@ -49,7 +49,7 @@ def install_plugin(path):
     """
     bcdt_home = _get_bcdt_home()
     plugin_list_path = os.path.join(bcdt_home, "plugins/plugin_list.json")
-    plugin_list = _get_plugin_list()
+    plugin_list = get_plugin_list()
     print("installing", path)
     with open(plugin_list_path, "w") as f:
         plugin = Plugin(path)
@@ -169,5 +169,5 @@ def add_plugin(github):
 
 
 def list_plugins():
-    plugins_list = _get_plugin_list()
+    plugins_list = get_plugin_list()
     pprint(plugins_list)

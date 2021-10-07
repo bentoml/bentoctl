@@ -1,5 +1,5 @@
 import click
-from bcdt.plugin_mng import add_plugin, list_plugins
+from bcdt.plugin_mng import add_plugin, list_plugins, install_plugin
 
 
 def get_plugin_management_subcommands():
@@ -24,6 +24,14 @@ def get_plugin_management_subcommands():
         Add plugins.
         """
         add_plugin(name)
+
+    @plugin_management.command()
+    @click.argument('plugin-path', type=click.Path(exists=True))
+    def install(plugin_path):
+        """
+        Install a plugin ie. add it to the plugin_list.json
+        """
+        install_plugin(plugin_path)
 
     @plugin_management.command()
     def remove():
