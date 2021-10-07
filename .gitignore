@@ -1,2 +1,4 @@
 __pycache__
 *.egg-info/
+lambda_config.yaml
+test_plugins/
