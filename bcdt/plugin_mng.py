@@ -3,6 +3,7 @@ import json
 import tempfile
 import shutil
 import zipfile
+from collections import namedtuple
 from urllib.request import urlopen, Request
 
 from rich.pretty import pprint
@@ -10,9 +11,11 @@ from rich.pretty import pprint
 from .plugin_loader import Plugin
 
 
-MASTER_BRANCH = "main"
+MAIN_BRANCH = "deployers"
 BCDT_HOME = os.path.expanduser("~/bcdt")
-PLUGIN_ACTIONS = ["deploy", "delete", "describe", "update"]
+OFFICIAL_PLUGINS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
+
+github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
 
 
 def _get_bcdt_home():
@@ -68,15 +71,40 @@ def _github_archive_link(repo_owner, repo_name, repo_branch):
     return f"https://github.com/{repo_owner}/{repo_name}/archive/{repo_branch}.zip"
 
 
-def _parse_repo_info(github):
-    repo_branch = MASTER_BRANCH
-    if ":" in github:
-        repo_info, repo_branch = github.split(":")
+def _parse_github_url(github_url):
+    repo_branch = MAIN_BRANCH
+    if ":" in github_url:
+        repo_info, repo_branch = github_url.split(":")
     else:
-        repo_info = github
+        repo_info = github_url
     repo_owner, repo_name = repo_info.split("/")
 
-    return repo_owner, repo_name, repo_branch
+    return github_repo(repo_owner, repo_name, repo_branch)
+
+
+def _parse_repo_info(github):
+    """
+    Parse the plugin name that the user has given. Options to consider:
+        1. Official plugin - only the plugin name is needed in this case
+        2. Github Repo - this should be in the format 'repo_owner/repo_name:repo_branch'
+
+    TODO:
+        1. https://, git://, http://
+    """
+    # figure out how the user has passed the plugin
+    # TODO: verify with patterns.
+    if github in OFFICIAL_PLUGINS.keys():
+        github_url = OFFICIAL_PLUGINS[github]
+        github_repo = _parse_github_url(github_url)
+        plugin_name = github
+    else:
+        github_repo = _parse_github_url(github)
+        plugin_name = github_repo.name
+
+    if github_repo.branch != MAIN_BRANCH:
+        plugin_name += f":{github_repo.repo_branch}"
+
+    return github_repo, plugin_name
 
 
 def _download_url(url, dest):
@@ -113,16 +141,18 @@ def _download_url(url, dest):
 
 
 def add_plugin(github):
-    repo_owner, repo_name, repo_branch = _parse_repo_info(github)
-    repo_url = _github_archive_link(repo_owner, repo_name, repo_branch)
+    github_repo, plugin_name = _parse_repo_info(github)
+    repo_url = _github_archive_link(
+        github_repo.owner, github_repo.name, github_repo.branch
+    )
+    print(repo_url)
 
     # find default location
     bcdt_home = _get_bcdt_home()
     plugin_home = os.path.join(bcdt_home, "plugins")
 
-    plugin_dir_name = repo_name
-    if repo_branch != MASTER_BRANCH:
-        plugin_dir_name += f":{repo_branch}"
+    # the plugin's name is its directory name
+    plugin_dir_name = plugin_name
     plugin_dir = os.path.join(plugin_home, plugin_dir_name)
 
     # download the repo as zipfile and extract it

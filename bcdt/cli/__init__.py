@@ -18,7 +18,7 @@ def bcdt():
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config",
+    "--config-path",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
@@ -27,11 +27,11 @@ def bcdt():
     "--plugin-name", "-p", type=click.STRING, help="The plugin of choice to deploy"
 )
 @click.argument("bento_bundle")
-def deploy(bento_bundle, name, config, plugin_name):
+def deploy(bento_bundle, name, config_path, plugin_name):
     """
     Deploy a bentoml bundle to cloud.
     """
-    deploy_bundle(bento_bundle, name, config, plugin_name)
+    deploy_bundle(bento_bundle, name, config_path, plugin_name)
 
 
 @bcdt.command()
@@ -39,7 +39,7 @@ def deploy(bento_bundle, name, config, plugin_name):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config",
+    "--config-path",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
@@ -47,8 +47,8 @@ def deploy(bento_bundle, name, config, plugin_name):
 @click.option(
     "--plugin-name", "-p", type=click.STRING, help="The plugin of choice to deploy"
 )
-def delete(name, config, plugin_name):
-    delete_deployment(name, config, plugin_name)
+def delete(name, config_path, plugin_name):
+    delete_deployment(name, config_path, plugin_name)
 
 
 @bcdt.command()
@@ -56,7 +56,7 @@ def delete(name, config, plugin_name):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config",
+    "--config-path",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
@@ -64,8 +64,8 @@ def delete(name, config, plugin_name):
 @click.option(
     "--plugin-name", "-p", type=click.STRING, help="The plugin of choice to deploy"
 )
-def describe(name, config, plugin_name):
-    describe_deployment(name, config, plugin_name)
+def describe(name, config_path, plugin_name):
+    describe_deployment(name, config_path, plugin_name)
 
 
 @bcdt.command()
@@ -73,7 +73,7 @@ def describe(name, config, plugin_name):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config",
+    "--config-path",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
@@ -82,8 +82,9 @@ def describe(name, config, plugin_name):
     "--plugin-name", "-p", type=click.STRING, help="The plugin of choice to deploy"
 )
 @click.argument("bento_bundle", type=click.STRING)
-def update(bento_bundle, name, config, plugin_name):
-    update_deployment(bento_bundle, name, config, plugin_name)
+def update(bento_bundle, name, config_path, plugin_name):
+    update_deployment(bento_bundle, name, config_path, plugin_name)
 
 
+# subcommands
 bcdt.add_command(get_plugin_management_subcommands())
