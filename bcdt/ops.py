@@ -1,6 +1,6 @@
 from .plugin_loader import Plugin
-from .plugin_mng import get_plugin_list
-from .config_mng import load_json_config, build_config_dict
+from .plugin_manager import get_plugin_list
+from .config_manager import load_json_config, build_config_dict
 
 from rich.pretty import pprint
 

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-from .plugin_mng import get_plugin_list
+from .plugin_manager import get_plugin_list
 from .plugin_loader import Plugin
 
 
