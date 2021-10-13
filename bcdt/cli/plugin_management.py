@@ -1,5 +1,5 @@
 import click
-from bcdt.plugin_mng import add_plugin, list_plugins, install_plugin
+from bcdt.plugin_manager import add_plugin, list_plugins, install_plugin
 
 
 def get_plugin_management_subcommands():
