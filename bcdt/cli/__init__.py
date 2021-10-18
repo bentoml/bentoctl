@@ -1,11 +1,14 @@
 import click
+
 from bcdt.cli.plugin_management import get_plugin_management_subcommands
+from bcdt.deployment_store import list_deployments, prune
 from bcdt.ops import (
     deploy_bundle,
     describe_deployment,
     delete_deployment,
     update_deployment,
 )
+from bcdt.utils import print_deployments_list
 
 
 @click.group()
@@ -90,7 +93,30 @@ def describe(name, config_path, plugin):
 )
 @click.argument("bento_bundle", type=click.STRING)
 def update(bento_bundle, name, config_path, plugin):
-    update_deployment(bento_bundle, name, config_path, plugin)
+    update_deployment(
+        bento_bundle=bento_bundle,
+        name=name,
+        config_path=config_path,
+        plugin_name=plugin,
+    )
+
+
+@bcdt.command()
+def list():
+    """
+    List all the deployments made.
+    """
+    deployments = list_deployments()
+    print_deployments_list(deployments)
+
+
+@bcdt.command(name="prune")
+@click.option("--all", "prune_all", is_flag=True)
+def prune_all(prune_all):
+    """
+    Prune all the deployables stored.
+    """
+    prune(keep_latest=not prune_all)
 
 
 # subcommands

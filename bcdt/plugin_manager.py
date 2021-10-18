@@ -9,10 +9,10 @@ from urllib.request import urlopen, Request
 from rich.pretty import pprint
 
 from .plugin_loader import Plugin
+from . import BCDT_HOME
 
 
 MAIN_BRANCH = "deployers"
-BCDT_HOME = os.path.expanduser("~/bcdt")
 OFFICIAL_PLUGINS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])

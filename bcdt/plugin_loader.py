@@ -35,11 +35,13 @@ class Plugin:
 
     def update(self, bento_bundle_path, deployment_name, config_dict):
         updater = import_module("plugin_updater", self.path / "update.py")
-        updater.update(bento_bundle_path, deployment_name, config_dict)
+        d_path = updater.update(bento_bundle_path, deployment_name, config_dict)
+        return d_path
 
     def deploy(self, bento_bundle_path, deployment_name, config_dict):
         deployer = import_module("plugin_deployer", self.path / "deploy.py")
-        deployer.deploy(bento_bundle_path, deployment_name, config_dict)
+        d_path = deployer.deploy(bento_bundle_path, deployment_name, config_dict)
+        return d_path
 
     def describe(self, deployment_name, config_dict):
         describer = import_module("plugin_describer", self.path / "describe.py")
