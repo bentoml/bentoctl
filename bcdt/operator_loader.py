@@ -1,6 +1,5 @@
 import sys
 import os
-import json
 from pathlib import Path
 
 
@@ -15,39 +14,40 @@ def import_module(name, path):
     return module
 
 
-class Plugin:
+class Operator:
     def __init__(self, path):
         self.path = Path(path)
         if not self.path.is_dir():
             raise ValueError("path should be a valid directory")
 
-        # add plugin path to sys.path (as string) for discoverability
+        # load the operator
         sys.path.append(os.fspath(path))
+        self.operator = import_module("operator", self.path / "__init__.py")
+        sys.path.remove(os.fspath(path))
 
     @property
     def name(self):
-        return self.path.name
+        return self.operator.OPERATOR_NAME
 
     @property
-    def deployment_config(self):
-        conf_file = self.path / "deployment_config.json"
-        return json.loads(conf_file.read_text())
+    def default_fields(self):
+        return self.operator.DEFAULT_FIELDS
+
+    @property
+    def required_fields(self):
+        return self.operator.REQUIRED_FIELDS
 
     def update(self, bento_bundle_path, deployment_name, config_dict):
-        updater = import_module("plugin_updater", self.path / "update.py")
-        d_path = updater.update(bento_bundle_path, deployment_name, config_dict)
+        d_path = self.operator.update(bento_bundle_path, deployment_name, config_dict)
         return d_path
 
     def deploy(self, bento_bundle_path, deployment_name, config_dict):
-        deployer = import_module("plugin_deployer", self.path / "deploy.py")
-        d_path = deployer.deploy(bento_bundle_path, deployment_name, config_dict)
+        d_path = self.operator.deploy(bento_bundle_path, deployment_name, config_dict)
         return d_path
 
     def describe(self, deployment_name, config_dict):
-        describer = import_module("plugin_describer", self.path / "describe.py")
-        info_json = describer.describe(deployment_name, config_dict)
+        info_json = self.operator.describe(deployment_name, config_dict)
         return info_json
 
     def delete(self, deployment_name, config_dict):
-        deleter = import_module("plugin_deleter", self.path / "delete.py")
-        deleter.delete(deployment_name, config_dict)
+        self.operator.delete(deployment_name, config_dict)
