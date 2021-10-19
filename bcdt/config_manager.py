@@ -3,8 +3,8 @@ from pathlib import Path
 
 import yaml
 
-from .plugin_manager import get_plugin_list
-from .plugin_loader import Plugin
+from .operator_manager import get_operator_list
+from .operator_loader import Operator
 
 
 def load_json_config(config_path):
@@ -28,7 +28,7 @@ def parse_config_file(config_file):
         raise Exception("Incorrect config file")
 
     config_dict["deployment_name"] = config_dict["name"]
-    config_dict["plugin_name"] = config_dict["plugin"]
+    config_dict["operator_name"] = config_dict["operator"]
 
     return config_dict
 
@@ -52,24 +52,24 @@ def fill_defaults(configs, default_config):
     return configs
 
 
-def choose_plugin():
-    available_plugins = get_plugin_list().keys()
-    print("Available plugins:")
-    print("\n".join(available_plugins))
-    plugin_name = input("Plugin name of choice: ")
+def choose_operator():
+    available_operators = get_operator_list().keys()
+    print("Available operators:")
+    print("\n".join(available_operators))
+    operator_name = input("operator name of choice: ")
 
     assert (
-        plugin_name in available_plugins
-    ), f"{plugin_name} not in available plugins list"
+        operator_name in available_operators
+    ), f"{operator_name} not in available operators list"
 
-    return plugin_name
+    return operator_name
 
 
 def build_config_dict(configs):
     """
     Build the config_dict needed for deployment to the provided service. Prompt the
     user for configs that are required but not provided and use the default configs
-    from the plugin to populate all the others.
+    from the operator to populate all the others.
     """
     if configs['config_path'] is not None:
         config_path = Path(configs["config_path"])
@@ -80,7 +80,7 @@ def build_config_dict(configs):
             )
 
         config_dict = parse_config_file(config_path)
-        # WARNING: this overides the name and plugin with that provided via cli args
+        # WARNING: this overides the name and operator with that provided via cli args
         configs.update(config_dict)
     else:
         no_config_file = True
@@ -88,15 +88,15 @@ def build_config_dict(configs):
     if configs['deployment_name'] is None:
         configs["deployment_name"] = input("Enter a Name for deployment: ")
 
-    if configs['plugin_name'] is not None:
-        plugin_name = configs["plugin_name"]
+    if configs['operator_name'] is not None:
+        operator_name = configs["operator_name"]
     else:
-        plugin_name = choose_plugin()
-        configs["plugin_name"] = plugin_name
+        operator_name = choose_operator()
+        configs["operator_name"] = operator_name
 
-    plugin_list = get_plugin_list()
-    plugin = Plugin(plugin_list[plugin_name])
-    default_config = plugin.deployment_config
+    operator_list = get_operator_list()
+    operator = Operator(operator_list[operator_name])
+    default_config = operator.deployment_config
     configs = fill_defaults(configs, default_config)
 
     return configs

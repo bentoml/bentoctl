@@ -8,55 +8,55 @@ from urllib.request import urlopen, Request
 
 from rich.pretty import pprint
 
-from .plugin_loader import Plugin
+from .operator_loader import Operator
 from . import BCDT_HOME
 
 
 MAIN_BRANCH = "deployers"
-OFFICIAL_PLUGINS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
+OFFICIAL_OPERATORS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
 
 
 def _get_bcdt_home():
     bcdt_home = os.environ.get("BCDT_HOME", BCDT_HOME)
-    # if not present create bcdt and bcdt/plugins dir
+    # if not present create bcdt and bcdt/operators dir
     if not os.path.exists(bcdt_home):
         os.mkdir(bcdt_home)
-        os.mkdir(os.path.join(bcdt_home, "plugins"))
+        os.mkdir(os.path.join(bcdt_home, "operators"))
 
     return bcdt_home
 
 
-def get_plugin_list():
+def get_operator_list():
     """
-    returns the plugin_list from BCDT_HOME/plugins/plugin_list.json
+    returns the operator_list from BCDT_HOME/operators/operator_list.json
     """
     bcdt_home = _get_bcdt_home()
-    plugin_list_path = os.path.join(bcdt_home, "plugins/plugin_list.json")
+    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
     try:
-        with open(plugin_list_path, "r") as f:
-            plugin_list = json.load(f)
+        with open(operator_list_path, "r") as f:
+            operator_list = json.load(f)
     except FileNotFoundError:
-        plugin_list = {}
+        operator_list = {}
 
-    return plugin_list
+    return operator_list
 
 
-def install_plugin(path):
+def install_operator(path):
     """
-    Adds a new name and path to plugin_list
+    Adds a new name and path to operator_list
     """
     bcdt_home = _get_bcdt_home()
-    plugin_list_path = os.path.join(bcdt_home, "plugins/plugin_list.json")
-    plugin_list = get_plugin_list()
+    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
+    operator_list = get_operator_list()
     print("installing", path)
-    with open(plugin_list_path, "w") as f:
-        plugin = Plugin(path)
-        if plugin.name in plugin_list:
-            print(f"Existing {plugin.name} found! Updating...")
-        plugin_list[plugin.name] = path
-        json.dump(plugin_list, f)
+    with open(operator_list_path, "w") as f:
+        operator = Operator(path)
+        if operator.name in operator_list:
+            print(f"Existing {operator.name} found! Updating...")
+        operator_list[operator.name] = path
+        json.dump(operator_list, f)
 
 
 def _remove_if_exists(path):
@@ -84,27 +84,27 @@ def _parse_github_url(github_url):
 
 def _parse_repo_info(github):
     """
-    Parse the plugin name that the user has given. Options to consider:
-        1. Official plugin - only the plugin name is needed in this case
+    Parse the operator name that the user has given. Options to consider:
+        1. Official operator - only the operator name is needed in this case
         2. Github Repo - this should be in the format 'repo_owner/repo_name:repo_branch'
 
     TODO:
         1. https://, git://, http://
     """
-    # figure out how the user has passed the plugin
+    # figure out how the user has passed the operator
     # TODO: verify with patterns.
-    if github in OFFICIAL_PLUGINS.keys():
-        github_url = OFFICIAL_PLUGINS[github]
+    if github in OFFICIAL_OPERATORS.keys():
+        github_url = OFFICIAL_OPERATORS[github]
         github_repo = _parse_github_url(github_url)
-        plugin_name = github
+        operator_name = github
     else:
         github_repo = _parse_github_url(github)
-        plugin_name = github_repo.name
+        operator_name = github_repo.name
 
     if github_repo.branch != MAIN_BRANCH:
-        plugin_name += f":{github_repo.repo_branch}"
+        operator_name += f":{github_repo.repo_branch}"
 
-    return github_repo, plugin_name
+    return github_repo, operator_name
 
 
 def _download_url(url, dest):
@@ -140,8 +140,8 @@ def _download_url(url, dest):
             os.remove(f.name)
 
 
-def add_plugin(github):
-    github_repo, plugin_name = _parse_repo_info(github)
+def add_operator(github):
+    github_repo, operator_name = _parse_repo_info(github)
     repo_url = _github_archive_link(
         github_repo.owner, github_repo.name, github_repo.branch
     )
@@ -149,25 +149,25 @@ def add_plugin(github):
 
     # find default location
     bcdt_home = _get_bcdt_home()
-    plugin_home = os.path.join(bcdt_home, "plugins")
+    operator_home = os.path.join(bcdt_home, "operators")
 
-    # the plugin's name is its directory name
-    plugin_dir_name = plugin_name
-    plugin_dir = os.path.join(plugin_home, plugin_dir_name)
+    # the operator's name is its directory name
+    operator_dir_name = operator_name
+    operator_dir = os.path.join(operator_home, operator_dir_name)
 
     # download the repo as zipfile and extract it
-    _download_url(url=repo_url, dest=plugin_dir + ".zip")
-    with zipfile.ZipFile(plugin_dir + ".zip", "r") as z:
-        if os.path.exists(plugin_dir):
-            _remove_if_exists(plugin_dir)
+    _download_url(url=repo_url, dest=operator_dir + ".zip")
+    with zipfile.ZipFile(operator_dir + ".zip", "r") as z:
+        if os.path.exists(operator_dir):
+            _remove_if_exists(operator_dir)
         extracted_repo_name = z.infolist()[0].filename
-        z.extractall(plugin_home)
-        shutil.move(os.path.join(plugin_home, extracted_repo_name), plugin_dir)
-    _remove_if_exists(plugin_dir + ".zip")
+        z.extractall(operator_home)
+        shutil.move(os.path.join(operator_home, extracted_repo_name), operator_dir)
+    _remove_if_exists(operator_dir + ".zip")
 
-    install_plugin(plugin_dir)
+    install_operator(operator_dir)
 
 
-def list_plugins():
-    plugins_list = get_plugin_list()
-    pprint(plugins_list)
+def list_operators():
+    operators_list = get_operator_list()
+    pprint(operators_list)

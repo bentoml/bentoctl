@@ -15,9 +15,9 @@ def print_deployments_list(d_list):
     table = Table(title="", box=box.SIMPLE)
 
     table.add_column("Deployment Name")
-    table.add_column("Plugin")
+    table.add_column("Operator")
     table.add_column("Last Updated")
 
     for d in d_list:
-        table.add_row(d.deployment_name, d.plugin_name, d.created_at.strftime("%H:%M"))
+        table.add_row(d.deployment_name, d.operator_name, d.created_at.strftime("%H:%M"))
     console.print(table)
