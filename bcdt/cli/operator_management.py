@@ -1,5 +1,5 @@
 import click
-from bcdt.operator_manager import add_operator, list_operators, install_operator
+from bcdt.operator_manager import add_operator, list_operators
 
 
 def get_operator_management_subcommands():
@@ -18,20 +18,16 @@ def get_operator_management_subcommands():
         list_operators()
 
     @operator_management.command()
-    @click.argument('name', type=click.STRING)
+    @click.argument('name', type=click.STRING, default='INTERACTIVE_MODE')
     def add(name):
         """
         Add operators.
         """
-        add_operator(name)
-
-    @operator_management.command()
-    @click.argument('operator-path', type=click.Path(exists=True))
-    def install(operator_path):
-        """
-        Install a operator ie. add it to the operator_list.json
-        """
-        install_operator(operator_path)
+        operator_name = add_operator(name)
+        if operator_name is not None:
+            print(f'Added {operator_name}')
+        else:
+            print(f'Error adding operator {name}. Please check docs.')
 
     @operator_management.command()
     def remove():
