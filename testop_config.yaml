@@ -1,0 +1,4 @@
+apiVersion: v1
+spec:
+  region: 'test'
+  max_instances: 1
