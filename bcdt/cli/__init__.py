@@ -21,23 +21,23 @@ def bcdt():
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config-path",
+    "--config",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
 )
 @click.option(
-    "--operator", "-p", type=click.STRING, help="The operator of choice to deploy"
+    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.argument("bento_bundle")
-def deploy(bento_bundle, name, config_path, operator):
+def deploy(bento_bundle, name, config, operator):
     """
     Deploy a bentoml bundle to cloud.
     """
     deploy_bundle(
         bento_bundle,
         deployment_name=name,
-        config_path=config_path,
+        config_path=config,
         operator_name=operator,
     )
 
@@ -47,16 +47,19 @@ def deploy(bento_bundle, name, config_path, operator):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config-path",
+    "--config",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
 )
 @click.option(
-    "--operator", "-p", type=click.STRING, help="The operator of choice to deploy"
+    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
-def delete(name, config_path, operator):
-    delete_deployment(deployment_name=name, config_path=config_path, operator_name=operator)
+def delete(name, config, operator):
+    """
+    Delete the deployments made.
+    """
+    delete_deployment(deployment_name=name, config_path=config, operator_name=operator)
 
 
 @bcdt.command()
@@ -64,17 +67,20 @@ def delete(name, config_path, operator):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config-path",
+    "--config",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
 )
 @click.option(
-    "--operator", "-p", type=click.STRING, help="The operator of choice to deploy"
+    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
-def describe(name, config_path, operator):
+def describe(name, config, operator):
+    """
+    Shows the discription any deployment made.
+    """
     describe_deployment(
-        deployment_name=name, config_path=config_path, operator_name=operator
+        deployment_name=name, config_path=config, operator_name=operator
     )
 
 
@@ -83,20 +89,23 @@ def describe(name, config_path, operator):
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config-path",
+    "--config",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
 )
 @click.option(
-    "--operator", "-p", type=click.STRING, help="The operator of choice to deploy"
+    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.argument("bento_bundle", type=click.STRING)
-def update(bento_bundle, name, config_path, operator):
+def update(bento_bundle, name, config, operator):
+    """
+    Update deployments. Can be usered interactively.
+    """
     update_deployment(
         bento_bundle=bento_bundle,
-        name=name,
-        config_path=config_path,
+        deployment_name=name,
+        config_path=config,
         operator_name=operator,
     )
 

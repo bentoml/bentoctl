@@ -5,6 +5,7 @@ from uuid import uuid4
 import shutil
 
 from . import BCDT_HOME
+from .config_manager import dump_yaml_config
 
 DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M%S"
 
@@ -17,7 +18,7 @@ class Store:
     def __init__(self, bcdt_home):
         self.store_home = Path(bcdt_home, "deployments")
 
-    def add(self, operator_name, deployment_name, deployable_path):
+    def add(self, operator_name, deployment_name, deployable_path, bcdt_config):
         """
         Moves the deployable created after a successful deployment by the operator into
         our local filesystem.
@@ -27,8 +28,9 @@ class Store:
         deployable_name = f"deployable_{datetime.now().strftime(DEPLOYABLE_TIMESTAMP)}_{uuid4().hex[:6]}"
         dest = deployment_path / deployable_name
 
-        # USE MOVE
+        # create the dir
         shutil.move(deployable_path, dest)
+        dump_yaml_config(bcdt_config, dest / 'bcdt_config.yaml')
 
     def list_deployables(self):
         """
