@@ -1,11 +1,12 @@
 from datetime import datetime
 from pathlib import Path
 from collections import namedtuple
+from uuid import uuid4
 import shutil
 
 from . import BCDT_HOME
 
-DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M"
+DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M%S"
 
 
 # record for each deployable (deployable_tuple)
@@ -23,7 +24,7 @@ class Store:
         """
         deployment_path = Path(self.store_home, operator_name, deployment_name)
         deployment_path.mkdir(parents=True, exist_ok=True)
-        deployable_name = f"deployable_{datetime.now().strftime(DEPLOYABLE_TIMESTAMP)}"
+        deployable_name = f"deployable_{datetime.now().strftime(DEPLOYABLE_TIMESTAMP)}_{uuid4().hex[:6]}"
         dest = deployment_path / deployable_name
 
         # USE MOVE
