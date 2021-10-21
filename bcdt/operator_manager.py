@@ -167,13 +167,13 @@ def add_operator(user_input):
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
 
     if user_input == "INTERACTIVE_MODE":
-        print('List of all official operators:')
+        print("List of all official operators:")
         for i, operator in enumerate(OFFICIAL_OPERATORS):
             print(f"{i+1}. {operator}")
 
-        operator_name = input('operator name to setup: ')
+        operator_name = input("operator name to setup: ")
         if operator_name not in OFFICIAL_OPERATORS:
-            print('error!')
+            print("error!")
             return
 
         # install the selected operator
@@ -197,8 +197,9 @@ def add_operator(user_input):
     if os.path.exists(user_input):
         try:
             Operator(user_input)
-        except ImportError:  # not a valid operator, hence ignore
-            print("Incorrect")
+        except ImportError as e:  # not a valid operator, hence ignore
+            print(f"Unable to load operator in '{user_input}'")
+            print(f'Error: {e}')
             pass
         else:
             operator_name = _install_operator(user_input)
@@ -227,3 +228,20 @@ def add_operator(user_input):
 def list_operators():
     operators_list = get_operator_list()
     pprint(operators_list)
+
+
+def remove_operator(name):
+    operator_list = get_operator_list()
+    if name not in operator_list:
+        print(f"Cann't find '{name}'. Make sure it is a valid operator added in bcdt")
+        return
+
+    print(f"Removing {name} ..")
+    operator_list.pop(name)
+    # save it back
+    bcdt_home = _get_bcdt_home()
+    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
+    with open(operator_list_path, "w") as f:
+        json.dump(operator_list, f)
+
+    return name

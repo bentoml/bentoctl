@@ -1,5 +1,5 @@
 import click
-from bcdt.operator_manager import add_operator, list_operators
+from bcdt.operator_manager import add_operator, list_operators, remove_operator
 
 
 def get_operator_management_subcommands():
@@ -30,10 +30,11 @@ def get_operator_management_subcommands():
             print(f'Error adding operator {name}. Please check docs.')
 
     @operator_management.command()
-    def remove():
+    @click.argument('name', type=click.STRING)
+    def remove(name):
         """
         Remove operators.
         """
-        print("removing operator")
+        remove_operator(name)
 
     return operator_management
