@@ -18,7 +18,7 @@ def get_operator_management_subcommands():
         list_operators()
 
     @operator_management.command()
-    @click.argument('name', type=click.STRING, default='INTERACTIVE_MODE')
+    @click.argument('name', default='INTERACTIVE_MODE')
     def add(name):
         """
         Add operators.

@@ -66,7 +66,7 @@ def _install_operator(path):
         operator = Operator(path)
         if operator.name in operator_list:
             print(f"Existing {operator.name} found!")
-        operator_list[operator.name] = path
+        operator_list[operator.name] = os.path.abspath(path)
         json.dump(operator_list, f)
 
     return operator.name
