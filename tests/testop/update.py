@@ -1,8 +1,8 @@
 import argparse
 import os
 
-from utils import console, get_configuration_value
-from deploy import deploy
+from .utils import console, get_configuration_value
+from .deploy import deploy
 
 
 def update(bento_bundle_path, deployment_name, lambda_config):

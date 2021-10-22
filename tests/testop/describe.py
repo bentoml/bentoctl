@@ -3,7 +3,7 @@ import argparse
 
 from rich.pretty import pprint
 
-from utils import get_configuration_value
+from .utils import get_configuration_value
 
 
 def describe(deployment_name, lambda_config):

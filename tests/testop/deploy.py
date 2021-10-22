@@ -3,7 +3,7 @@ import argparse
 import shutil
 
 
-from utils import (
+from .utils import (
     get_configuration_value,
     console,
 )
