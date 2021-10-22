@@ -1,7 +1,0 @@
-logging:
-    level: INFO
-    console:
-        enabled: True
-    file:
-        enabled: True
-        directory: /tmp/logs
