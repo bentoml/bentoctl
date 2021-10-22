@@ -1,5 +1,10 @@
 import click
-from bcdt.operator_manager import add_operator, list_operators, remove_operator
+from bcdt.operator_manager import (
+    add_operator,
+    list_operators,
+    remove_operator,
+    update_operator,
+)
 
 
 def get_operator_management_subcommands():
@@ -18,23 +23,31 @@ def get_operator_management_subcommands():
         list_operators()
 
     @operator_management.command()
-    @click.argument('name', default='INTERACTIVE_MODE')
+    @click.argument("name", default="INTERACTIVE_MODE")
     def add(name):
         """
         Add operators.
         """
         operator_name = add_operator(name)
         if operator_name is not None:
-            print(f'Added {operator_name}')
+            print(f"Added {operator_name}")
         else:
-            print(f'Error adding operator {name}. Please check docs.')
+            print(f"Error adding operator {name}. Please check docs.")
 
     @operator_management.command()
-    @click.argument('name', type=click.STRING)
+    @click.argument("name", type=click.STRING)
     def remove(name):
         """
         Remove operators.
         """
         remove_operator(name)
+
+    @operator_management.command()
+    @click.argument("name")
+    def update(name):
+        """
+        Update an operator given its name.
+        """
+        update_operator(name)
 
     return operator_management

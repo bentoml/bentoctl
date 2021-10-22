@@ -4,7 +4,7 @@ from collections import namedtuple
 from uuid import uuid4
 import shutil
 
-from . import BCDT_HOME
+from .operator_manager import BCDT_HOME
 from .config_manager import dump_yaml_config
 
 DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M%S"
@@ -98,7 +98,7 @@ class Store:
         return [child for child in path.iterdir() if child.is_dir()]
 
 
-localstore = Store(BCDT_HOME)
-add = localstore.add
-list_deployments = localstore.list_latest_deployables
-prune = localstore.prune_all
+LocalStore = Store(BCDT_HOME)
+add = LocalStore.add
+list_deployments = LocalStore.list_latest_deployables
+prune = LocalStore.prune_all
