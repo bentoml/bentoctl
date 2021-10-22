@@ -3,13 +3,14 @@ import os
 from pathlib import Path
 
 
-def import_module(name, path):
+def _import_module(name, path):
     import importlib.util
     from importlib.abc import Loader
 
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     assert isinstance(spec.loader, Loader)
+    sys.modules[name] = module
     spec.loader.exec_module(module)
     return module
 
@@ -21,9 +22,7 @@ class Operator:
             raise ValueError("path should be a valid directory")
 
         # load the operator
-        sys.path.append(os.fspath(path))
-        self.operator = import_module("operator", self.path / "__init__.py")
-        sys.path.remove(os.fspath(path))
+        self.operator = _import_module(self.path.name, self.path / "__init__.py")
 
     @property
     def name(self):
@@ -36,6 +35,10 @@ class Operator:
     @property
     def required_fields(self):
         return self.operator.REQUIRED_FIELDS
+
+    @property
+    def config_schema(self):
+        return self.operator.CONFIG_SCHEMA
 
     def update(self, bento_bundle_path, deployment_name, config_dict):
         d_path = self.operator.update(bento_bundle_path, deployment_name, config_dict)

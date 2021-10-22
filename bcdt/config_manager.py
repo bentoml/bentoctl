@@ -4,9 +4,11 @@ from pathlib import Path
 from typing import List, Dict
 
 import yaml
+import cerberus
 
 from .operator_manager import LocalOpsManager
 from .operator_loader import Operator
+from .exceptions import InvalidConfig
 
 
 def load_json_config(config_path):
@@ -22,7 +24,7 @@ def load_yaml_config(config_path):
 
 
 def dump_yaml_config(data, yaml_path):
-    with open(yaml_path, 'w') as f:
+    with open(yaml_path, "w") as f:
         yaml.dump(data, f)
 
 
@@ -35,9 +37,9 @@ def parse_config_file(config_file):
         raise Exception("Incorrect config file")
 
     # currently there is only 1 version for config
-    assert config_dict['apiVersion'] == 'v1'
+    assert config_dict["apiVersion"] == "v1"
 
-    return config_dict['spec']
+    return config_dict["spec"]
 
 
 def fill_defaults(configs, default_config):
@@ -72,14 +74,23 @@ def choose_operator():
     return operator_name
 
 
-def _input_with_prefill(prompt, default_value):
+def _input_with_prefill(prompt, default_value=None):
     def hook():
-        readline.insert_text(str(default_value))
-        readline.redisplay()
+        def _hook():
+            readline.insert_text(str(default_value))
+            readline.redisplay()
 
-    readline.set_pre_input_hook(hook)
+        if default_value is None:
+            return None
+        else:
+            return _hook
+
+    readline.set_pre_input_hook(hook())
     result = input(prompt)
     readline.set_pre_input_hook()
+
+    if result == '':
+        return None
     return result
 
 
@@ -99,19 +110,30 @@ def fill_defaults_fields(default_fields: Dict):
     return default_fields
 
 
-def _validate_spec(spec: Dict, required_fields: List, default_fields: Dict):
+def _validate_spec(spec: Dict, schema: Dict):
     """
-    Validates the spec from the config file to make sure the required_fields are
-    present. It also populates the spec with default_fields that are not present in the
-    config file provided.
+    validate the schema using cerberus.
     """
-    for field in required_fields:
-        if field not in spec:
-            raise ValueError(f"The required field '{field}' is not provided in spec.")
+    v = cerberus.Validator()
+    validated_spec = v.validated(spec, schema=schema)
+    if validated_spec is None:
+        raise InvalidConfig(v.errors)
 
-    for field, val in default_fields.items():
-        if field not in spec:
-            spec[field] = val
+    return validated_spec
+
+
+def _interactive_config_builder(schema):
+    v = cerberus.Validator()
+    spec = {}
+    for field, rule in schema.items():
+        while True:
+            val = _input_with_prefill(f"{field }: ", rule.get("default"))
+            validated_field = v.validated({field: val}, schema={field: rule})
+            if validated_field is None:
+                print(f"value is incorrect: {v.errors}")
+            else:
+                spec.update(validated_field)
+                break
 
     return spec
 
@@ -132,8 +154,7 @@ def build_config_dict(metadata):
         metadata["operator_name"] = operator_name
 
     # lets load the spec
-    operator_list = LocalOpsManager.list()
-    operator = Operator(operator_list[operator_name].op_path)
+    operator = Operator(LocalOpsManager.get(operator_name).op_path)
     if metadata["config_path"] is not None:
         config_path = Path(metadata["config_path"])
 
@@ -143,11 +164,8 @@ def build_config_dict(metadata):
             )
 
         spec = parse_config_file(config_path)
-        spec = _validate_spec(spec, operator.required_fields, operator.default_fields)
-    else:  # user provided no config file
-        # load required and default args
-        required_fields = fill_required_fields(operator.required_fields)
-        default_fields = fill_defaults_fields(operator.default_fields)
-        spec = {**required_fields, **default_fields}
+        spec = _validate_spec(spec, operator.config_schema)
+    else:  # start interactive mode
+        spec = _interactive_config_builder(operator.config_schema)
 
     return metadata, spec

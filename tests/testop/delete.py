@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from utils import get_configuration_value, console
+from .utils import get_configuration_value, console
 
 
 def delete(deployment_name, lambda_config):

@@ -10,3 +10,9 @@ class OperatorNotFound(Exception):
     """
     Raised when calling an operator that is not found.
     """
+
+
+class InvalidConfig(Exception):
+    """
+    Invalid bcdt config.
+    """
