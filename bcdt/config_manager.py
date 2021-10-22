@@ -5,7 +5,7 @@ from typing import List, Dict
 
 import yaml
 
-from .operator_manager import get_operator_list
+from .operator_manager import LocalOpsManager
 from .operator_loader import Operator
 
 
@@ -60,7 +60,7 @@ def fill_defaults(configs, default_config):
 
 
 def choose_operator():
-    available_operators = get_operator_list().keys()
+    available_operators = LocalOpsManager.list().keys()
     print("Available operators:")
     print("\n".join(available_operators))
     operator_name = input("operator name of choice: ")
@@ -132,8 +132,8 @@ def build_config_dict(metadata):
         metadata["operator_name"] = operator_name
 
     # lets load the spec
-    operator_list = get_operator_list()
-    operator = Operator(operator_list[operator_name])
+    operator_list = LocalOpsManager.list()
+    operator = Operator(operator_list[operator_name].op_path)
     if metadata["config_path"] is not None:
         config_path = Path(metadata["config_path"])
 

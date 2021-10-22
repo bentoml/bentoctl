@@ -1,6 +1,8 @@
 import os
 import json
 import tempfile
+from pathlib import Path
+import typing as t
 import re
 import shutil
 import zipfile
@@ -10,19 +12,21 @@ from urllib.request import urlopen, Request
 from rich.pretty import pprint
 
 from .operator_loader import Operator
-from . import BCDT_HOME
+from .exceptions import OperatorExists, OperatorNotFound
 
 
+BCDT_HOME = os.path.expanduser("~/bcdt")
 MAIN_BRANCH = "deployers"
 OFFICIAL_OPERATORS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
+op = namedtuple("Operator", ["op_path", "op_repo_url"])
 
 
 def _get_bcdt_home():
-    bcdt_home = os.environ.get("BCDT_HOME", BCDT_HOME)
+    bcdt_home = Path(os.environ.get("BCDT_HOME", BCDT_HOME))
     # if not present create bcdt and bcdt/operators dir
-    if not os.path.exists(bcdt_home):
+    if not bcdt_home.exists():
         os.mkdir(bcdt_home)
 
     operator_home = os.path.join(bcdt_home, "operators")
@@ -36,40 +40,59 @@ def _get_bcdt_home():
     return bcdt_home
 
 
-def get_operator_list():
-    """
-    returns the operator_list from BCDT_HOME/operators/operator_list.json
-    """
-    bcdt_home = _get_bcdt_home()
-    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
+class OperatorManager:
+    def __init__(self, path):
+        self.path = Path(path)
+        self.operator_file = self.path / "operator_list.json"
+        if self.operator_file.exists():
+            self.ops_list = json.loads(self.operator_file.read_text())
 
-    if not os.path.exists(operator_list_path):
-        return {}
-    else:
-        with open(operator_list_path, "r") as f:
-            txt = f.read()
-            if txt == "":  # if file is empty
-                return {}
-            return json.loads(txt)
+    def list(self):
+        return self.ops_list
+
+    def get(self, op_name):
+        if op_name not in self.ops_list:
+            raise OperatorNotFound
+        op_path, op_repo_url = self.ops_list[op_name]
+        return op(op_path, op_repo_url)
+
+    def _write_to_file(self):
+        with open(self.operator_file, 'w') as f:
+            json.dump(self.ops_list, f)
+
+    def add(self, op_name, op_path, op_repo_url=None):
+        """
+        Adds a new name and path to operator_list.
+
+        Args:
+            path: path to the operator codebase. Later on the operator will
+            be loaded from this path.
+        Returns:
+            The the name of the operator installed.
+        Raises:
+            OperatorExists: There is another operator with the same name.
+        """
+        if op_name in self.ops_list:
+            raise OperatorExists
+        self.ops_list[op_name] = op(op_path, op_repo_url)
+        self._write_to_file()
+
+    def update(self, op_name, op_path, op_repo_url):
+        if op_name not in self.ops_list:
+            raise OperatorNotFound
+        self.ops_list[op_name] = op(op_path, op_repo_url)
+        self._write_to_file()
+
+    def remove(self, op_name):
+        if op_name not in self.ops_list:
+            raise OperatorNotFound
+        op_path, op_repo_url = self.ops_list.pop(op_name)
+        self._write_to_file()
+
+        return op_path, op_repo_url
 
 
-def _install_operator(path):
-    """
-    Adds a new name and path to operator_list
-    """
-    print(f"installing from {path} ...")
-    bcdt_home = _get_bcdt_home()
-    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
-    operator_list = get_operator_list()
-    print("installing", path)
-    with open(operator_list_path, "w") as f:
-        operator = Operator(path)
-        if operator.name in operator_list:
-            print(f"Existing {operator.name} found!")
-        operator_list[operator.name] = os.path.abspath(path)
-        json.dump(operator_list, f)
-
-    return operator.name
+LocalOpsManager = OperatorManager(_get_bcdt_home() / "operators")
 
 
 def _remove_if_exists(path):
@@ -84,17 +107,6 @@ def _github_archive_link(repo_owner, repo_name, repo_branch=None):
     if repo_branch in [None, ""]:
         repo_branch = MAIN_BRANCH
     return f"https://github.com/{repo_owner}/{repo_name}/archive/{repo_branch}.zip"
-
-
-def _parse_github_url(github_url):
-    repo_branch = MAIN_BRANCH
-    if ":" in github_url:
-        repo_info, repo_branch = github_url.split(":")
-    else:
-        repo_info = github_url
-    repo_owner, repo_name = repo_info.split("/")
-
-    return github_repo(repo_owner, repo_name, repo_branch)
 
 
 def _download_url(url, dest):
@@ -153,6 +165,8 @@ def _download_repo(repo_url, operator_dir_name):
 
 def add_operator(user_input):
     """
+    Adds a new operator based on user_input.
+
     Given a user_input, we have to decide which operation the user meant by it. There
     are the option available.
         0. Interactive Model: lists all official operators for user to choose
@@ -162,6 +176,15 @@ def add_operator(user_input):
         4. Git Url: of the form https://[\\w]+.git
 
     There user_input will be evaluated in that order
+
+    Args:
+        user_input: the input from the user after `bcdt operator add`.
+
+    Returns:
+        operator_name, if installed
+
+    Raises:
+        bcdt.exceptions.OperatorExists
     """
     # regex to match a github repo
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
@@ -180,9 +203,10 @@ def add_operator(user_input):
         operator_repo = OFFICIAL_OPERATORS[operator_name]
         owner, repo, branch = github_repo_re.match(operator_repo).groups()
         repo_url = _github_archive_link(owner, repo, branch)
-        operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=user_input)
-        operator_name = _install_operator(operator_dir)
-        return operator_name
+        operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=repo)
+        operator = Operator(operator_dir)
+        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        return operator.name
 
     # Official Operator
     if user_input in OFFICIAL_OPERATORS:
@@ -190,28 +214,30 @@ def add_operator(user_input):
         owner, repo, branch = github_repo_re.match(operator_repo).groups()
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=user_input)
-        operator_name = _install_operator(operator_dir)
-        return operator_name
+        operator = Operator(operator_dir)
+        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        return operator.name
 
     # Path
     if os.path.exists(user_input):
         try:
-            Operator(user_input)
+            operator = Operator(user_input)
         except ImportError as e:  # not a valid operator, hence ignore
             print(f"Unable to load operator in '{user_input}'")
-            print(f'Error: {e}')
-            pass
+            print(f"Error: {e}")
+            return
         else:
-            operator_name = _install_operator(user_input)
-            return operator_name
+            LocalOpsManager.add(operator.name, user_input)
+            return operator.name
 
     # Github Repo
     if github_repo_re.match(user_input):
         owner, repo, branch = github_repo_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url, repo)
-        operator_name = _install_operator(operator_dir)
-        return operator_name
+        operator = Operator(operator_dir)
+        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        return operator.name
 
     # Git Url
     github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
@@ -219,29 +245,39 @@ def add_operator(user_input):
         owner, repo = github_http_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo)
         operator_dir = _download_repo(repo_url, repo)
-        operator_name = _install_operator(operator_dir)
-        return operator_name
+        operator = Operator(operator_dir)
+        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        return operator.name
 
     return None
 
 
 def list_operators():
-    operators_list = get_operator_list()
+    operators_list = LocalOpsManager.list()
     pprint(operators_list)
 
 
 def remove_operator(name):
-    operator_list = get_operator_list()
-    if name not in operator_list:
-        print(f"Cann't find '{name}'. Make sure it is a valid operator added in bcdt")
-        return
-
     print(f"Removing {name} ..")
-    operator_list.pop(name)
-    # save it back
-    bcdt_home = _get_bcdt_home()
-    operator_list_path = os.path.join(bcdt_home, "operators/operator_list.json")
-    with open(operator_list_path, "w") as f:
-        json.dump(operator_list, f)
+    op_path, op_repo_url = LocalOpsManager.remove(name)
+    if op_repo_url is not None:  # remove repo dir only if op was downloaded.
+        shutil.rmtree(op_path)
 
     return name
+
+
+def update_operator(name):
+    if LocalOpsManager.get(name).op_path is None:
+        print("Operator is a local installation and hence cannot be updated.")
+        return
+    temp_dir = tempfile.mkdtemp()
+    operator_path, repo_url = LocalOpsManager.get(name)
+    shutil.move(operator_path, temp_dir)
+    try:
+        op_path = _download_repo(repo_url, name)
+        operator = Operator(op_path)
+        LocalOpsManager.update(operator.name, op_path, repo_url)
+    except Exception:
+        shutil.move(temp_dir, operator_path)
+        raise
+    shutil.rmtree(temp_dir)

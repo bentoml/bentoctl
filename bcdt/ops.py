@@ -1,20 +1,21 @@
 from .operator_loader import Operator
-from .operator_manager import get_operator_list
+from .operator_manager import LocalOpsManager
 from .config_manager import build_config_dict
-from .deployment_store import localstore
+from .deployment_store import LocalStore
+from .exceptions import OperatorNotFound
 
 from rich.pretty import pprint
 
 
 def load_operator(operator_name):
     try:
-        operator_path = get_operator_list()[operator_name]
-    except KeyError:
+        operator_path = LocalOpsManager.get(operator_name).op_path
+    except OperatorNotFound:
         print(
             f"the operator {operator_name} is not added. Please run "
             "'bcdt operator list' to get the list of all the operator available."
         )
-        raise KeyError
+        raise OperatorNotFound
     return Operator(operator_path)
 
 
@@ -35,7 +36,7 @@ def deploy_bundle(bento_bundle, **metadata):
     }
 
     # add to localstore
-    localstore.add(
+    LocalStore.add(
         metadata["operator_name"],
         metadata["deployment_name"],
         deployable_path,
@@ -60,7 +61,7 @@ def update_deployment(bento_bundle, **metadata):
     }
 
     # add to localstore
-    localstore.add(
+    LocalStore.add(
         metadata["operator_name"],
         metadata["deployment_name"],
         deployable_path,
@@ -79,4 +80,4 @@ def delete_deployment(**metadata):
     metadata, spec = build_config_dict(metadata)
     operator = load_operator(metadata["operator_name"])
     operator.delete(metadata["deployment_name"], spec)
-    localstore.prune_deployment(metadata["operator_name"], metadata["deployment_name"])
+    LocalStore.prune_deployment(metadata["operator_name"], metadata["deployment_name"])
