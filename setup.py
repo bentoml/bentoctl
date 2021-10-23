@@ -6,6 +6,10 @@ setup(
     py_modules=['cli'],
     install_requires=[
         'Click',
+        'cerberus',
+        'bentoml',
+        'rich',
+        'simple-term-menu'
     ],
     entry_points={
         'console_scripts': [

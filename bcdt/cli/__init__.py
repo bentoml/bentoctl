@@ -2,12 +2,8 @@ import click
 
 from bcdt.cli.operator_management import get_operator_management_subcommands
 from bcdt.deployment_store import list_deployments, prune
-from bcdt.ops import (
-    deploy_bundle,
-    describe_deployment,
-    delete_deployment,
-    update_deployment,
-)
+from bcdt.ops import (delete_deployment, deploy_bundle, describe_deployment,
+                      update_deployment)
 from bcdt.utils import print_deployments_list
 
 

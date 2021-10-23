@@ -1,11 +1,11 @@
+import shutil
+from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
-from collections import namedtuple
 from uuid import uuid4
-import shutil
 
-from .operator_manager import BCDT_HOME
-from .config_manager import dump_yaml_config
+from bcdt.config_manager import dump_yaml_config
+from bcdt.operator_manager import BCDT_HOME
 
 DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M%S"
 
@@ -30,7 +30,7 @@ class Store:
 
         # create the dir
         shutil.move(deployable_path, dest)
-        dump_yaml_config(bcdt_config, dest / 'bcdt_config.yaml')
+        dump_yaml_config(bcdt_config, dest / "bcdt_config.yaml")
 
     def list_deployables(self):
         """

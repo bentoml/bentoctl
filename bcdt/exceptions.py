@@ -1,4 +1,11 @@
-class OperatorExists(Exception):
+class BCDTBaseException(Exception):
+    """
+    Base class for all of bcdt's exceptions.
+    Each custom exception is derived from this base class.
+    """
+
+
+class OperatorExists(BCDTBaseException):
     """
     Raised when an existing operator was found.
     """
@@ -6,13 +13,13 @@ class OperatorExists(Exception):
     pass
 
 
-class OperatorNotFound(Exception):
+class OperatorNotFound(BCDTBaseException):
     """
     Raised when calling an operator that is not found.
     """
 
 
-class InvalidConfig(Exception):
+class InvalidConfig(BCDTBaseException):
     """
     Invalid bcdt config.
     """

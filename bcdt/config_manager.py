@@ -1,14 +1,14 @@
 import json
 import readline
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
-import yaml
 import cerberus
+import yaml
 
-from .operator_manager import LocalOpsManager
-from .operator_loader import Operator
-from .exceptions import InvalidConfig
+from bcdt.exceptions import InvalidConfig
+from bcdt.operator_loader import Operator
+from bcdt.operator_manager import LocalOpsManager
 
 
 def load_json_config(config_path):
