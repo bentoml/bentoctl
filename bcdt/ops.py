@@ -1,10 +1,10 @@
-from .operator_loader import Operator
-from .operator_manager import LocalOpsManager
+from rich.pretty import pprint
+
 from .config_manager import build_config_dict
 from .deployment_store import LocalStore
 from .exceptions import OperatorNotFound
-
-from rich.pretty import pprint
+from .operator_loader import Operator
+from .operator_manager import LocalOpsManager
 
 
 def load_operator(operator_name):
