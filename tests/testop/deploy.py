@@ -13,7 +13,7 @@ def deploy(bento_bundle_path, deployment_name, lambda_config):
     print("deploying with: ", bento_bundle_path, deployment_name, lambda_config)
     deployabe_path = os.path.abspath("./testop_deployable")
     cur_path = os.path.dirname(__file__)
-    deployable_file = os.path.join(cur_path, './aws_lambda')
+    deployable_file = os.path.join(cur_path, "./aws_lambda")
     shutil.copytree(deployable_file, deployabe_path)
 
     return deployabe_path

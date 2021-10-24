@@ -5,7 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from bcdt.config_manager import dump_yaml_config
-from bcdt.operator_manager import BCDT_HOME
+from bcdt.operator import BCDT_HOME
 
 DEPLOYABLE_TIMESTAMP = "%y%m%d%H%M%S"
 

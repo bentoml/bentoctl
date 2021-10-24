@@ -1,7 +1,11 @@
 import click
 
-from bcdt.operator_manager import (add_operator, list_operators,
-                                   remove_operator, update_operator)
+from bcdt.operator_manager import (
+    add_operator,
+    list_operators,
+    remove_operator,
+    update_operator,
+)
 
 
 def get_operator_management_subcommands():
