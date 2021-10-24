@@ -1,10 +1,9 @@
 from rich.pretty import pprint
 
-from .config_manager import build_config_dict
-from .deployment_store import LocalStore
-from .exceptions import OperatorNotFound
-from .operator_loader import Operator
-from .operator_manager import LocalOpsManager
+from bcdt.config_manager import build_config_dict
+from bcdt.deployment_store import LocalStore
+from bcdt.exceptions import OperatorNotFound
+from bcdt.operator import LocalOpsManager, Operator
 
 
 def load_operator(operator_name):
@@ -22,11 +21,7 @@ def load_operator(operator_name):
 def deploy_bundle(bento_bundle, **metadata):
     metadata, spec = build_config_dict(metadata)
     operator = load_operator(metadata["operator_name"])
-    deployable_path = operator.deploy(
-        bento_bundle,
-        metadata["deployment_name"],
-        spec,
-    )
+    deployable_path = operator.deploy(bento_bundle, metadata["deployment_name"], spec,)
 
     # the bcdt config for deployable
     bcdt_config = {
@@ -47,11 +42,7 @@ def deploy_bundle(bento_bundle, **metadata):
 def update_deployment(bento_bundle, **metadata):
     metadata, spec = build_config_dict(metadata)
     operator = load_operator(metadata["operator_name"])
-    deployable_path = operator.update(
-        bento_bundle,
-        metadata["deployment_name"],
-        spec,
-    )
+    deployable_path = operator.update(bento_bundle, metadata["deployment_name"], spec,)
 
     # the bcdt config for deployable
     bcdt_config = {

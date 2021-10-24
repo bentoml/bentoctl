@@ -1,19 +1,18 @@
-import os
 import json
-import tempfile
-from pathlib import Path
-import typing as t
+import os
 import re
 import shutil
+import tempfile
+import typing as t
 import zipfile
 from collections import namedtuple
-from urllib.request import urlopen, Request
+from pathlib import Path
+from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
 
-from .operator_loader import Operator
 from .exceptions import OperatorExists, OperatorNotFound
-
+from .operator_loader import Operator
 
 BCDT_HOME = os.path.expanduser("~/bcdt")
 MAIN_BRANCH = "deployers"
@@ -57,7 +56,7 @@ class OperatorManager:
         return op(op_path, op_repo_url)
 
     def _write_to_file(self):
-        with open(self.operator_file, 'w') as f:
+        with open(self.operator_file, "w") as f:
             json.dump(self.ops_list, f)
 
     def add(self, op_name, op_path, op_repo_url=None):

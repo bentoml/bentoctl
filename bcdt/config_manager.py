@@ -7,8 +7,7 @@ import cerberus
 import yaml
 
 from bcdt.exceptions import InvalidConfig
-from bcdt.operator_loader import Operator
-from bcdt.operator_manager import LocalOpsManager
+from bcdt.operator import Operator, LocalOpsManager
 
 
 def load_json_config(config_path):
@@ -89,7 +88,7 @@ def _input_with_prefill(prompt, default_value=None):
     result = input(prompt)
     readline.set_pre_input_hook()
 
-    if result == '':
+    if result == "":
         return None
     return result
 

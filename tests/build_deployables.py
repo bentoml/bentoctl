@@ -6,7 +6,7 @@ import bcdt.deployment_store as ds
 async def build_deployables(operator, deployment):
     for i in range(3):
         print(f"adding {operator}/{deployment}/{i}")
-        os.mkdir('test')
+        os.mkdir("test")
         ds.add(operator, deployment, "test")
         await asyncio.sleep(70)
 

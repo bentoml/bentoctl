@@ -6,7 +6,6 @@ from bentoml.types import JsonSerializable, FileLike
 
 @env(infer_pip_packages=True)
 class TestService(BentoService):
-
     @api(input=DataframeInput(), batch=True)
     def dfapi(self, df):
         print(df)

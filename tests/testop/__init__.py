@@ -13,10 +13,7 @@ DEFAULT_FIELDS = {
 }
 CONFIG_SCHEMA = {
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
-    "project_id": {
-        "required": True,
-        "type": "string",
-    },
+    "project_id": {"required": True, "type": "string",},
     "max_instances": {
         "required": False,
         "type": "integer",

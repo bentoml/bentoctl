@@ -2,8 +2,12 @@ import click
 
 from bcdt.cli.operator_management import get_operator_management_subcommands
 from bcdt.deployment_store import list_deployments, prune
-from bcdt.ops import (delete_deployment, deploy_bundle, describe_deployment,
-                      update_deployment)
+from bcdt.ops import (
+    delete_deployment,
+    deploy_bundle,
+    describe_deployment,
+    update_deployment,
+)
 from bcdt.utils import print_deployments_list
 
 
@@ -31,10 +35,7 @@ def deploy(bento_bundle, name, config, operator):
     Deploy a bentoml bundle to cloud.
     """
     deploy_bundle(
-        bento_bundle,
-        deployment_name=name,
-        config_path=config,
-        operator_name=operator,
+        bento_bundle, deployment_name=name, config_path=config, operator_name=operator,
     )
 
 
