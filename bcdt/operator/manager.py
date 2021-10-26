@@ -45,6 +45,7 @@ class OperatorManager:
     def __init__(self, path):
         self.path = Path(path)
         self.operator_file = self.path / "operator_list.json"
+        self.ops_list = {}
         if self.operator_file.exists():
             self.ops_list = json.loads(self.operator_file.read_text())
 
@@ -142,7 +143,19 @@ def _download_url(url, dest):
             os.remove(f.name)
 
 
-def _download_repo(repo_url, operator_dir_name):
+def _download_repo(repo_url: str, operator_dir_name: str) -> str:
+    """
+    Download the `repo_url` and put it in the home operator directory with
+    the `operator_dir_name`.
+
+    Args:
+        repo_url: github archive url that points to the repo.
+        operator_dir_name: the name of the directory that will be created for in
+            BCDT_HOME/operators.
+
+    Returns:
+        operator_dir: the directory to which the repo has been downloaded and saved.
+    """
     print(f"downloading {repo_url}...")
     # find default location
     bcdt_home = _get_bcdt_home()
