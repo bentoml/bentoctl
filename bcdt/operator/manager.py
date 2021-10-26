@@ -11,19 +11,13 @@ from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
 
-from .exceptions import OperatorExists, OperatorNotFound
-from .operator_loader import Operator
-
-BCDT_HOME = os.path.expanduser("~/bcdt")
-MAIN_BRANCH = "deployers"
-OFFICIAL_OPERATORS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
-
-github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
-op = namedtuple("Operator", ["op_path", "op_repo_url"])
+from bcdt.exceptions import OperatorExists, OperatorNotFound
+from bcdt.operator import Operator
 
 
 def _get_bcdt_home():
-    bcdt_home = Path(os.environ.get("BCDT_HOME", BCDT_HOME))
+    default_bcdt_home = os.path.expanduser("~/bcdt")
+    bcdt_home = Path(os.environ.get("BCDT_HOME", default_bcdt_home))
     # if not present create bcdt and bcdt/operators dir
     if not bcdt_home.exists():
         os.mkdir(bcdt_home)
@@ -37,6 +31,14 @@ def _get_bcdt_home():
         os.mkdir(deployments_home)
 
     return bcdt_home
+
+
+MAIN_BRANCH = "deployers"
+OFFICIAL_OPERATORS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
+BCDT_HOME = os.path.expanduser(_get_bcdt_home())
+
+github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
+op = namedtuple("Operator", ["op_path", "op_repo_url"])
 
 
 class OperatorManager:
