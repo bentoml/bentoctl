@@ -61,6 +61,9 @@ def fill_defaults(configs, default_config):
 
 
 def choose_operator():
+    """
+    interactive
+    """
     available_operators = LocalOpsManager.list().keys()
     print("Available operators:")
     print("\n".join(available_operators))
@@ -121,7 +124,7 @@ def _validate_spec(spec: Dict, schema: Dict):
     return validated_spec
 
 
-def _interactive_config_builder(schema):
+def deployment_spec_builder(bento_bundle, name=None, operator=None):
     v = cerberus.Validator()
     spec = {}
     for field, rule in schema.items():
@@ -135,36 +138,3 @@ def _interactive_config_builder(schema):
                 break
 
     return spec
-
-
-def build_config_dict(metadata):
-    """
-    Build the config_dict needed for deployment to the provided service. Prompt the
-    user for configs that are required but not provided and use the default configs
-    from the operator to populate all the others.
-    """
-    if metadata["deployment_name"] is None:
-        metadata["deployment_name"] = input("Enter a Name for deployment: ")
-
-    if metadata["operator_name"] is not None:
-        operator_name = metadata["operator_name"]
-    else:
-        operator_name = choose_operator()
-        metadata["operator_name"] = operator_name
-
-    # lets load the spec
-    operator = Operator(LocalOpsManager.get(operator_name).op_path)
-    if metadata["config_path"] is not None:
-        config_path = Path(metadata["config_path"])
-
-        if not config_path.exists():
-            raise FileNotFoundError(
-                "the config file {} is not found!".format(config_path)
-            )
-
-        spec = parse_config_file(config_path)
-        spec = _validate_spec(spec, operator.config_schema)
-    else:  # start interactive mode
-        spec = _interactive_config_builder(operator.config_schema)
-
-    return metadata, spec

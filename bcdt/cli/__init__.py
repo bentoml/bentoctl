@@ -1,4 +1,5 @@
 import click
+import argparse
 
 from bcdt.cli.operator_management import get_operator_management_subcommands
 from bcdt.deployment_store import list_deployments, prune
@@ -8,6 +9,7 @@ from bcdt.ops import (
     describe_deployment,
     update_deployment,
 )
+from bcdt.cli.cli_interactive_manager import deployment_spec_builder
 from bcdt.utils import print_deployments_list
 
 
@@ -15,28 +17,54 @@ from bcdt.utils import print_deployments_list
 def bcdt():
     pass
 
-
-@bcdt.command()
+@bcdt.command(name="generate")
 @click.option(
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
 @click.option(
-    "--config",
+    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
+)
+@click.option("bento_bundle", required=True)
+def generate_spec(bento_bundle, deployment_name=None, operator=None):
+    yaml_file_path = deployment_spec_builder(bento_bundle, deployment_name, operator)
+    return yaml_file_path
+
+@bcdt.command()
+@click.option(
+    "--spec-yaml",
     "-c",
     type=click.Path(exists=True),
     help="Path to config file for deployment",
 )
 @click.option(
+    "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
+)
+@click.option(
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
-@click.argument("bento_bundle")
-def deploy(bento_bundle, name, config, operator):
+@click.option("bento_bundle")
+@click.option("-show-deployment-details", flag=True)
+def deploy(spec_yaml, bento_bundle, name, operator, show_deployment_details):
     """
     Deploy a bentoml bundle to cloud.
+    1. if interactive mode. call the interactive setup manager
+    2. validate
+    3. call deploy_bento
+    4. display results from deploy_bento
     """
-    deploy_bundle(
-        bento_bundle, deployment_name=name, config_path=config, operator_name=operator,
-    )
+    try:
+        if spec_yaml is None:
+            ## bcdt deploy bento_tag --operator awslambda --min-instance 1 --max-instance 2
+            if bento_bundle is None:
+                raise Exception('need bundle')
+            spec_yaml = deployment_spec_builder(bento_bundle, name, operator, additional_args)
+        bcdt.deploy(spec_yaml)
+        click.echo('Successful deployment')
+        if show_deployment_details:
+            info_json = bcdt.describe(spec_yaml)
+            pprint(info_json)
+    except BcdtBaseException:
+        raise BcdtCLIException("deploy failed")
 
 
 @bcdt.command()
