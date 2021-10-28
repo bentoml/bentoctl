@@ -4,41 +4,10 @@ from pathlib import Path
 from typing import Dict, List
 
 import cerberus
+import click
 import yaml
 
-from bcdt.exceptions import InvalidConfig
-from bcdt.operator import Operator, LocalOpsManager
-
-
-def load_json_config(config_path):
-    config_dict = json.loads(config_path.read_text())
-
-    return config_dict
-
-
-def load_yaml_config(config_path):
-    config_dict = yaml.safe_load(config_path.read_text())
-
-    return config_dict
-
-
-def dump_yaml_config(data, yaml_path):
-    with open(yaml_path, "w") as f:
-        yaml.dump(data, f)
-
-
-def parse_config_file(config_file):
-    if config_file.suffix == ".json":
-        config_dict = json.loads(config_file.read_text())
-    elif config_file.suffix in [".yaml", ".yml"]:
-        config_dict = yaml.safe_load(config_file.read_text())
-    else:
-        raise Exception("Incorrect config file")
-
-    # currently there is only 1 version for config
-    assert config_dict["apiVersion"] == "v1"
-
-    return config_dict["spec"]
+from bcdt.operator import LocalOpsManager, Operator
 
 
 def fill_defaults(configs, default_config):
@@ -112,24 +81,29 @@ def fill_defaults_fields(default_fields: Dict):
     return default_fields
 
 
-def _validate_spec(spec: Dict, schema: Dict):
+def fill_metadata(bento_bundle, name, operator):
+    if bento_bundle is None:
+        bento_bundle = click.prompt("Path to bento bundle", type=click.Path())
+    if name is None:
+        name = click.prompt("Deployment name")
+    if operator is None:
+        operator = choose_operator()
+
+    return {"name": name, "operator": operator, "bento_bundle": bento_bundle}
+
+
+def deployment_spec_builder(bento_bundle, name, operator):
     """
-    validate the schema using cerberus.
+    Interactively build the deployment spec.
     """
-    v = cerberus.Validator()
-    validated_spec = v.validated(spec, schema=schema)
-    if validated_spec is None:
-        raise InvalidConfig(v.errors)
-
-    return validated_spec
-
-
-def deployment_spec_builder(bento_bundle, name=None, operator=None):
+    metadata = fill_metadata(bento_bundle, name, operator)
+    op_path, _ = LocalOpsManager.get(metadata["operator"])
+    op = Operator(op_path)
     v = cerberus.Validator()
     spec = {}
-    for field, rule in schema.items():
+    for field, rule in op.operator_schema.items():
         while True:
-            val = _input_with_prefill(f"{field }: ", rule.get("default"))
+            val = _input_with_prefill(f"{field} : ", rule.get("default"))
             validated_field = v.validated({field: val}, schema={field: rule})
             if validated_field is None:
                 print(f"value is incorrect: {v.errors}")
@@ -137,4 +111,21 @@ def deployment_spec_builder(bento_bundle, name=None, operator=None):
                 spec.update(validated_field)
                 break
 
-    return spec
+    deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
+    return deployment_spec
+
+
+def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.yaml"):
+    spec_path = Path(save_path, filename)
+
+    if spec_path.exists():
+        overide = click.confirm("deployment spec file exists! Should I overide?")
+        if overide:
+            spec_path.unlink()
+        else:
+            return spec_path
+
+    with open(spec_path, "w") as f:
+        yaml.dump(deployment_spec, f)
+
+    return spec_path

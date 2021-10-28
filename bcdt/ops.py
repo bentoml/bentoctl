@@ -1,66 +1,45 @@
+import typing as t
+
 from rich.pretty import pprint
 
-from bcdt.cli.config_manager import build_config_dict
-from bcdt.deployment_store import LocalStore
-from bcdt.exceptions import OperatorNotFound
+from bcdt.deploymentspec import DeploymentSpec
 from bcdt.operator import LocalOpsManager, Operator
-from bcdt.utils import load_bento
 
 
-def load_operator(operator_name):
-    try:
-        operator_path = LocalOpsManager.get(operator_name).op_path
-    except OperatorNotFound:
-        print(
-            f"the operator {operator_name} is not added. Please run "
-            "'bcdt operator list' to get the list of all the operator available."
-        )
-        raise OperatorNotFound
-    return Operator(operator_path)
+def load_spec(spec_path):
+    deployment_spec = DeploymentSpec.from_spec_file(spec_path)
+    operator_path = LocalOpsManager.get(deployment_spec.operator_name).op_path
+    operator = Operator(operator_path)
+    operator_schema = operator.operator_schema
+    operator_spec = deployment_spec.validate_spec(operator_schema)
+
+    return operator, deployment_spec, operator_spec
 
 
-def deploy(deployment_spec: dict):
-    try:
-        operator = load_operator(deployment_spec['operator'])
-        operator_schema = load_operator_schema(operator)
-        validate(deployment_spec, operator_schema)
-        bento_path = load_bento(deployment_spec['bento'])
-        operator.deploy(bento_path, deployment_spec['name'], deployment_spec['spec'])
-        return
-    except BCDTBaseException:
-        raise BcdtException("deploy failed: %s", BCDTBaseException)
-
-
-def update(bento_bundle, **metadata):
-    metadata, spec = build_config_dict(metadata)
-    operator = load_operator(metadata["operator_name"])
-    deployable_path = operator.update(bento_bundle, metadata["deployment_name"], spec,)
-
-    # the bcdt config for deployable
-    bcdt_config = {
-        "appVersion": "v1",
-        "metadata": metadata,
-        "spec": spec,
-    }
-
-    # add to localstore
-    LocalStore.add(
-        metadata["operator_name"],
-        metadata["deployment_name"],
-        deployable_path,
-        bcdt_config,
+def deploy_spec(deployment_spec_path):
+    op, deployment_spec, operator_spec = load_spec(deployment_spec_path)
+    op.deploy(
+        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
     )
 
 
-def describe(deployment_spec):
-    metadata, spec = build_config_dict(metadata)
-    operator = load_operator(metadata["operator_name"])
-    info_json = operator.describe(metadata["deployment_name"], spec)
-    pprint(info_json)
+def update_spec(deployment_spec_path):
+    op, deployment_spec, operator_spec = load_spec(deployment_spec_path)
+    op.deploy(
+        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+    )
 
 
-def delete(**metadata):
-    metadata, spec = build_config_dict(metadata)
-    operator = load_operator(metadata["operator_name"])
-    operator.delete(metadata["deployment_name"], spec)
-    LocalStore.prune_deployment(metadata["operator_name"], metadata["deployment_name"])
+def describe_spec(deployment_spec_path):
+    op, deployment_spec, operator_spec = load_spec(deployment_spec_path)
+    info_json = op.describe(
+        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+    )
+    return info_json
+
+
+def delete_spec(deployment_spec_path):
+    op, deployment_spec, operator_spec = load_spec(deployment_spec_path)
+    op.delete(
+        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+    )

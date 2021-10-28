@@ -4,7 +4,7 @@ from .describe import describe
 from .delete import delete
 
 OPERATOR_NAME = "testop"
-CONFIG_SCHEMA = {
+OPERATOR_SCHEMA = {
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
     "project_id": {"required": True, "type": "string",},
     "max_instances": {
