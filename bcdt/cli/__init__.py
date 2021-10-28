@@ -56,14 +56,7 @@ def deploy(deployment_spec, name, operator, bento_bundle, describe):
 
 
 @bcdt.command()
-@click.option(
-    "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
-)
-@click.option(
-    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
-)
-@click.option("--bento_bundle", "-b", type=click.STRING)
-@click.argument("deployment_spec", type=click.Path(), required=False)
+@click.argument("deployment_spec", type=click.Path())
 def update(deployment_spec, name, bento_bundle, operator):
     """
     Update deployments.
@@ -81,13 +74,7 @@ def delete(deployment_spec, name, operator):
 
 
 @bcdt.command()
-@click.option(
-    "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
-)
-@click.option(
-    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
-)
-@click.argument("deployment_spec", type=click.Path(), required=False)
+@click.argument("deployment_spec", type=click.Path())
 def describe(deployment_spec, name, operator):
     """
     Shows the discription any deployment made.

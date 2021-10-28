@@ -31,6 +31,8 @@ To activate tab completion for you shell, source the script in
      
      ```
      bcdt deploy
+     # or
+     bcdt deploy --name test --operator testop --bento_bundle .
      ```
 
      fill in the values requested and it will create a deployment_spec.yaml file
