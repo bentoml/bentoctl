@@ -6,7 +6,7 @@ from rich.pretty import pprint
 
 from bcdt.cli.interactive import deployment_spec_builder, save_deployment_spec
 from bcdt.cli.operator_management import get_operator_management_subcommands
-from bcdt.deploymentspec import DeploymentSpec
+from bcdt.deployment_spec import DeploymentSpec
 from bcdt.exceptions import BCDTBaseException
 from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
 

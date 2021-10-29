@@ -1,39 +1,18 @@
-import json
 import readline
 from pathlib import Path
-from typing import Dict, List
 
 import cerberus
 import click
 import yaml
 
-from bcdt.operator import LocalOpsManager, Operator
+from bcdt.operator import LocalOperatorManager, Operator
 
 
-def fill_defaults(configs, default_config):
-    """
-    Fill out all the required and default configs for the selected deployment into
-    `configs`
-    """
-    config_dict = {}
-    for k, v in default_config.items():
-        if k not in configs and v == "":
-            value = input(f"Enter value for {k}: ")
-            config_dict[k] = value
-        elif k not in configs:
-            config_dict[k] = v
-        else:
-            config_dict[k] = configs[k]
-
-    configs["config_dict"] = config_dict
-    return configs
-
-
-def choose_operator():
+def choose_operator_from_list():
     """
     interactive
     """
-    available_operators = LocalOpsManager.list().keys()
+    available_operators = LocalOperatorManager.list().keys()
     print("Available operators:")
     print("\n".join(available_operators))
     operator_name = input("operator name of choice: ")
@@ -45,7 +24,7 @@ def choose_operator():
     return operator_name
 
 
-def _input_with_prefill(prompt, default_value=None):
+def _input_with_default_value(prompt, default_value=None):
     def hook():
         def _hook():
             readline.insert_text(str(default_value))
@@ -65,29 +44,13 @@ def _input_with_prefill(prompt, default_value=None):
     return result
 
 
-def fill_required_fields(required_fields: List):
-    required_vals = {}
-
-    for field in required_fields:
-        required_vals[field] = input(f"{field }: ")
-
-    return required_vals
-
-
-def fill_defaults_fields(default_fields: Dict):
-    for field in default_fields:
-        default_fields[field] = _input_with_prefill(f"{field}: ", default_fields[field])
-
-    return default_fields
-
-
-def fill_metadata(bento_bundle, name, operator):
+def generate_metadata(bento_bundle, name, operator):
     if bento_bundle is None:
         bento_bundle = click.prompt("Path to bento bundle", type=click.Path())
     if name is None:
         name = click.prompt("Deployment name")
     if operator is None:
-        operator = choose_operator()
+        operator = choose_operator_from_list()
 
     return {"name": name, "operator": operator, "bento_bundle": bento_bundle}
 
@@ -96,14 +59,14 @@ def deployment_spec_builder(bento_bundle, name, operator):
     """
     Interactively build the deployment spec.
     """
-    metadata = fill_metadata(bento_bundle, name, operator)
-    op_path, _ = LocalOpsManager.get(metadata["operator"])
+    metadata = generate_metadata(bento_bundle, name, operator)
+    op_path, _ = LocalOperatorManager.get(metadata["operator"])
     op = Operator(op_path)
     v = cerberus.Validator()
     spec = {}
     for field, rule in op.operator_schema.items():
         while True:
-            val = _input_with_prefill(f"{field} : ", rule.get("default"))
+            val = _input_with_default_value(f"{field} : ", rule.get("default"))
             validated_field = v.validated({field: val}, schema={field: rule})
             if validated_field is None:
                 print(f"value is incorrect: {v.errors}")

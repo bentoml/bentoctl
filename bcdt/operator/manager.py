@@ -94,7 +94,7 @@ class OperatorManager:
         return op_path, op_repo_url
 
 
-LocalOpsManager = OperatorManager(_get_bcdt_home() / "operators")
+LocalOperatorManager = OperatorManager(_get_bcdt_home() / "operators")
 
 
 def _remove_if_exists(path):
@@ -219,7 +219,7 @@ def add_operator(user_input):
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=repo)
         operator = Operator(operator_dir)
-        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        LocalOperatorManager.add(operator.name, operator_dir, repo_url)
         return operator.name
 
     # Official Operator
@@ -229,7 +229,7 @@ def add_operator(user_input):
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=user_input)
         operator = Operator(operator_dir)
-        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        LocalOperatorManager.add(operator.name, operator_dir, repo_url)
         return operator.name
 
     # Path
@@ -241,7 +241,7 @@ def add_operator(user_input):
             print(f"Error: {e}")
             return
         else:
-            LocalOpsManager.add(operator.name, user_input)
+            LocalOperatorManager.add(operator.name, user_input)
             return operator.name
 
     # Github Repo
@@ -250,7 +250,7 @@ def add_operator(user_input):
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
-        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        LocalOperatorManager.add(operator.name, operator_dir, repo_url)
         return operator.name
 
     # Git Url
@@ -260,20 +260,20 @@ def add_operator(user_input):
         repo_url = _github_archive_link(owner, repo)
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
-        LocalOpsManager.add(operator.name, operator_dir, repo_url)
+        LocalOperatorManager.add(operator.name, operator_dir, repo_url)
         return operator.name
 
     return None
 
 
 def list_operators():
-    operators_list = LocalOpsManager.list()
+    operators_list = LocalOperatorManager.list()
     pprint(operators_list)
 
 
 def remove_operator(name):
     print(f"Removing {name} ..")
-    op_path, op_repo_url = LocalOpsManager.remove(name)
+    op_path, op_repo_url = LocalOperatorManager.remove(name)
     if op_repo_url is not None:  # remove repo dir only if op was downloaded.
         shutil.rmtree(op_path)
 
@@ -281,16 +281,16 @@ def remove_operator(name):
 
 
 def update_operator(name):
-    if LocalOpsManager.get(name).op_path is None:
+    if LocalOperatorManager.get(name).op_path is None:
         print("Operator is a local installation and hence cannot be updated.")
         return
     temp_dir = tempfile.mkdtemp()
-    operator_path, repo_url = LocalOpsManager.get(name)
+    operator_path, repo_url = LocalOperatorManager.get(name)
     shutil.move(operator_path, temp_dir)
     try:
         op_path = _download_repo(repo_url, name)
         operator = Operator(op_path)
-        LocalOpsManager.update(operator.name, op_path, repo_url)
+        LocalOperatorManager.update(operator.name, op_path, repo_url)
     except Exception:
         shutil.move(temp_dir, operator_path)
         raise

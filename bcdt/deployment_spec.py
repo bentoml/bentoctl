@@ -4,33 +4,11 @@ import typing as t
 from pathlib import Path
 
 import cerberus
+import click
 import yaml
 
 from bcdt.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
-from bcdt.operator import LocalOpsManager
-
-
-def load_json_config(config_path):
-    config_dict = json.loads(config_path.read_text())
-
-    return config_dict
-
-
-def load_yaml_config(config_path):
-    config_dict = yaml.safe_load(config_path.read_text())
-
-    return config_dict
-
-
-def parse_config_file(config_file):
-    if config_file.suffix == ".json":
-        config_dict = json.loads(config_file.read_text())
-    elif config_file.suffix in [".yaml", ".yml"]:
-        config_dict = yaml.safe_load(config_file.read_text())
-    else:
-        raise Exception("Incorrect config file")
-
-    return config_dict["spec"]
+from bcdt.operator import LocalOperatorManager
 
 
 def load_bento(bundle: t.Union[str, Path]):
@@ -53,7 +31,7 @@ class DeploymentSpec:
         self.bundle_path = load_bento(metadata.get("bento_bundle"))
 
         # check `operator`
-        if metadata.get("operator") not in LocalOpsManager.list():
+        if metadata.get("operator") not in LocalOperatorManager.list():
             raise InvalidDeploymentSpec("operator not found")
         self.operator_name = metadata.get("operator")
 
@@ -65,7 +43,7 @@ class DeploymentSpec:
         self.deployment_spec = deployment_spec
 
     @classmethod
-    def from_spec_file(cls, file_path: t.Union[str, Path]):
+    def from_file(cls, file_path: t.Union[str, Path]):
         file_path = Path(file_path)
         try:
             if not file_path.exists():
@@ -83,7 +61,7 @@ class DeploymentSpec:
 
         return cls(config_dict)
 
-    def validate_spec(self, operator_schema):
+    def validate_operator_spec(self, operator_schema):
         """
         validate the schema using cerberus and show errors properly.
         """
