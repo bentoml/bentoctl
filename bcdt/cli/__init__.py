@@ -24,7 +24,10 @@ def generate():
     """
     deployment_spec = deployment_spec_builder()
     dspec = DeploymentSpec(deployment_spec)
-    deployment_spec = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+    spec_path = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+    console.print(
+        f"[green]deployment spec generated to: {spec_path.relative_to(Path.cwd())}[/]"
+    )
 
 
 @bcdt.command()

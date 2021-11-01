@@ -108,6 +108,7 @@ deployment. Fill out the appropriate values for the fields.
                 intended_print(f"{field}: {validated_field[field]}", indent=1)
                 break
 
+    print()  # blank line to sperate
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
 
