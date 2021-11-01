@@ -4,6 +4,12 @@ class BCDTBaseException(Exception):
     Each custom exception is derived from this base class.
     """
 
+    def show(self):
+        """
+        used by CLI to generate a user readable error message.
+        """
+        print(self)
+
 
 class OperatorExists(BCDTBaseException):
     """
@@ -19,7 +25,13 @@ class OperatorNotFound(BCDTBaseException):
     """
 
 
-class InvalidConfig(BCDTBaseException):
+class InvalidDeploymentSpec(BCDTBaseException):
     """
     Invalid bcdt config.
+    """
+
+
+class DeploymentSpecNotFound(BCDTBaseException):
+    """
+    When deployment spec is not found.
     """

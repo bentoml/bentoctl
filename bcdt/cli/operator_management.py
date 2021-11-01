@@ -1,6 +1,6 @@
 import click
 
-from bcdt.operator_manager import (
+from bcdt.operator.manager import (
     add_operator,
     list_operators,
     remove_operator,

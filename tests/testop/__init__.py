@@ -4,14 +4,7 @@ from .describe import describe
 from .delete import delete
 
 OPERATOR_NAME = "testop"
-REQUIRED_FIELDS = ["region"]
-DEFAULT_FIELDS = {
-    "max_instances": 3,
-    "min_instances": 1,
-    "instance_type": "m1.tiny",
-    "data_capture": False,
-}
-CONFIG_SCHEMA = {
+OPERATOR_SCHEMA = {
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
     "project_id": {"required": True, "type": "string",},
     "max_instances": {

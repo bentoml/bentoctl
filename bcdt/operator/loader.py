@@ -28,16 +28,8 @@ class Operator:
         return self.operator.OPERATOR_NAME
 
     @property
-    def default_fields(self):
-        return self.operator.DEFAULT_FIELDS
-
-    @property
-    def required_fields(self):
-        return self.operator.REQUIRED_FIELDS
-
-    @property
-    def config_schema(self):
-        return self.operator.CONFIG_SCHEMA
+    def operator_schema(self):
+        return self.operator.OPERATOR_SCHEMA
 
     def update(self, bento_bundle_path, deployment_name, config_dict):
         d_path = self.operator.update(bento_bundle_path, deployment_name, config_dict)
