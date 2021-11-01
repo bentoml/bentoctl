@@ -7,7 +7,7 @@ from bcdt.ops import update_spec as update
 
 
 # TODO
-def deploy(name: str, operator: str, bento_bundle: str, spec: str):
+def deploy(name: str, operator: str, bento: str, spec: str):
     pass
 
 

@@ -35,14 +35,14 @@ def generate():
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.option(
-    "--bento_bundle",
+    "--bento",
     "-b",
     type=click.STRING,
     help="The path to bento bundle.",
 )
 @click.option("--describe", is_flag=True)
 @click.argument("deployment_spec", type=click.Path(), required=False)
-def deploy(deployment_spec, name, operator, bento_bundle, describe):
+def deploy(deployment_spec, name, operator, bento, describe):
     """
     Deploy a bentoml bundle to cloud.
 
@@ -52,7 +52,7 @@ def deploy(deployment_spec, name, operator, bento_bundle, describe):
     """
     try:
         if deployment_spec is None:
-            deployment_spec = deployment_spec_builder(bento_bundle, name, operator)
+            deployment_spec = deployment_spec_builder(bento, name, operator)
             dspec = DeploymentSpec(deployment_spec)
             deployment_spec = save_deployment_spec(dspec.deployment_spec, Path.cwd())
             print(f"spec saved to {deployment_spec}")
@@ -68,7 +68,7 @@ def deploy(deployment_spec, name, operator, bento_bundle, describe):
 
 @bcdt.command()
 @click.argument("deployment_spec", type=click.Path())
-def update(deployment_spec, name, bento_bundle, operator):
+def update(deployment_spec, name, bento, operator):
     """
     Update deployments.
     """
