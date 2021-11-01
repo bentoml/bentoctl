@@ -17,6 +17,16 @@ def bcdt():
 
 
 @bcdt.command()
+def generate():
+    """
+    Generate the deployment spec file.
+    """
+    deployment_spec = deployment_spec_builder()
+    dspec = DeploymentSpec(deployment_spec)
+    deployment_spec = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+
+
+@bcdt.command()
 @click.option(
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )

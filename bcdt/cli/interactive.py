@@ -55,7 +55,7 @@ def generate_metadata(bento_bundle, name, operator):
     return {"name": name, "operator": operator, "bento_bundle": bento_bundle}
 
 
-def deployment_spec_builder(bento_bundle, name, operator):
+def deployment_spec_builder(bento_bundle=None, name=None, operator=None):
     """
     Interactively build the deployment spec.
     """
