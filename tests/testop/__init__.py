@@ -4,7 +4,11 @@ from .describe import describe
 from .delete import delete
 
 OPERATOR_NAME = "testop"
+<<<<<<< HEAD
 CONFIG_SCHEMA = {
+=======
+OPERATOR_SCHEMA = {
+>>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
     "project_id": {"required": True, "type": "string",},
     "max_instances": {

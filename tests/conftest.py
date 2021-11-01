@@ -13,7 +13,7 @@ TESTOP_PATH = os.path.join(os.path.dirname(__file__), "testop")
 @pytest.fixture
 def tmpoperator(tmpdir, monkeypatch):
     tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
-    monkeypatch.setattr(op.manager, "LocalOpsManager", tmpOpsManager)
+    monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
 
     yield (Path(tmpdir), op)
 

@@ -90,7 +90,11 @@ def test_operator_management_add(tmpdir, monkeypatch):
     file system.
     """
     tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
+<<<<<<< HEAD
     monkeypatch.setattr(op.manager, "LocalOpsManager", tmpOpsManager)
+=======
+    monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
+>>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
 
     assert op.manager.add_operator(TESTOP_PATH) == "testop"
     op.manager.remove_operator("testop")
@@ -130,7 +134,11 @@ def test_operator_management_add_with_url(
     tmpdir, monkeypatch, user_input, expected_repo_url
 ):
     tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
+<<<<<<< HEAD
     monkeypatch.setattr(op.manager, "LocalOpsManager", tmpOpsManager)
+=======
+    monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
+>>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
 
     def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
         """
@@ -155,7 +163,13 @@ def test_operator_management_add_with_url(
 def test_operator_management_update(mock_download_repo):
     op = mock_download_repo
     assert op.manager.add_operator("aws-lambda") == "testop"
+<<<<<<< HEAD
     creation_time = os.path.getctime(op.manager.LocalOpsManager.get("testop").op_path)
     op.manager.update_operator("testop")
     updation_time = os.path.getctime(op.manager.LocalOpsManager.get("testop").op_path)
+=======
+    creation_time = os.path.getctime(op.manager.LocalOperatorManager.get("testop").op_path)
+    op.manager.update_operator("testop")
+    updation_time = os.path.getctime(op.manager.LocalOperatorManager.get("testop").op_path)
+>>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
     assert updation_time > creation_time
