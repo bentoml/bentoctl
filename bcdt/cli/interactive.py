@@ -44,11 +44,11 @@ def _input_with_default_value(prompt, default_value=None):
 def prompt(field, default=None, help_str=None):
     default_str = "" if default is None else f"[[b]{default}[/]]"
     if help_str is not None:
-        console.print(help_str)
+        console.print(f"({help_str})")
     value = console.input(f"{field} {default_str}: ")
 
     screen_code = "\033[1A[\033[2K"
-    print(screen_code, end='')
+    print(screen_code, end="")
     return value if value != "" else None
 
 
@@ -58,7 +58,7 @@ def intended_print(string, indent=0):
     console.print(string)
 
 
-def generate_metadata(bento_bundle, name, operator):
+def generate_metadata(bento, name, operator):
     console.print("[bold]metadata: [/]")
     if name is None:
         name = prompt("Deployment name")
@@ -66,18 +66,18 @@ def generate_metadata(bento_bundle, name, operator):
     if operator is None:
         operator = choose_operator_from_list()
     intended_print(f" operator: {operator}", indent=1)
-    if bento_bundle is None:
-        bento_bundle = prompt("Path to bento bundle")
-    intended_print(f"bunto_bundle: {bento_bundle}", indent=1)
+    if bento is None:
+        bento = prompt("bento")
+    intended_print(f"bento: {bento}", indent=1)
 
-    return {"name": name, "operator": operator, "bento_bundle": bento_bundle}
+    return {"name": name, "operator": operator, "bento": bento}
 
 
-def deployment_spec_builder(bento_bundle=None, name=None, operator=None):
+def deployment_spec_builder(bento=None, name=None, operator=None):
     """
     Interactively build the deployment spec.
     """
-    console.print("[i]Interactive Deployment Spec Builder[/]")
+    console.print("[r]Interactive Deployment Spec Builder[/]")
     console.print(
         """
 [green]Welcome![/] You are now in interactive mode.
@@ -89,8 +89,8 @@ deployment. Fill out the appropriate values for the fields.
 """
     )
 
-    console.print('[b]api_version:[/] v1')
-    metadata = generate_metadata(bento_bundle, name, operator)
+    console.print("[b]api_version:[/] v1")
+    metadata = generate_metadata(bento, name, operator)
     op_path, _ = LocalOperatorManager.get(metadata["operator"])
     op = Operator(op_path)
     v = cerberus.Validator()
