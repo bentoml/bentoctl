@@ -9,6 +9,7 @@ from bcdt.cli.operator_management import get_operator_management_subcommands
 from bcdt.deployment_spec import DeploymentSpec
 from bcdt.exceptions import BCDTBaseException
 from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
+from bcdt.utils import console
 
 
 @click.group()

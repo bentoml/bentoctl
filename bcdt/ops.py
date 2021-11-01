@@ -1,7 +1,3 @@
-import typing as t
-
-from rich.pretty import pprint
-
 from bcdt.deployment_spec import DeploymentSpec
 from bcdt.operator import LocalOperatorManager, Operator
 
@@ -25,7 +21,7 @@ def deploy_spec(deployment_spec_path):
 
 def update_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    op.deploy(
+    op.update(
         deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
     )
 

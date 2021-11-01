@@ -4,7 +4,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-console = Console()
+console = Console(highlight=False)
 
 
 def show_time_diff(dt: datetime):
