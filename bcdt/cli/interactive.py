@@ -1,5 +1,6 @@
 import readline
 import sys
+
 from pathlib import Path
 
 import cerberus
@@ -9,6 +10,7 @@ from simple_term_menu import TerminalMenu
 
 from bcdt.operator import LocalOperatorManager, Operator
 from bcdt.utils import console
+
 
 
 def choose_operator_from_list():
@@ -91,6 +93,7 @@ deployment. Fill out the appropriate values for the fields.
 
     console.print("[b]api_version:[/] v1")
     metadata = generate_metadata(bento, name, operator)
+
     op_path, _ = LocalOperatorManager.get(metadata["operator"])
     op = Operator(op_path)
     v = cerberus.Validator()
@@ -109,6 +112,7 @@ deployment. Fill out the appropriate values for the fields.
                 break
 
     print()  # blank line to sperate
+
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
 
@@ -120,6 +124,7 @@ def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.y
         overide = click.confirm(
             "deployment spec file exists! Should I overide?", default=True
         )
+
         if overide:
             spec_path.unlink()
         else:

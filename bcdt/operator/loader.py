@@ -33,6 +33,7 @@ class Operator:
 
     def update(self, bento_path, deployment_name, config_dict):
         d_path = self.operator.update(bento_path, deployment_name, config_dict)
+
         return d_path
 
     def deploy(self, bento_path, deployment_name, config_dict):

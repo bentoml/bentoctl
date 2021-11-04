@@ -12,6 +12,7 @@ from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
 from bcdt.utils import console
 
 
+
 @click.group()
 def bcdt():
     pass
@@ -68,6 +69,13 @@ def deploy(deployment_spec, name, operator, bento, describe):
         # todo: handle all possible exceptions and show proper errors to user
         raise
 
+@bcdt.command()
+@click.argument("deployment_spec", type=click.Path())
+def update(deployment_spec, name, bento_bundle, operator):
+    """
+    Update deployments.
+    """
+    update_spec(deployment_spec_path=deployment_spec)
 
 @bcdt.command()
 @click.argument("deployment_spec", type=click.Path())
@@ -76,6 +84,7 @@ def update(deployment_spec, name, bento, operator):
     Update deployments.
     """
     update_spec(deployment_spec_path=deployment_spec)
+
 
 
 @bcdt.command()

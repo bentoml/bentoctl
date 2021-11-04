@@ -30,6 +30,7 @@ class DeploymentSpec:
         # check `bento`
         self.bundle_path = load_bento(metadata.get("bento"))
 
+
         # check `operator`
         if metadata.get("operator") not in LocalOperatorManager.list():
             raise InvalidDeploymentSpec("operator not found")

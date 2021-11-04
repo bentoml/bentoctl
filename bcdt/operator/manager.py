@@ -220,6 +220,7 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
+
         return operator.name
 
     # Official Operator
@@ -230,6 +231,7 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=user_input)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
+
         return operator.name
 
     # Path
@@ -242,6 +244,7 @@ def add_operator(user_input):
             return
         else:
             LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
+
             return operator.name
 
     # Github Repo
@@ -251,6 +254,7 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
+
         return operator.name
 
     # Git Url
@@ -261,6 +265,7 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
+
         return operator.name
 
     return None
