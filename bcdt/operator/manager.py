@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
+from simple_term_menu import TerminalMenu
 
 from bcdt.exceptions import OperatorExists, OperatorNotFound
 from bcdt.operator import Operator
@@ -204,14 +205,13 @@ def add_operator(user_input):
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
 
     if user_input == "INTERACTIVE_MODE":
-        print("List of all official operators:")
-        for i, operator in enumerate(OFFICIAL_OPERATORS):
-            print(f"{i+1}. {operator}")
-
-        operator_name = input("operator name to setup: ")
-        if operator_name not in OFFICIAL_OPERATORS:
-            print("error!")
-            return
+        # show a simple menu with all the available official operators
+        available_operators = list(OFFICIAL_OPERATORS.keys())
+        tmenu = TerminalMenu(
+            available_operators, title="Choose one of the Official Operators"
+        )
+        choice = tmenu.show()
+        operator_name = available_operators[choice]
 
         # install the selected operator
         operator_repo = OFFICIAL_OPERATORS[operator_name]
