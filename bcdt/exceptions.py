@@ -35,3 +35,9 @@ class DeploymentSpecNotFound(BCDTBaseException):
     """
     When deployment spec is not found.
     """
+
+
+class BCDTOperatorException(BCDTBaseException):
+    """
+    Base class for all of bcdt's operator exceptions.
+    """

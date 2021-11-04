@@ -12,6 +12,7 @@ OPERATOR_SCHEMA = {
         "type": "integer",
         "coerce": int,
         "default": 3,
+        "help_message": "Max instances for deployment. Max value is 40"
     },
     "min_instances": {
         "required": False,

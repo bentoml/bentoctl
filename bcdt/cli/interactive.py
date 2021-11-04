@@ -54,6 +54,32 @@ def prompt(field, default=None, help_str=None):
     return value if value != "" else None
 
 
+def prompt_input(validator, rule, field, default=None, help_message=None):
+    def find_how_many_lines(string_to_print):
+        return 1
+
+    line_to_remove = 0
+    default_str = "" if default is None else f"[[b]{default}[/]]"
+    if help_message is not None:
+        lines_to_print = find_how_many_lines(help_message)
+        console.print(f"({help_message})")
+        line_to_remove += lines_to_print
+    value = console.input(f"{field} {default_str}: ")
+    line_to_remove += 1
+    validated_field = validator.validated({field: value}, schema={field: rule})
+    ## TODO: fix this @jithin
+    if validated_field is None:
+        error_str = "\n".join(validator.errors[field])
+        line_to_remove += find_how_many_lines(error_str)
+        console.print(f"[red]{error_str}[/]")
+
+    screen_code = "\033[1A[\033[2K"
+    while line_to_remove > 0:
+        print(screen_code, end="")
+        line_to_remove -= 1
+    return value
+
+
 def intended_print(string, indent=0):
     indent = "    " * indent
     console.print(indent, end="")
@@ -100,16 +126,9 @@ deployment. Fill out the appropriate values for the fields.
     spec = {}
     console.print("[bold]spec: [/]")
     for field, rule in op.operator_schema.items():
-        while True:
-            val = prompt(field, rule.get("default"))
-            validated_field = v.validated({field: val}, schema={field: rule})
-            if validated_field is None:
-                error_str = "\n".join(v.errors[field])
-                console.print(f"[red]{error_str}[/]")
-            else:
-                spec.update(validated_field)
-                intended_print(f"{field}: {validated_field[field]}", indent=1)
-                break
+        value = prompt_input(v, rule, field, help_message=rule.get("help"))
+        spec.update({field: value})
+        intended_print(f"{field}: {value}", indent=1)
 
     print()  # blank line to sperate
 
