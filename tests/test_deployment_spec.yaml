@@ -1,0 +1,12 @@
+api_version: v1
+metadata:
+  bento_bundle: .
+  name: test
+  operator: testop
+spec:
+  data_capture: true
+  instance_type: m1.tiny
+  max_instances: 3
+  min_instances: 1
+  project_id: test
+  region: ap-south-1
