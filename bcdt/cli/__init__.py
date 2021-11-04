@@ -9,11 +9,26 @@ from bcdt.cli.operator_management import get_operator_management_subcommands
 from bcdt.deployment_spec import DeploymentSpec
 from bcdt.exceptions import BCDTBaseException
 from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
+from bcdt.utils import console
+
 
 
 @click.group()
 def bcdt():
     pass
+
+
+@bcdt.command()
+def generate():
+    """
+    Generate the deployment spec file.
+    """
+    deployment_spec = deployment_spec_builder()
+    dspec = DeploymentSpec(deployment_spec)
+    spec_path = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+    console.print(
+        f"[green]deployment spec generated to: {spec_path.relative_to(Path.cwd())}[/]"
+    )
 
 
 @bcdt.command()
@@ -24,14 +39,14 @@ def bcdt():
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.option(
-    "--bento_bundle",
+    "--bento",
     "-b",
     type=click.STRING,
     help="The path to bento bundle.",
 )
 @click.option("--describe", is_flag=True)
 @click.argument("deployment_spec", type=click.Path(), required=False)
-def deploy(deployment_spec, name, operator, bento_bundle, describe):
+def deploy(deployment_spec, name, operator, bento, describe):
     """
     Deploy a bentoml bundle to cloud.
 
@@ -41,7 +56,7 @@ def deploy(deployment_spec, name, operator, bento_bundle, describe):
     """
     try:
         if deployment_spec is None:
-            deployment_spec = deployment_spec_builder(bento_bundle, name, operator)
+            deployment_spec = deployment_spec_builder(bento, name, operator)
             dspec = DeploymentSpec(deployment_spec)
             deployment_spec = save_deployment_spec(dspec.deployment_spec, Path.cwd())
             print(f"spec saved to {deployment_spec}")
@@ -54,7 +69,6 @@ def deploy(deployment_spec, name, operator, bento_bundle, describe):
         # todo: handle all possible exceptions and show proper errors to user
         raise
 
-
 @bcdt.command()
 @click.argument("deployment_spec", type=click.Path())
 def update(deployment_spec, name, bento_bundle, operator):
@@ -62,6 +76,15 @@ def update(deployment_spec, name, bento_bundle, operator):
     Update deployments.
     """
     update_spec(deployment_spec_path=deployment_spec)
+
+@bcdt.command()
+@click.argument("deployment_spec", type=click.Path())
+def update(deployment_spec, name, bento, operator):
+    """
+    Update deployments.
+    """
+    update_spec(deployment_spec_path=deployment_spec)
+
 
 
 @bcdt.command()

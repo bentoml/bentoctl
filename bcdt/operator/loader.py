@@ -31,12 +31,13 @@ class Operator:
     def operator_schema(self):
         return self.operator.OPERATOR_SCHEMA
 
-    def update(self, bento_bundle_path, deployment_name, config_dict):
-        d_path = self.operator.update(bento_bundle_path, deployment_name, config_dict)
+    def update(self, bento_path, deployment_name, config_dict):
+        d_path = self.operator.update(bento_path, deployment_name, config_dict)
+
         return d_path
 
-    def deploy(self, bento_bundle_path, deployment_name, config_dict):
-        d_path = self.operator.deploy(bento_bundle_path, deployment_name, config_dict)
+    def deploy(self, bento_path, deployment_name, config_dict):
+        d_path = self.operator.deploy(bento_path, deployment_name, config_dict)
         return d_path
 
     def describe(self, deployment_name, config_dict):

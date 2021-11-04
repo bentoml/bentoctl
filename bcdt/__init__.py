@@ -6,9 +6,6 @@ from bcdt.ops import describe_spec as describe
 from bcdt.ops import update_spec as update
 
 
-# TODO
-def deploy(name: str, operator: str, bento_bundle: str, spec: str):
-    pass
 
 
 __all__ = [
