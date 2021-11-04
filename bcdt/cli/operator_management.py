@@ -9,7 +9,7 @@ from bcdt.operator.manager import (
 
 
 def get_operator_management_subcommands():
-    @click.group(name="operators")
+    @click.group(name="operator")
     def operator_management():
         """
         Commands to manage the various operators.
