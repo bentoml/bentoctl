@@ -10,10 +10,13 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
+from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorNotFound
+from bcdt.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
 from bcdt.operator import Operator
+from bcdt.utils import (console, get_github_repo_details_from_archive_link,
+                        print_operators_list)
 
 
 def _get_bcdt_home():
@@ -55,7 +58,7 @@ class OperatorManager:
 
     def get(self, op_name):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         op_path, op_repo_url = self.ops_list[op_name]
         return op(op_path, op_repo_url)
 
@@ -76,19 +79,19 @@ class OperatorManager:
             OperatorExists: There is another operator with the same name.
         """
         if op_name in self.ops_list:
-            raise OperatorExists
+            raise OperatorExists(operator_name=op_name)
         self.ops_list[op_name] = op(op_path, op_repo_url)
         self._write_to_file()
 
     def update(self, op_name, op_path, op_repo_url):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         self.ops_list[op_name] = op(op_path, op_repo_url)
         self._write_to_file()
 
     def remove(self, op_name):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         op_path, op_repo_url = self.ops_list.pop(op_name)
         self._write_to_file()
 
@@ -157,7 +160,6 @@ def _download_repo(repo_url: str, operator_dir_name: str) -> str:
     Returns:
         operator_dir: the directory to which the repo has been downloaded and saved.
     """
-    print(f"downloading {repo_url}...")
     # find default location
     bcdt_home = _get_bcdt_home()
     operator_home = os.path.join(bcdt_home, "operators")
@@ -166,7 +168,8 @@ def _download_repo(repo_url: str, operator_dir_name: str) -> str:
     operator_dir = os.path.join(operator_home, operator_dir_name)
 
     # download the repo as zipfile and extract it
-    _download_url(url=repo_url, dest=operator_dir + ".zip")
+    with console.status(f"downloading {repo_url}"):
+        _download_url(url=repo_url, dest=operator_dir + ".zip")
     with zipfile.ZipFile(operator_dir + ".zip", "r") as z:
         if os.path.exists(operator_dir):
             _remove_if_exists(operator_dir)
@@ -273,11 +276,16 @@ def add_operator(user_input):
 
 def list_operators():
     operators_list = LocalOperatorManager.list()
-    pprint(operators_list)
+    print_operators_list(operators_list)
 
 
 def remove_operator(name):
-    print(f"Removing {name} ..")
+    LocalOperatorManager.get(name)
+    proceed_with_delete = Confirm.ask(
+        f"Are you sure you want to delete '{name}' operator"
+    )
+    if not proceed_with_delete:
+        return
     op_path, op_repo_url = LocalOperatorManager.remove(name)
     if op_repo_url is not None:  # remove repo dir only if op was downloaded.
         shutil.rmtree(op_path)
@@ -286,16 +294,20 @@ def remove_operator(name):
 
 
 def update_operator(name):
-    if LocalOperatorManager.get(name).op_path is None:
-        print("Operator is a local installation and hence cannot be updated.")
-        return
+    operator_to_update = LocalOperatorManager.get(name)
+    if operator_to_update.op_repo_url is None:
+        raise OperatorIsLocal(
+            f"'{name}' is a local-installation at '{operator_to_update.op_path}' and "
+            "does not have a associated upstream URL to pull from."
+        )
     temp_dir = tempfile.mkdtemp()
-    operator_path, repo_url = LocalOperatorManager.get(name)
+    operator_path, repo_url = operator_to_update
     shutil.move(operator_path, temp_dir)
     try:
-        op_path = _download_repo(repo_url, name)
-        operator = Operator(op_path)
-        LocalOperatorManager.update(operator.name, op_path, repo_url)
+        _, repo_name, _ = get_github_repo_details_from_archive_link(repo_url)
+        op_path = _download_repo(repo_url, repo_name)
+        operator_to_update = Operator(op_path)
+        LocalOperatorManager.update(operator_to_update.name, op_path, repo_url)
     except Exception:
         shutil.move(temp_dir, operator_path)
         raise

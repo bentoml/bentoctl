@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from bcdt.exceptions import OperatorLoadException
+
 
 def _import_module(name, path):
     import importlib.util
@@ -21,7 +23,10 @@ class Operator:
             raise ValueError("path should be a valid directory")
 
         # load the operator
-        self.operator = _import_module(self.path.name, self.path / "__init__.py")
+        try:
+            self.operator = _import_module(self.path.name, self.path / "__init__.py")
+        except Exception as e:
+            raise OperatorLoadException(f"Failed to load operator - {e}")
 
     @property
     def name(self):
