@@ -8,7 +8,7 @@ import click
 import yaml
 
 from bcdt.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
-from bcdt.operator import LocalOperatorManager
+from bcdt.operator.manager import LocalOperatorManager
 
 
 def load_bento(bundle: t.Union[str, Path]):
