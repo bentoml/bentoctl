@@ -8,7 +8,8 @@ import click
 import yaml
 from simple_term_menu import TerminalMenu
 
-from bcdt.operator import LocalOperatorManager, Operator
+from bcdt.operator import Operator
+from bcdt.operator.manager import LocalOperatorManager
 from bcdt.utils import console
 
 
