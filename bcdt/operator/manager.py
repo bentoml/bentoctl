@@ -10,9 +10,13 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from rich.pretty import pprint
+from rich.prompt import Confirm
+from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorNotFound
+from bcdt.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
 from bcdt.operator import Operator
+from bcdt.utils import (console, get_github_repo_details_from_archive_link,
+                        print_operators_list)
 
 
 def _get_bcdt_home():
@@ -54,7 +58,7 @@ class OperatorManager:
 
     def get(self, op_name):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         op_path, op_repo_url = self.ops_list[op_name]
         return op(op_path, op_repo_url)
 
@@ -75,19 +79,19 @@ class OperatorManager:
             OperatorExists: There is another operator with the same name.
         """
         if op_name in self.ops_list:
-            raise OperatorExists
+            raise OperatorExists(operator_name=op_name)
         self.ops_list[op_name] = op(op_path, op_repo_url)
         self._write_to_file()
 
     def update(self, op_name, op_path, op_repo_url):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         self.ops_list[op_name] = op(op_path, op_repo_url)
         self._write_to_file()
 
     def remove(self, op_name):
         if op_name not in self.ops_list:
-            raise OperatorNotFound
+            raise OperatorNotFound(operator_name=op_name)
         op_path, op_repo_url = self.ops_list.pop(op_name)
         self._write_to_file()
 
@@ -156,7 +160,6 @@ def _download_repo(repo_url: str, operator_dir_name: str) -> str:
     Returns:
         operator_dir: the directory to which the repo has been downloaded and saved.
     """
-    print(f"downloading {repo_url}...")
     # find default location
     bcdt_home = _get_bcdt_home()
     operator_home = os.path.join(bcdt_home, "operators")
@@ -165,7 +168,8 @@ def _download_repo(repo_url: str, operator_dir_name: str) -> str:
     operator_dir = os.path.join(operator_home, operator_dir_name)
 
     # download the repo as zipfile and extract it
-    _download_url(url=repo_url, dest=operator_dir + ".zip")
+    with console.status(f"downloading {repo_url}"):
+        _download_url(url=repo_url, dest=operator_dir + ".zip")
     with zipfile.ZipFile(operator_dir + ".zip", "r") as z:
         if os.path.exists(operator_dir):
             _remove_if_exists(operator_dir)
@@ -204,14 +208,13 @@ def add_operator(user_input):
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
 
     if user_input == "INTERACTIVE_MODE":
-        print("List of all official operators:")
-        for i, operator in enumerate(OFFICIAL_OPERATORS):
-            print(f"{i+1}. {operator}")
-
-        operator_name = input("operator name to setup: ")
-        if operator_name not in OFFICIAL_OPERATORS:
-            print("error!")
-            return
+        # show a simple menu with all the available official operators
+        available_operators = list(OFFICIAL_OPERATORS.keys())
+        tmenu = TerminalMenu(
+            available_operators, title="Choose one of the Official Operators"
+        )
+        choice = tmenu.show()
+        operator_name = available_operators[choice]
 
         # install the selected operator
         operator_repo = OFFICIAL_OPERATORS[operator_name]

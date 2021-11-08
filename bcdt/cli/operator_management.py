@@ -6,10 +6,11 @@ from bcdt.operator.manager import (
     remove_operator,
     update_operator,
 )
+from bcdt.exceptions import BCDTBaseException
 
 
 def get_operator_management_subcommands():
-    @click.group(name="operators")
+    @click.group(name="operator")
     def operator_management():
         """
         Commands to manage the various operators.
@@ -29,11 +30,14 @@ def get_operator_management_subcommands():
         """
         Add operators.
         """
-        operator_name = add_operator(name)
-        if operator_name is not None:
-            print(f"Added {operator_name}")
-        else:
-            print(f"Error adding operator {name}. Please check docs.")
+        try:
+            operator_name = add_operator(name)
+            if operator_name is not None:
+                click.echo(f"Added {operator_name}!")
+            else:
+                print(f"Error adding operator {name}.")
+        except BCDTBaseException as e:
+            e.show()
 
     @operator_management.command()
     @click.argument("name", type=click.STRING)
@@ -41,7 +45,12 @@ def get_operator_management_subcommands():
         """
         Remove operators.
         """
-        remove_operator(name)
+        try:
+            op_name = remove_operator(name)
+            if op_name is not None:
+                click.echo(f"operator '{op_name}' removed!")
+        except BCDTBaseException as e:
+            e.show()
 
     @operator_management.command()
     @click.argument("name")
@@ -49,6 +58,10 @@ def get_operator_management_subcommands():
         """
         Update an operator given its name.
         """
-        update_operator(name)
+        try:
+            update_operator(name)
+            click.echo(f"operator '{name}' updated!")
+        except BCDTBaseException as e:
+            e.show()
 
     return operator_management

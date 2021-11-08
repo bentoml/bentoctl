@@ -1,5 +1,6 @@
 from bcdt.deployment_spec import DeploymentSpec
-from bcdt.operator import LocalOperatorManager, Operator
+from bcdt.operator import Operator
+from bcdt.operator.manager import LocalOperatorManager
 
 
 def load_deployment_spec(spec_path):

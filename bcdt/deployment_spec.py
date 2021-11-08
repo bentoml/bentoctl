@@ -81,6 +81,7 @@ class DeploymentSpec:
         return validated_spec
 
     def save(self, save_path, filename="deployment_spec.yaml"):
+        overide = False
         spec_path = Path(save_path, filename)
 
         if spec_path.exists():
