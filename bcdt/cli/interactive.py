@@ -5,8 +5,11 @@ from pathlib import Path
 import cerberus
 import click
 import yaml
+from rich.control import Control
+from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
+from bcdt.deployment_spec import metadata_schema
 from bcdt.operator import LocalOperatorManager, Operator
 from bcdt.utils import console
 
@@ -41,15 +44,55 @@ def _input_with_default_value(prompt, default_value=None):
     return result
 
 
-def prompt(field, default=None, help_str=None):
-    default_str = "" if default is None else f"[[b]{default}[/]]"
-    if help_str is not None:
-        console.print(f"({help_str})")
-    value = console.input(f"{field} {default_str}: ")
+class PromptMsg:
+    def __init__(self, help_msg, val_error=None):
+        self.help_msg = help_msg
+        self.val_error = val_error
 
-    screen_code = "\033[1A[\033[2K"
-    print(screen_code, end="")
-    return value if value != "" else None
+    def __rich_console__(self, console, options):
+        if self.help_msg is not None:
+            yield f"[grey50]Help: {self.help_msg}[/]"
+        if self.val_error is not None:
+            yield f"[red]Validation Error: {self.val_error}[/]"
+
+
+def clear_console(num_lines):
+    """Clears the number of lines"""
+    console.print(
+        Control(
+            ControlType.CARRIAGE_RETURN,
+            (ControlType.ERASE_IN_LINE, 2),
+            *(
+                (
+                    (ControlType.CURSOR_UP, 1),
+                    (ControlType.ERASE_IN_LINE, 2),
+                )
+                * num_lines
+            ),
+        )
+    )
+
+
+def prompt_input(field, rule):
+    validator = cerberus.Validator()
+    validation_error_msg = None
+    help_message = rule.pop("help_message", None)
+    default = rule.get("default")
+    default_str = "" if default is None else f"[[b]{default}[/]]"
+    while True:
+        prompt_msg_lines = console.render_lines(
+            PromptMsg(help_message, validation_error_msg)
+        )
+        num_lines = len(prompt_msg_lines)
+        console.print(SegmentLines(prompt_msg_lines, new_lines=True))
+        value = console.input(f"{field} {default_str}: ")
+        clear_console(num_lines + 1)
+        value = value if value != "" else None
+        validated_field = validator.validated({field: value}, schema={field: rule})
+        if validated_field is None:
+            validation_error_msg = ". ".join(validator.errors[field])
+        else:
+            return validated_field[field]
 
 
 def intended_print(string, indent=0):
@@ -59,18 +102,25 @@ def intended_print(string, indent=0):
 
 
 def generate_metadata(bento, name, operator):
-    console.print("[bold]metadata: [/]")
     if name is None:
-        name = prompt("Deployment name")
+        name = prompt_input("name", metadata_schema.get("name"))
     intended_print(f"name: {name}", indent=1)
     if operator is None:
         operator = choose_operator_from_list()
-    intended_print(f" operator: {operator}", indent=1)
+    intended_print(f"operator: {operator}", indent=1)
     if bento is None:
-        bento = prompt("bento")
+        bento = prompt_input("bento", metadata_schema.get("bento"))
     intended_print(f"bento: {bento}", indent=1)
 
     return {"name": name, "operator": operator, "bento": bento}
+
+
+def generate_spec(schema):
+    spec = {}
+    for field, rule in schema.items():
+        val = prompt_input(field, rule)
+        spec.update({field: val})
+        intended_print(f"{field}: {val}", indent=1)
 
 
 def deployment_spec_builder(bento=None, name=None, operator=None):
@@ -89,26 +139,19 @@ deployment. Fill out the appropriate values for the fields.
 """
     )
 
+    # api_version
     console.print("[b]api_version:[/] v1")
+
+    # metadata
+    console.print("[bold]metadata: [/]")
     metadata = generate_metadata(bento, name, operator)
+
+    # spec
+    console.print("[bold]spec: [/]")
     op_path, _ = LocalOperatorManager.get(metadata["operator"])
     op = Operator(op_path)
-    v = cerberus.Validator()
-    spec = {}
-    console.print("[bold]spec: [/]")
-    for field, rule in op.operator_schema.items():
-        while True:
-            val = prompt(field, rule.get("default"))
-            validated_field = v.validated({field: val}, schema={field: rule})
-            if validated_field is None:
-                error_str = "\n".join(v.errors[field])
-                console.print(f"[red]{error_str}[/]")
-            else:
-                spec.update(validated_field)
-                intended_print(f"{field}: {validated_field[field]}", indent=1)
-                break
+    spec = generate_spec(op.operator_schema)
 
-    print()  # blank line to sperate
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
 
