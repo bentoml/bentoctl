@@ -10,6 +10,12 @@ import yaml
 from bcdt.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
 from bcdt.operator import LocalOperatorManager
 
+metadata_schema = {
+    "name": {"required": True, "help_message": "The name for the deployment"},
+    "operator": {"required": True},
+    "bento": {"required": True, "help_message": "bento tag | path to bento bundle"},
+}
+
 
 def load_bento(bundle: t.Union[str, Path]):
     # TODO: hook it up with bento.store and yatai
