@@ -97,7 +97,7 @@ def test_operator_management_add(tmpdir, monkeypatch):
 >>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
 
     assert op.manager.add_operator(TESTOP_PATH) == "testop"
-    op.manager.remove_operator("testop")
+    tmpOpsManager.remove("testop")
 
 
 github_url = "https://github.com/{owner}/{name}/archive/{branch}.zip"
@@ -157,7 +157,7 @@ def test_operator_management_add_with_url(
         partial(_mock_download_repo, expected_repo_url=expected_repo_url),
     )
     assert op.manager.add_operator(user_input) == "testop"
-    op.manager.remove_operator("testop")
+    tmpOpsManager.remove("testop")
 
 
 def test_operator_management_update(mock_download_repo):
