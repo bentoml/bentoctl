@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 
 import click
@@ -10,7 +9,6 @@ from bcdt.deployment_spec import DeploymentSpec
 from bcdt.exceptions import BCDTBaseException
 from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
 from bcdt.utils import console
-
 
 
 @click.group()
@@ -45,8 +43,8 @@ def generate():
     help="The path to bento bundle.",
 )
 @click.option("--describe", is_flag=True)
-@click.argument("deployment_spec", type=click.Path(), required=False)
-def deploy(deployment_spec, name, operator, bento, describe):
+@click.argument("deployment_spec_path", type=click.Path(), required=False)
+def deploy(deployment_spec_path, name, operator, bento, describe):
     """
     Deploy a bentoml bundle to cloud.
 
@@ -55,54 +53,52 @@ def deploy(deployment_spec, name, operator, bento, describe):
     3. display results from deploy_bento
     """
     try:
-        if deployment_spec is None:
+        if deployment_spec_path is None:
             deployment_spec = deployment_spec_builder(bento, name, operator)
             dspec = DeploymentSpec(deployment_spec)
-            deployment_spec = save_deployment_spec(dspec.deployment_spec, Path.cwd())
-            print(f"spec saved to {deployment_spec}")
-        deploy_spec(deployment_spec)
+            deployment_spec_path = save_deployment_spec(
+                dspec.deployment_spec, Path.cwd()
+            )
+            console.print(
+                "[green]deployment spec generated to: "
+                f"{deployment_spec_path.relative_to(Path.cwd())}[/]"
+            )
+        deploy_spec(deployment_spec_path)
         print("Successful deployment!")
         if describe:
-            info_json = describe_spec(deployment_spec)
+            info_json = describe_spec(deployment_spec_path)
             pprint(info_json)
-    except BCDTBaseException:
-        # todo: handle all possible exceptions and show proper errors to user
-        raise
+    except BCDTBaseException as e:
+        e.show()
+
 
 @bcdt.command()
-@click.argument("deployment_spec", type=click.Path())
-def update(deployment_spec, name, bento_bundle, operator):
+@click.argument("deployment_spec_path", type=click.Path())
+def update(deployment_spec_path):
     """
     Update deployments.
     """
-    update_spec(deployment_spec_path=deployment_spec)
-
-@bcdt.command()
-@click.argument("deployment_spec", type=click.Path())
-def update(deployment_spec, name, bento, operator):
-    """
-    Update deployments.
-    """
-    update_spec(deployment_spec_path=deployment_spec)
-
+    update_spec(deployment_spec_path=deployment_spec_path)
 
 
 @bcdt.command()
-@click.argument("deployment_spec", type=click.Path())
-def delete(deployment_spec, name, operator):
+@click.argument("deployment_spec_path", type=click.Path())
+def delete(deployment_spec_path):
     """
     Delete the deployments made.
     """
-    delete_spec(deployment_spec_path=deployment_spec)
+    deployment_name = delete_spec(deployment_spec_path=deployment_spec_path)
+    click.echo(f"Deleted deployment - {deployment_name}!")
 
 
 @bcdt.command()
-@click.argument("deployment_spec", type=click.Path())
-def describe(deployment_spec, name, operator):
+@click.argument("deployment_spec_path", type=click.Path())
+def describe(deployment_spec_path):
     """
     Shows the discription any deployment made.
     """
-    describe_spec(deployment_spec_path=deployment_spec)
+    info_json = describe_spec(deployment_spec_path=deployment_spec_path)
+    pprint(info_json)
 
 
 # subcommands

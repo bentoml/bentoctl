@@ -155,11 +155,7 @@ def test_operator_management_add_with_url(
 def test_operator_management_update(mock_download_repo):
     op = mock_download_repo
     assert op.manager.add_operator("aws-lambda") == "testop"
-    creation_time = os.path.getctime(
-        op.manager.LocalOperatorManager.get("testop").op_path
-    )
+    creation_time = os.path.getctime(op.manager.LocalOperatorManager.get("testop").op_path)
     op.manager.update_operator("testop")
-    updation_time = os.path.getctime(
-        op.manager.LocalOperatorManager.get("testop").op_path
-    )
+    updation_time = os.path.getctime(op.manager.LocalOperatorManager.get("testop").op_path)
     assert updation_time > creation_time
