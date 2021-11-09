@@ -15,9 +15,10 @@ def load_deployment_spec(spec_path):
 
 def deploy_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    op.deploy(
+    deployable_path = op.deploy(
         deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
     )
+    return deployable_path
 
 
 def update_spec(deployment_spec_path):
@@ -30,7 +31,7 @@ def update_spec(deployment_spec_path):
 def describe_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
     info_json = op.describe(
-        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+        deployment_spec.deployment_name, operator_spec
     )
     return info_json
 
@@ -38,5 +39,6 @@ def describe_spec(deployment_spec_path):
 def delete_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
     op.delete(
-        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+        deployment_spec.deployment_name, operator_spec
     )
+    return deployment_spec.deployment_name

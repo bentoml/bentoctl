@@ -5,8 +5,10 @@ class BCDTBaseException(Exception):
     """
 
     def show(self):
-        """used by CLI to generate a user readable error message."""
-        print(f"Error: {self}")
+        """
+        used by CLI to generate a user readable error message.
+        """
+        print(self)
 
 
 class OperatorExists(BCDTBaseException):
@@ -43,6 +45,12 @@ class OperatorLoadException(BCDTBaseException):
 
 class InvalidDeploymentSpec(BCDTBaseException):
     """Invalid bcdt config."""
+
+
+class InvalidDeploymentSpec(BCDTBaseException):
+    """
+    When deployment spec is not found.
+    """
 
 
 class DeploymentSpecNotFound(BCDTBaseException):

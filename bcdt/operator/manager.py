@@ -223,7 +223,6 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
-
         return operator.name
 
     # Official Operator
@@ -234,7 +233,6 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url=repo_url, operator_dir_name=user_input)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
-
         return operator.name
 
     # Path
@@ -247,7 +245,6 @@ def add_operator(user_input):
             return
         else:
             LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
-
             return operator.name
 
     # Github Repo
@@ -257,7 +254,6 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
-
         return operator.name
 
     # Git Url
@@ -268,7 +264,6 @@ def add_operator(user_input):
         operator_dir = _download_repo(repo_url, repo)
         operator = Operator(operator_dir)
         LocalOperatorManager.add(operator.name, os.path.abspath(operator_dir), repo_url)
-
         return operator.name
 
     return None
@@ -276,16 +271,11 @@ def add_operator(user_input):
 
 def list_operators():
     operators_list = LocalOperatorManager.list()
-    print_operators_list(operators_list)
+    pprint(operators_list)
 
 
 def remove_operator(name):
-    LocalOperatorManager.get(name)
-    proceed_with_delete = Confirm.ask(
-        f"Are you sure you want to delete '{name}' operator"
-    )
-    if not proceed_with_delete:
-        return
+    print(f"Removing {name} ..")
     op_path, op_repo_url = LocalOperatorManager.remove(name)
     if op_repo_url is not None:  # remove repo dir only if op was downloaded.
         shutil.rmtree(op_path)
@@ -294,20 +284,16 @@ def remove_operator(name):
 
 
 def update_operator(name):
-    operator_to_update = LocalOperatorManager.get(name)
-    if operator_to_update.op_repo_url is None:
-        raise OperatorIsLocal(
-            f"'{name}' is a local-installation at '{operator_to_update.op_path}' and "
-            "does not have a associated upstream URL to pull from."
-        )
+    if LocalOperatorManager.get(name).op_path is None:
+        print("Operator is a local installation and hence cannot be updated.")
+        return
     temp_dir = tempfile.mkdtemp()
-    operator_path, repo_url = operator_to_update
+    operator_path, repo_url = LocalOperatorManager.get(name)
     shutil.move(operator_path, temp_dir)
     try:
-        _, repo_name, _ = get_github_repo_details_from_archive_link(repo_url)
-        op_path = _download_repo(repo_url, repo_name)
-        operator_to_update = Operator(op_path)
-        LocalOperatorManager.update(operator_to_update.name, op_path, repo_url)
+        op_path = _download_repo(repo_url, name)
+        operator = Operator(op_path)
+        LocalOperatorManager.update(operator.name, op_path, repo_url)
     except Exception:
         shutil.move(temp_dir, operator_path)
         raise
