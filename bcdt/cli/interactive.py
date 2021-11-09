@@ -10,7 +10,8 @@ from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
 from bcdt.deployment_spec import metadata_schema
-from bcdt.operator import LocalOperatorManager, Operator
+from bcdt.operator import Operator
+from bcdt.operator.manager import LocalOperatorManager
 from bcdt.utils import console
 
 
@@ -121,6 +122,8 @@ def generate_spec(schema):
         val = prompt_input(field, rule)
         spec.update({field: val})
         intended_print(f"{field}: {val}", indent=1)
+
+    return spec
 
 
 def deployment_spec_builder(bento=None, name=None, operator=None):

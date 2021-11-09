@@ -8,7 +8,7 @@ import click
 import yaml
 
 from bcdt.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
-from bcdt.operator import LocalOperatorManager
+from bcdt.operator.manager import LocalOperatorManager
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
