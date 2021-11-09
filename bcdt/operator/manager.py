@@ -190,11 +190,24 @@ def add_operator(user_input):
 
     Given a user_input, we have to decide which operation the user meant by it. There
     are the option available.
-        0. Interactive Model: lists all official operators for user to choose
-        1. Official operator: only the operator name is needed in this case
-        2. Path: a file path if the operator is available locally.
-        3. Github Repo: this should be in the format'repo_owner/repo_name[:repo_branch]'
-        4. Git Url: of the form https://[\\w]+.git
+
+        1. Interactive Mode: lists all official operators for user to choose from.
+
+        2. Official operator: you can pass the name of one of the official operators
+           and the tool with fetch it for you.
+
+        3. Path: If you have the operator locally, either because you are building
+           our own operator or if cloning and tracking the operator in some other
+           remote repository (other than github) then you can just pass the path
+           after the add command and it will register the local operator for you.
+           This is a special case since the operator will not have an associated URL
+           with it and hence cannot be updated using the tool.
+
+        4. Github Repo: this should be in the format 'repo_owner/repo_name[:repo_branch]'.
+           eg: `bcdt add bentoml/aws-lambda-repo`
+
+        5. Git Url: of the form https://[\\w]+.git.
+           eg: `bcdt add https://github.com/bentoml/aws-lambda-deploy.git`
 
     There user_input will be evaluated in that order
 
@@ -277,11 +290,18 @@ def list_operators():
     pprint(operators_list)
 
 
-def remove_operator(name):
-    print(f"Removing {name} ..")
+def remove_operator(name, keep_locally, skip_confirm):
+    LocalOperatorManager.get(name)
+    if not skip_confirm:
+        proceed_with_delete = Confirm.ask(
+            f"Are you sure you want to delete '{name}' operator"
+        )
+        if not proceed_with_delete:
+            return
     op_path, op_repo_url = LocalOperatorManager.remove(name)
-    if op_repo_url is not None:  # remove repo dir only if op was downloaded.
-        shutil.rmtree(op_path)
+    if not keep_locally:
+        if op_repo_url is not None:  # remove repo dir only if op was downloaded.
+            shutil.rmtree(op_path)
 
     return name
 
