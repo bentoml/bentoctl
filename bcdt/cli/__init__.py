@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import click
+import cloup
 from rich.pretty import pprint
 
 from bcdt.cli.interactive import deployment_spec_builder, save_deployment_spec
@@ -11,7 +12,7 @@ from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
 from bcdt.utils import console
 
 
-@click.group()
+@cloup.group(show_subcommand_aliases=True)
 def bcdt():
     pass
 
@@ -76,7 +77,6 @@ def update(deployment_spec_path):
     Update deployments.
     """
     update_spec(deployment_spec_path=deployment_spec_path)
-
 
 @bcdt.command()
 @click.argument("deployment_spec_path", type=click.Path())

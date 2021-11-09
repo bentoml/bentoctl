@@ -1,16 +1,15 @@
 import click
+import cloup
 
-from bcdt.operator.manager import (
-    add_operator,
-    list_operators,
-    remove_operator,
-    update_operator,
-)
 from bcdt.exceptions import BCDTBaseException
+from bcdt.operator.manager import (add_operator, list_operators,
+                                   remove_operator, update_operator)
 
 
 def get_operator_management_subcommands():
-    @click.group(name="operator")
+    @cloup.group(
+        name="operator", aliases=["operators", "o"], show_subcommand_aliases=True
+    )
     def operator_management():
         """
         Commands to manage the various operators.
