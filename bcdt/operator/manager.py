@@ -15,8 +15,11 @@ from simple_term_menu import TerminalMenu
 
 from bcdt.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
 from bcdt.operator import Operator
-from bcdt.utils import (console, get_github_repo_details_from_archive_link,
-                        print_operators_list)
+from bcdt.utils import (
+    console,
+    get_github_repo_details_from_archive_link,
+    print_operators_list,
+)
 
 
 def _get_bcdt_home():
