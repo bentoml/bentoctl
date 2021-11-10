@@ -62,21 +62,23 @@ def get_operator_management_subcommands():
             if operator_name is not None:
                 click.echo(f"Added {operator_name}!")
             else:
-                print(f"Error adding operator {name}.")
+                click.echo(
+                    f"Unable to add operator. `{name}` did not match any of the "
+                    "operator addition options. Check `bcdt operator add --help`"
+                    "for mode details on how you can call this command."
+                )
         except BCDTBaseException as e:
             e.show()
 
     @operator_management.command()
     @click.option(
-        "--keep-locally",
-        is_flag=True,
-        help="keep the operator code locally."
+        "--keep-locally", is_flag=True, help="keep the operator code locally."
     )
     @click.option(
         "-y",
         "skip_confirm",
         is_flag=True,
-        help="skip the prompt asking if you are sure."
+        help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
     def remove(name, keep_locally, skip_confirm):

@@ -222,6 +222,8 @@ def add_operator(user_input):
     """
     # regex to match a github repo
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
+    # regex to match github url
+    github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
 
     if user_input == "INTERACTIVE_MODE":
         # show a simple menu with all the available official operators
@@ -242,7 +244,8 @@ def add_operator(user_input):
         return operator.name
 
     # Official Operator
-    if user_input in OFFICIAL_OPERATORS:
+    elif user_input in OFFICIAL_OPERATORS:
+        console.print(f"Adding an official operator ({user_input})...")
         operator_repo = OFFICIAL_OPERATORS[user_input]
         owner, repo, branch = github_repo_re.match(operator_repo).groups()
         repo_url = _github_archive_link(owner, repo, branch)
@@ -252,6 +255,7 @@ def add_operator(user_input):
         return operator.name
 
     # Path
+<<<<<<< HEAD
     if os.path.exists(user_input):
         try:
             operator = Operator(user_input)
@@ -262,9 +266,18 @@ def add_operator(user_input):
         else:
             LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
             return operator.name
+=======
+    elif os.path.exists(user_input):
+        console.print(f"Adding an operator from local file system ({user_input})...")
+        operator = Operator(user_input)
+        LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
+
+        return operator.name
+>>>>>>> dc7e74b (small improvements)
 
     # Github Repo
-    if github_repo_re.match(user_input):
+    elif github_repo_re.match(user_input):
+        console.print(f"Adding an operator from Github repo ({user_input})...")
         owner, repo, branch = github_repo_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url, repo)
@@ -273,8 +286,8 @@ def add_operator(user_input):
         return operator.name
 
     # Git Url
-    github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
-    if github_http_re.match(user_input):
+    elif github_http_re.match(user_input):
+        console.print(f"Adding an operator from Github URL ({user_input})...")
         owner, repo = github_http_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo)
         operator_dir = _download_repo(repo_url, repo)
