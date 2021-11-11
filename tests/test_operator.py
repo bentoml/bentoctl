@@ -90,11 +90,7 @@ def test_operator_management_add(tmpdir, monkeypatch):
     file system.
     """
     tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
-<<<<<<< HEAD
-    monkeypatch.setattr(op.manager, "LocalOpsManager", tmpOpsManager)
-=======
     monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
->>>>>>> 2ae59f6 (Added tests for operator functionalities (#1))
 
     assert op.manager.add_operator(TESTOP_PATH) == "testop"
     tmpOpsManager.remove("testop")
@@ -165,6 +161,7 @@ def test_operator_management_update(mock_download_repo):
     assert op.manager.add_operator("aws-lambda") == "testop"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     creation_time = os.path.getctime(op.manager.LocalOpsManager.get("testop").op_path)
     op.manager.update_operator("testop")
     updation_time = os.path.getctime(op.manager.LocalOpsManager.get("testop").op_path)
@@ -178,4 +175,13 @@ def test_operator_management_update(mock_download_repo):
     op.manager.update_operator("testop")
     updation_time = os.path.getctime(op.manager.LocalOperatorManager.get("testop").op_path)
 >>>>>>> 7f7b712 (bcdt generate command (#5))
+=======
+    creation_time = os.path.getctime(
+        op.manager.LocalOperatorManager.get("testop").op_path
+    )
+    op.manager.update_operator("testop")
+    updation_time = os.path.getctime(
+        op.manager.LocalOperatorManager.get("testop").op_path
+    )
+>>>>>>> 7ec6ddb (Add linter ci (#7))
     assert updation_time > creation_time

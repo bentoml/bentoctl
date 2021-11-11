@@ -30,15 +30,11 @@ def update_spec(deployment_spec_path):
 
 def describe_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    info_json = op.describe(
-        deployment_spec.deployment_name, operator_spec
-    )
+    info_json = op.describe(deployment_spec.deployment_name, operator_spec)
     return info_json
 
 
 def delete_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    op.delete(
-        deployment_spec.deployment_name, operator_spec
-    )
+    op.delete(deployment_spec.deployment_name, operator_spec)
     return deployment_spec.deployment_name
