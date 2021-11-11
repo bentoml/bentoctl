@@ -1,7 +1,14 @@
 from setuptools import setup
 
 
-install_requires = ["click>7.0", "cerberus", "bentoml", "rich", "simple-term-menu", "cloup"]
+install_requires = [
+    "click>7.0",
+    "cerberus",
+    "bentoml",
+    "rich",
+    "simple-term-menu",
+    "cloup",
+]
 
 dev_requires = [
     "flake8>=3.8.2",

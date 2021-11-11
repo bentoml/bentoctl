@@ -2,8 +2,12 @@ import click
 import cloup
 
 from bcdt.exceptions import BCDTBaseException
-from bcdt.operator.manager import (add_operator, list_operators,
-                                   remove_operator, update_operator)
+from bcdt.operator.manager import (
+    add_operator,
+    list_operators,
+    remove_operator,
+    update_operator,
+)
 
 
 def get_operator_management_subcommands():

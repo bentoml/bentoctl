@@ -255,25 +255,12 @@ def add_operator(user_input):
         return operator.name
 
     # Path
-<<<<<<< HEAD
-    if os.path.exists(user_input):
-        try:
-            operator = Operator(user_input)
-        except ImportError as e:  # not a valid operator, hence ignore
-            print(f"Unable to load operator in '{user_input}'")
-            print(f"Error: {e}")
-            return
-        else:
-            LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
-            return operator.name
-=======
     elif os.path.exists(user_input):
         console.print(f"Adding an operator from local file system ({user_input})...")
         operator = Operator(user_input)
         LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
 
         return operator.name
->>>>>>> dc7e74b (small improvements)
 
     # Github Repo
     elif github_repo_re.match(user_input):

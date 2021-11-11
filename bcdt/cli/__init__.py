@@ -92,6 +92,7 @@ def update(deployment_spec, name, bento, operator):
     """
     update_spec(deployment_spec_path=deployment_spec_path)
 
+
 @bcdt.command(section=BcdtSections.OPERATIONS)
 @click.argument("deployment_spec", type=click.Path())
 def delete(deployment_spec, name, operator):
