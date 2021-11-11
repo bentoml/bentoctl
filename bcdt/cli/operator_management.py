@@ -19,10 +19,9 @@ def get_operator_management_subcommands():
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
         """
-        pass
 
-    @operator_management.command()
-    def list():
+    @operator_management.command(name="list")
+    def list_operator_command():
         """
         List all the available operators.
 
@@ -54,7 +53,8 @@ def get_operator_management_subcommands():
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
 
-        4. Github Repo: this should be in the format 'repo_owner/repo_name[:repo_branch]'.
+        4. Github Repo: this should be in the format
+           `repo_owner/repo_name[:repo_branch]`.
            eg: `bcdt add bentoml/aws-lambda-repo`
 
         5. Git Url: of the form https://[\\w]+.git.

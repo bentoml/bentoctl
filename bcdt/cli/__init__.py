@@ -32,7 +32,6 @@ def bcdt():
     run `bcdt generate` to start the interactive deployment spec builder or
     check out the <link to deployment_spec doc> on how to write one yourself.
     """
-    pass
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
@@ -45,9 +44,9 @@ def bcdt():
 @click.option(
     "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
 )
-@click.option("--describe", is_flag=True)
+@click.option("--describe-deployment", is_flag=True)
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
-def deploy(deployment_spec_path, name, operator, bento, describe):
+def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_spec.
 
@@ -68,7 +67,7 @@ def deploy(deployment_spec_path, name, operator, bento, describe):
             )
         deploy_spec(deployment_spec_path)
         print("Successful deployment!")
-        if describe:
+        if describe_deployment:
             info_json = describe_spec(deployment_spec_path)
             pprint(info_json)
     except BCDTBaseException as e:
@@ -77,16 +76,16 @@ def deploy(deployment_spec_path, name, operator, bento, describe):
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
 @click.argument("deployment_spec", type=click.Path())
-def describe(deployment_spec, name, operator):
+def describe(deployment_spec_path):
     """
     Shows the properties of the deployment given a deployment_spec.
     """
-    describe_spec(deployment_spec_path=deployment_spec)
+    describe_spec(deployment_spec_path=deployment_spec_path)
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
 @click.argument("deployment_spec", type=click.Path())
-def update(deployment_spec, name, bento, operator):
+def update(deployment_spec_path):
     """
     Update the deployment given a deployment_spec.
     """
@@ -95,7 +94,7 @@ def update(deployment_spec, name, bento, operator):
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
 @click.argument("deployment_spec", type=click.Path())
-def delete(deployment_spec, name, operator):
+def delete(deployment_spec_path):
     """
     Delete the deployment given a deployment_spec.
     """

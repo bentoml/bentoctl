@@ -3,7 +3,6 @@ import os
 import re
 import shutil
 import tempfile
-import typing as t
 import zipfile
 from collections import namedtuple
 from pathlib import Path
@@ -13,13 +12,9 @@ from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
+from bcdt.exceptions import OperatorExists, OperatorNotFound
 from bcdt.operator import Operator
-from bcdt.utils import (
-    console,
-    get_github_repo_details_from_archive_link,
-    print_operators_list,
-)
+from bcdt.utils import console
 
 
 def _get_bcdt_home():
@@ -66,7 +61,7 @@ class OperatorManager:
         return op(op_path, op_repo_url)
 
     def _write_to_file(self):
-        with open(self.operator_file, "w") as f:
+        with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.ops_list, f)
 
     def add(self, op_name, op_path, op_repo_url=None):
@@ -130,6 +125,7 @@ def _download_url(url, dest):
         content_length = meta.get_all("Content-Length")
     if content_length is not None and len(content_length) > 0:
         file_size = int(content_length[0])
+        console.print(file_size)
 
     # download to a temporary file and copy it over so that if there is an existing
     # file it doesn't get corrupt.
@@ -203,7 +199,8 @@ def add_operator(user_input):
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
 
-        4. Github Repo: this should be in the format 'repo_owner/repo_name[:repo_branch]'.
+        4. Github Repo: this should be in the format
+           `repo_owner/repo_name[:repo_branch]`.
            eg: `bcdt add bentoml/aws-lambda-repo`
 
         5. Git Url: of the form https://[\\w]+.git.

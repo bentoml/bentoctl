@@ -47,12 +47,6 @@ class InvalidDeploymentSpec(BCDTBaseException):
     """Invalid bcdt config."""
 
 
-class InvalidDeploymentSpec(BCDTBaseException):
-    """
-    When deployment spec is not found.
-    """
-
-
 class DeploymentSpecNotFound(BCDTBaseException):
     """
     When deployment spec is not found.

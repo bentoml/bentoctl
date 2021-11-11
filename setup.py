@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 install_requires = [
     "click>7.0",
     "cerberus",
@@ -8,12 +7,10 @@ install_requires = [
     "rich",
     "simple-term-menu",
     "cloup",
+    "PyYAML",
 ]
 
-dev_requires = [
-    "flake8>=3.8.2",
-    "pylint>=2.6.2",
-]
+dev_requires = ["flake8>=3.8.2", "pylint>=2.6.2", "pytest"]
 
 dev_all = install_requires + dev_requires
 
