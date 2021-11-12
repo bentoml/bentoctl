@@ -49,7 +49,7 @@ class OperatorManager:
         self.operator_file = self.path / "operator_list.json"
         self.ops_list = {}
         if self.operator_file.exists():
-            self.ops_list = json.loads(self.operator_file.read_text())
+            self.ops_list = json.loads(self.operator_file.read_text(encoding='utf-8'))
 
     def list(self):
         return self.ops_list
