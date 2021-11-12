@@ -55,15 +55,15 @@ class DeploymentSpec:
             if not file_path.exists():
                 raise DeploymentSpecNotFound
             if file_path.suffix == ".json":
-                config_dict = json.loads(file_path.read_text())
+                config_dict = json.loads(file_path.read_text(encoding="utf-8"))
             elif file_path.suffix in [".yaml", ".yml"]:
-                config_dict = yaml.safe_load(file_path.read_text())
+                config_dict = yaml.safe_load(file_path.read_text(encoding="utf-8"))
             else:
-                # todo: make it its own exception
+                # TODO: make it its own exception
                 raise InvalidDeploymentSpec
-        # catch exceptions for invalid yaml and json config files
-        except Exception:
-            raise
+        # TODO: catch exceptions for invalid yaml and json config files
+        except Exception as e:
+            raise e
 
         return cls(config_dict)
 
@@ -91,7 +91,7 @@ class DeploymentSpec:
         else:
             return spec_path
 
-        with open(spec_path, "w") as f:
+        with open(spec_path, "w", encoding="utf-8") as f:
             yaml.dump(self.deployment_spec, f)
 
         return spec_path

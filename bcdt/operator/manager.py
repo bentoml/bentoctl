@@ -3,7 +3,6 @@ import os
 import re
 import shutil
 import tempfile
-import typing as t
 import zipfile
 from collections import namedtuple
 from pathlib import Path
@@ -13,13 +12,9 @@ from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
+from bcdt.exceptions import OperatorExists, OperatorNotFound
 from bcdt.operator import Operator
-from bcdt.utils import (
-    console,
-    get_github_repo_details_from_archive_link,
-    print_operators_list,
-)
+from bcdt.utils import console
 
 
 def _get_bcdt_home():
@@ -54,7 +49,7 @@ class OperatorManager:
         self.operator_file = self.path / "operator_list.json"
         self.ops_list = {}
         if self.operator_file.exists():
-            self.ops_list = json.loads(self.operator_file.read_text())
+            self.ops_list = json.loads(self.operator_file.read_text(encoding='utf-8'))
 
     def list(self):
         return self.ops_list
@@ -66,7 +61,7 @@ class OperatorManager:
         return op(op_path, op_repo_url)
 
     def _write_to_file(self):
-        with open(self.operator_file, "w") as f:
+        with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.ops_list, f)
 
     def add(self, op_name, op_path, op_repo_url=None):
@@ -130,6 +125,7 @@ def _download_url(url, dest):
         content_length = meta.get_all("Content-Length")
     if content_length is not None and len(content_length) > 0:
         file_size = int(content_length[0])
+        console.print(file_size)
 
     # download to a temporary file and copy it over so that if there is an existing
     # file it doesn't get corrupt.
@@ -190,11 +186,25 @@ def add_operator(user_input):
 
     Given a user_input, we have to decide which operation the user meant by it. There
     are the option available.
-        0. Interactive Model: lists all official operators for user to choose
-        1. Official operator: only the operator name is needed in this case
-        2. Path: a file path if the operator is available locally.
-        3. Github Repo: this should be in the format'repo_owner/repo_name[:repo_branch]'
-        4. Git Url: of the form https://[\\w]+.git
+
+        1. Interactive Mode: lists all official operators for user to choose from.
+
+        2. Official operator: you can pass the name of one of the official operators
+           and the tool with fetch it for you.
+
+        3. Path: If you have the operator locally, either because you are building
+           our own operator or if cloning and tracking the operator in some other
+           remote repository (other than github) then you can just pass the path
+           after the add command and it will register the local operator for you.
+           This is a special case since the operator will not have an associated URL
+           with it and hence cannot be updated using the tool.
+
+        4. Github Repo: this should be in the format
+           `repo_owner/repo_name[:repo_branch]`.
+           eg: `bcdt add bentoml/aws-lambda-repo`
+
+        5. Git Url: of the form https://[\\w]+.git.
+           eg: `bcdt add https://github.com/bentoml/aws-lambda-deploy.git`
 
     There user_input will be evaluated in that order
 
@@ -209,6 +219,8 @@ def add_operator(user_input):
     """
     # regex to match a github repo
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
+    # regex to match github url
+    github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
 
     if user_input == "INTERACTIVE_MODE":
         # show a simple menu with all the available official operators
@@ -229,7 +241,8 @@ def add_operator(user_input):
         return operator.name
 
     # Official Operator
-    if user_input in OFFICIAL_OPERATORS:
+    elif user_input in OFFICIAL_OPERATORS:
+        console.print(f"Adding an official operator ({user_input})...")
         operator_repo = OFFICIAL_OPERATORS[user_input]
         owner, repo, branch = github_repo_re.match(operator_repo).groups()
         repo_url = _github_archive_link(owner, repo, branch)
@@ -239,19 +252,16 @@ def add_operator(user_input):
         return operator.name
 
     # Path
-    if os.path.exists(user_input):
-        try:
-            operator = Operator(user_input)
-        except ImportError as e:  # not a valid operator, hence ignore
-            print(f"Unable to load operator in '{user_input}'")
-            print(f"Error: {e}")
-            return
-        else:
-            LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
-            return operator.name
+    elif os.path.exists(user_input):
+        console.print(f"Adding an operator from local file system ({user_input})...")
+        operator = Operator(user_input)
+        LocalOperatorManager.add(operator.name, os.path.abspath(user_input))
+
+        return operator.name
 
     # Github Repo
-    if github_repo_re.match(user_input):
+    elif github_repo_re.match(user_input):
+        console.print(f"Adding an operator from Github repo ({user_input})...")
         owner, repo, branch = github_repo_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo, branch)
         operator_dir = _download_repo(repo_url, repo)
@@ -260,8 +270,8 @@ def add_operator(user_input):
         return operator.name
 
     # Git Url
-    github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
-    if github_http_re.match(user_input):
+    elif github_http_re.match(user_input):
+        console.print(f"Adding an operator from Github URL ({user_input})...")
         owner, repo = github_http_re.match(user_input).groups()
         repo_url = _github_archive_link(owner, repo)
         operator_dir = _download_repo(repo_url, repo)
@@ -277,11 +287,18 @@ def list_operators():
     pprint(operators_list)
 
 
-def remove_operator(name):
-    print(f"Removing {name} ..")
+def remove_operator(name, keep_locally, skip_confirm):
+    LocalOperatorManager.get(name)
+    if not skip_confirm:
+        proceed_with_delete = Confirm.ask(
+            f"Are you sure you want to delete '{name}' operator"
+        )
+        if not proceed_with_delete:
+            return
     op_path, op_repo_url = LocalOperatorManager.remove(name)
-    if op_repo_url is not None:  # remove repo dir only if op was downloaded.
-        shutil.rmtree(op_path)
+    if not keep_locally:
+        if op_repo_url is not None:  # remove repo dir only if op was downloaded.
+            shutil.rmtree(op_path)
 
     return name
 
