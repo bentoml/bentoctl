@@ -75,16 +75,17 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
-@click.argument("deployment_spec", type=click.Path())
+@click.argument("deployment_spec_path", type=click.Path())
 def describe(deployment_spec_path):
     """
     Shows the properties of the deployment given a deployment_spec.
     """
-    describe_spec(deployment_spec_path=deployment_spec_path)
+    info_json = describe_spec(deployment_spec_path=deployment_spec_path)
+    pprint(info_json)
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
-@click.argument("deployment_spec", type=click.Path())
+@click.argument("deployment_spec_path", type=click.Path())
 def update(deployment_spec_path):
     """
     Update the deployment given a deployment_spec.
@@ -93,7 +94,7 @@ def update(deployment_spec_path):
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
-@click.argument("deployment_spec", type=click.Path())
+@click.argument("deployment_spec_path", type=click.Path())
 def delete(deployment_spec_path):
     """
     Delete the deployment given a deployment_spec.
