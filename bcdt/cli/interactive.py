@@ -1,5 +1,4 @@
 import readline
-import sys
 from pathlib import Path
 
 import cerberus
@@ -50,7 +49,7 @@ class PromptMsg:
         self.help_msg = help_msg
         self.val_error = val_error
 
-    def __rich_console__(self, console, options):
+    def __rich_console__(self, rconsole, options):  # pylint: disable=unused-argument
         if self.help_msg is not None:
             yield f"[grey50]Help: {self.help_msg}[/]"
         if self.val_error is not None:
@@ -135,7 +134,7 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
 This mode will help you setup the deployment_spec.yaml file required for
 deployment. Fill out the appropriate values for the fields.
 
-[dim]\[deployment spec will be saved to: ./deployment_spec.yaml][/]
+[dim](deployment spec will be saved to: ./deployment_spec.yaml)[/]
 """
     )
 
@@ -168,7 +167,7 @@ def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.y
         else:
             return spec_path
 
-    with open(spec_path, "w") as f:
+    with open(spec_path, "w", encoding="UTF-8") as f:
         yaml.dump(deployment_spec, f)
 
     return spec_path

@@ -1,7 +1,6 @@
 import os
 import re
 import typing as t
-from datetime import datetime
 
 from rich import box
 from rich.console import Console
@@ -10,10 +9,6 @@ from rich.table import Table
 import bcdt.operator.manager as op_manager
 
 console = Console(highlight=False)
-
-
-def show_time_diff(dt: datetime):
-    pass
 
 
 def get_github_repo_details_from_archive_link(repo_url: str) -> t.Tuple[str, str, str]:
