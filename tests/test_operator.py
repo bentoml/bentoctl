@@ -1,3 +1,5 @@
+# TODO: remove
+# pylint: disable=W0621
 import os
 import shutil
 from functools import partial

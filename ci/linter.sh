@@ -40,7 +40,7 @@ if [ -n "$first_line" ]; then
 fi
 
 echo "Running pylint on bcdt module.."
-output=$( pylint --rcfile="./pylintrc" bentoml )
+output=$( pylint --rcfile="./pylintrc" bcdt )
 first_line=$(echo "${output}" | head -1)
 echo "$output"
 if [ -n "$first_line" ]; then
