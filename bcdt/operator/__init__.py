@@ -9,7 +9,6 @@ from bcdt.exceptions import OperatorConfigNotFound, OperatorLoadException
 def _import_module(module_name, path):
     sys.path.insert(0, os.path.abspath(path))
     module = importlib.import_module(module_name)
-    sys.path.pop(0)
     return module
 
 
