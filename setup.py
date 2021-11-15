@@ -24,5 +24,5 @@ setup(
     py_modules=["cli"],
     install_requires=install_requires,
     extras_require=extras_require,
-    entry_points={"console_scripts": ["bcdt = bcdt.cli:bcdt",],},
+    entry_points={"console_scripts": ["bcdt = bcdt.cli:bcdt"]},
 )

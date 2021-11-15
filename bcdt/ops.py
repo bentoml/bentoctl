@@ -1,3 +1,5 @@
+import shutil
+
 from bcdt.deployment_spec import DeploymentSpec
 from bcdt.operator import Operator
 from bcdt.operator.manager import LocalOperatorManager
@@ -18,7 +20,9 @@ def deploy_spec(deployment_spec_path):
     deployable_path = op.deploy(
         deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
     )
-    return deployable_path
+
+    # remove the deployable
+    shutil.rmtree(deployable_path)
 
 
 def update_spec(deployment_spec_path):

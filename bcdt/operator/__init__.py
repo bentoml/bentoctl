@@ -1,53 +1,56 @@
+import importlib
+import os
 import sys
 from pathlib import Path
 
-from bcdt.exceptions import OperatorLoadException
+from bcdt.exceptions import OperatorConfigNotFound, OperatorLoadException
 
 
-def _import_module(name, path):
-    import importlib.util
-    from importlib.abc import Loader
-
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    assert isinstance(spec.loader, Loader)
-    sys.modules[name] = module
-    spec.loader.exec_module(module)
+def _import_module(module_name, path):
+    sys.path.insert(0, os.path.abspath(path))
+    module = importlib.import_module(module_name)
     return module
 
 
 class Operator:
     def __init__(self, path):
         self.path = Path(path)
-        if not self.path.is_dir():
-            raise ValueError("path should be a valid directory")
-
-        # load the operator
+        # load the operator config
         try:
-            self.operator = _import_module(self.path.name, self.path / "__init__.py")
-        except Exception as e:
-            raise OperatorLoadException(f"Failed to load operator - {e}")
+            operator_config = _import_module("operator_config", self.path)
+        except ImportError as e:
+            if not (self.path / "operator_config.py").exists():
+                raise OperatorConfigNotFound(operator_path=self.path)
+            else:
+                raise OperatorLoadException(f"Failed to load operator - {e}")
+
+        self.operator_name = operator_config.OPERATOR_NAME
+        if hasattr(operator_config, "OPERATOR_MODULE"):
+            self.operator_module = operator_config.OPERATOR_MODULE
+        else:
+            self.operator_module = self.operator_name
+        self.operator_schema = operator_config.OPERATOR_SCHEMA
 
     @property
     def name(self):
-        return self.operator.OPERATOR_NAME
-
-    @property
-    def operator_schema(self):
-        return self.operator.OPERATOR_SCHEMA
+        return self.operator_name
 
     def update(self, bento_path, deployment_name, config_dict):
-        d_path = self.operator.update(bento_path, deployment_name, config_dict)
+        operator = _import_module(self.operator_module, self.path)
+        d_path = operator.update(bento_path, deployment_name, config_dict)
 
         return d_path
 
     def deploy(self, bento_path, deployment_name, config_dict):
-        d_path = self.operator.deploy(bento_path, deployment_name, config_dict)
+        operator = _import_module(self.operator_module, self.path)
+        d_path = operator.deploy(bento_path, deployment_name, config_dict)
         return d_path
 
     def describe(self, deployment_name, config_dict):
-        info_json = self.operator.describe(deployment_name, config_dict)
+        operator = _import_module(self.operator_module, self.path)
+        info_json = operator.describe(deployment_name, config_dict)
         return info_json
 
     def delete(self, deployment_name, config_dict):
-        self.operator.delete(deployment_name, config_dict)
+        operator = _import_module(self.operator_module, self.path)
+        operator.delete(deployment_name, config_dict)

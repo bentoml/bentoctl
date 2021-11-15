@@ -1,4 +1,5 @@
 OPERATOR_NAME = "testop"
+
 OPERATOR_SCHEMA = {
     "region": {
         "required": True,
