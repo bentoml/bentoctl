@@ -98,22 +98,30 @@ def intended_print(string, indent=0):
     console.print(string)
 
 
-def generate_metadata(bento, name, operator):
+def generate_metadata(name, operator):
     if name is None:
         name = prompt_input("name", metadata_schema.get("name"))
     intended_print(f"name: {name}", indent=1)
     if operator is None:
         operator = choose_operator_from_list()
     intended_print(f"operator: {operator}", indent=1)
+
+    return {"name": name, "operator": operator}
+
+
+def generate_spec(bento, schema):
+    spec = {}
+
+    # get the bento
+    bento_schema = {
+        "required": True,
+        "help_message": "bento tag | path to bento bundle",
+    }
     if bento is None:
-        bento = prompt_input("bento", metadata_schema.get("bento"))
+        bento = prompt_input("bento", bento_schema)
     intended_print(f"bento: {bento}", indent=1)
 
-    return {"name": name, "operator": operator, "bento": bento}
-
-
-def generate_spec(schema):
-    spec = {}
+    # get other operator schema
     for field, rule in schema.items():
         val = prompt_input(field, rule)
         spec.update({field: val})
@@ -143,13 +151,13 @@ deployment. Fill out the appropriate values for the fields.
 
     # metadata
     console.print("[bold]metadata: [/]")
-    metadata = generate_metadata(bento, name, operator)
+    metadata = generate_metadata(name, operator)
 
     # spec
     console.print("[bold]spec: [/]")
     op_path, _ = LocalOperatorManager.get(metadata["operator"])
     op = Operator(op_path)
-    spec = generate_spec(op.operator_schema)
+    spec = generate_spec(bento, op.operator_schema)
 
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec

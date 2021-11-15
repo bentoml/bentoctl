@@ -45,8 +45,11 @@ def bcdt():
     "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
 )
 @click.option("--describe-deployment", is_flag=True)
+@click.option("--keep-deployable", is_flag=True)
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
-def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
+def deploy(
+    deployment_spec_path, name, operator, bento, describe_deployment, keep_deployable
+):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_spec.
 
@@ -65,7 +68,7 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
                 "[green]deployment spec generated to: "
                 f"{deployment_spec_path.relative_to(Path.cwd())}[/]"
             )
-        deploy_spec(deployment_spec_path)
+        deploy_spec(deployment_spec_path, keep_deployable)
         print("Successful deployment!")
         if describe_deployment:
             info_json = describe_spec(deployment_spec_path)
@@ -85,12 +88,19 @@ def describe(deployment_spec_path):
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
+@click.option("--describe-deployment", is_flag=True)
+@click.option("--keep-deployable", is_flag=True)
 @click.argument("deployment_spec_path", type=click.Path())
-def update(deployment_spec_path):
+def update(deployment_spec_path, describe_deployment, keep_deployable):
     """
     Update the deployment given a deployment_spec.
     """
-    update_spec(deployment_spec_path=deployment_spec_path)
+    update_spec(
+        deployment_spec_path=deployment_spec_path, keep_deployable=keep_deployable
+    )
+    if describe_deployment:
+        info_json = describe_spec(deployment_spec_path)
+        pprint(info_json)
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)

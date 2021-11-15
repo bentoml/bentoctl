@@ -1,4 +1,3 @@
-import json
 import os
 import typing as t
 from pathlib import Path
@@ -13,7 +12,6 @@ from bcdt.operator.manager import LocalOperatorManager
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
     "operator": {"required": True},
-    "bento": {"required": True, "help_message": "bento tag | path to bento bundle"},
 }
 
 
@@ -31,39 +29,37 @@ class DeploymentSpec:
         if not deployment_spec["api_version"] == "v1":
             raise InvalidDeploymentSpec("api_version should be 'v1'.")
 
-        metadata = deployment_spec["metadata"]
-
-        # check `bento`
-        self.bundle_path = load_bento(metadata.get("bento"))
-
-        # check `operator`
-        if metadata.get("operator") not in LocalOperatorManager.list():
-            raise InvalidDeploymentSpec("operator not found")
-        self.operator_name = metadata.get("operator")
+        self.deployment_spec = deployment_spec
+        self.metadata = deployment_spec["metadata"]
+        self.operator_spec = deployment_spec["spec"]
 
         # check `name`
-        self.deployment_name = metadata.get("name")
+        self.deployment_name = self.metadata.get("name")
         if self.deployment_name is None:
             raise InvalidDeploymentSpec("name not found")
 
-        self.deployment_spec = deployment_spec
+        # check `operator`
+        if self.metadata.get("operator") not in LocalOperatorManager.list():
+            raise InvalidDeploymentSpec("operator not found")
+        self.operator_name = self.metadata.get("operator")
+
+        # check `bento`
+        if "bento" in self.operator_spec:
+            self.bento = self.operator_spec.pop("bento")
+            self.bento_path = load_bento(self.bento)
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
         file_path = Path(file_path)
-        try:
-            if not file_path.exists():
-                raise DeploymentSpecNotFound
-            if file_path.suffix == ".json":
-                config_dict = json.loads(file_path.read_text(encoding="utf-8"))
-            elif file_path.suffix in [".yaml", ".yml"]:
+        if not file_path.exists():
+            raise DeploymentSpecNotFound
+        elif file_path.suffix in [".yaml", ".yml"]:
+            try:
                 config_dict = yaml.safe_load(file_path.read_text(encoding="utf-8"))
-            else:
-                # TODO: make it its own exception
-                raise InvalidDeploymentSpec
-        # TODO: catch exceptions for invalid yaml and json config files
-        except Exception as e:
-            raise e
+            except yaml.YAMLError as e:
+                raise InvalidDeploymentSpec(exc=e)
+        else:
+            raise InvalidDeploymentSpec
 
         return cls(config_dict)
 
@@ -72,11 +68,14 @@ class DeploymentSpec:
         validate the schema using cerberus and show errors properly.
         """
         v = cerberus.Validator()
-        validated_spec = v.validated(
-            self.deployment_spec["spec"], schema=operator_schema
-        )
+
+        # process operator schema and remove the 'help_message' field
+        for _, rules in operator_schema.items():
+            if "help_message" in rules:
+                rules.pop("help_message")
+        validated_spec = v.validated(self.operator_spec, schema=operator_schema)
         if validated_spec is None:
-            raise InvalidDeploymentSpec(v.errors)
+            raise InvalidDeploymentSpec(spec_errors=v.errors)
 
         return validated_spec
 

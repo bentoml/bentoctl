@@ -2,5 +2,5 @@ __pycache__
 *.egg-info/
 lambda_config.yaml
 test_plugins/
-deployment_spec.yaml
+testop_spec.yaml
 .idea/
