@@ -42,7 +42,10 @@ def bcdt():
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.option(
-    "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
+    "--bento",
+    "-b",
+    type=click.STRING,
+    help="The path to bento bundle.",
 )
 @click.option("--describe-deployment", is_flag=True)
 @click.option("--keep-deployable", is_flag=True)
@@ -120,7 +123,14 @@ def generate():
     """
     deployment_spec = deployment_spec_builder()
     dspec = DeploymentSpec(deployment_spec)
-    spec_path = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+    deployment_spec_filname = console.input(
+        "filename for deployment_spec [[b]deployment_spec.yaml[/]]: ",
+    )
+    if deployment_spec_filname == "":
+        deployment_spec_filname = "deployment_spec.yaml"
+    spec_path = save_deployment_spec(
+        dspec.deployment_spec, Path.cwd(), deployment_spec_filname
+    )
     console.print(
         f"[green]deployment spec generated to: {spec_path.relative_to(Path.cwd())}[/]"
     )
