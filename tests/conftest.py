@@ -9,7 +9,7 @@ import pytest
 
 import bcdt.operator as op
 
-TESTOP_PATH = os.path.join(os.path.dirname(__file__), "testop")
+TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
 
 @pytest.fixture

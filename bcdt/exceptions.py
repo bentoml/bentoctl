@@ -35,6 +35,19 @@ class OperatorNotFound(BCDTBaseException):
         self.operator_name = operator_name
 
 
+class OperatorConfigNotFound(BCDTBaseException):
+    """
+    Raised when trying to load an operator that doesn't have a operator_config.py
+    file
+    """
+
+    def __init__(self, operator_path, msg=None):
+        if msg is None:
+            msg = f"`operator_config.py` not found in {operator_path}"
+        super(OperatorConfigNotFound, self).__init__(msg)
+        self.operator_path = operator_path
+
+
 class OperatorIsLocal(BCDTBaseException):
     """Raised when trying to do unsupported operations on Local operators"""
 

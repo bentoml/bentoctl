@@ -1,4 +1,5 @@
 OPERATOR_NAME = "testop"
+
 OPERATOR_SCHEMA = {
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
     "project_id": {"required": True, "type": "string",},
