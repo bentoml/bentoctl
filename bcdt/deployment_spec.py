@@ -1,5 +1,6 @@
 import os
 import typing as t
+import copy
 from pathlib import Path
 
 import cerberus
@@ -30,8 +31,8 @@ class DeploymentSpec:
             raise InvalidDeploymentSpec("api_version should be 'v1'.")
 
         self.deployment_spec = deployment_spec
-        self.metadata = deployment_spec["metadata"]
-        self.operator_spec = deployment_spec["spec"]
+        self.metadata = copy.deepcopy(deployment_spec["metadata"])
+        self.operator_spec = copy.deepcopy(deployment_spec["spec"])
 
         # check `name`
         self.deployment_name = self.metadata.get("name")
@@ -67,12 +68,11 @@ class DeploymentSpec:
         """
         validate the schema using cerberus and show errors properly.
         """
-        v = cerberus.Validator()
-
-        # process operator schema and remove the 'help_message' field
+        # cleanup operator_schema by removing 'help_message' field
         for _, rules in operator_schema.items():
             if "help_message" in rules:
                 rules.pop("help_message")
+        v = cerberus.Validator()
         validated_spec = v.validated(self.operator_spec, schema=operator_schema)
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)

@@ -120,6 +120,7 @@ def generate_spec(bento, schema):
     if bento is None:
         bento = prompt_input("bento", bento_schema)
     intended_print(f"bento: {bento}", indent=1)
+    spec['bento'] = bento
 
     # get other operator schema
     for field, rule in schema.items():

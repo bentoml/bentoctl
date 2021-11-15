@@ -42,10 +42,7 @@ def bcdt():
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.option(
-    "--bento",
-    "-b",
-    type=click.STRING,
-    help="The path to bento bundle.",
+    "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
 )
 @click.option("--describe-deployment", is_flag=True)
 @click.option("--keep-deployable", is_flag=True)
