@@ -85,12 +85,16 @@ def describe(deployment_spec_path):
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
+@click.option("--describe-deployment", is_flag=True)
 @click.argument("deployment_spec_path", type=click.Path())
-def update(deployment_spec_path):
+def update(deployment_spec_path, describe_deployment):
     """
     Update the deployment given a deployment_spec.
     """
     update_spec(deployment_spec_path=deployment_spec_path)
+    if describe_deployment:
+        info_json = describe_spec(deployment_spec_path)
+        pprint(info_json)
 
 
 @bcdt.command(section=BcdtSections.OPERATIONS)
@@ -110,7 +114,14 @@ def generate():
     """
     deployment_spec = deployment_spec_builder()
     dspec = DeploymentSpec(deployment_spec)
-    spec_path = save_deployment_spec(dspec.deployment_spec, Path.cwd())
+    deployment_spec_filname = console.input(
+        "filename for deployment_spec [[b]deployment_spec.yaml[/]]: ",
+    )
+    if deployment_spec_filname == "":
+        deployment_spec_filname = "deployment_spec.yaml"
+    spec_path = save_deployment_spec(
+        dspec.deployment_spec, Path.cwd(), deployment_spec_filname
+    )
     console.print(
         f"[green]deployment spec generated to: {spec_path.relative_to(Path.cwd())}[/]"
     )

@@ -59,6 +59,29 @@ class OperatorLoadException(BCDTBaseException):
 class InvalidDeploymentSpec(BCDTBaseException):
     """Invalid bcdt config."""
 
+    def __init__(self, msg=None, exc=None, spec_errors=None):
+        if msg is None and exc is not None:
+            msg_list = ["Error while parsing Deployment Spec:"]
+            if hasattr(exc, "problem_mark"):
+                if exc.context is not None:
+                    msg_list.extend([exc.problem_mark, exc.problem, exc.context])
+                else:
+                    msg_list.extend([exc.problem_mark, exc.problem])
+            else:
+                msg_list.append("YAML decoding error.")
+
+            msg = "\n".join([str(m) for m in msg_list])
+
+        if msg is None and spec_errors is not None:
+            msg_list = ["Error while parsing Deployment Spec."]
+            for field, errors in spec_errors.items():
+                error_msg = '\n'.join(errors)
+                msg_list.append(f"{field}: {error_msg}")
+
+            msg = '\n'.join(msg_list)
+
+        super(InvalidDeploymentSpec, self).__init__(msg)
+
 
 class DeploymentSpecNotFound(BCDTBaseException):
     """
