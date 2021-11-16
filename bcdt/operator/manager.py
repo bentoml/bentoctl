@@ -14,6 +14,7 @@ from simple_term_menu import TerminalMenu
 
 from bcdt.exceptions import OperatorExists, OperatorNotFound
 from bcdt.operator import Operator
+from bcdt.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
 from bcdt.utils import console
 
 
@@ -35,8 +36,6 @@ def _get_bcdt_home():
     return bcdt_home
 
 
-MAIN_BRANCH = "deployers"
-OFFICIAL_OPERATORS = {"aws-lambda": "jjmachan/aws-lambda-deploy:deployers"}
 BCDT_HOME = os.path.expanduser(_get_bcdt_home())
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
