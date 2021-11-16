@@ -18,18 +18,22 @@ def load_deployment_spec(spec_path):
 def deploy_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
     deployable_path = op.deploy(
-        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+        deployment_spec.bento_path, deployment_spec.deployment_name, operator_spec
     )
 
     # remove the deployable
-    shutil.rmtree(deployable_path)
+    if deployable_path is not None:
+        shutil.rmtree(deployable_path)
 
 
 def update_spec(deployment_spec_path):
     op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    op.update(
-        deployment_spec.bundle_path, deployment_spec.deployment_name, operator_spec
+    deployable_path = op.update(
+        deployment_spec.bento_path, deployment_spec.deployment_name, operator_spec
     )
+
+    if deployable_path is not None:
+        shutil.rmtree(deployable_path)
 
 
 def describe_spec(deployment_spec_path):
