@@ -8,7 +8,6 @@ from collections import namedtuple
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
@@ -283,7 +282,7 @@ def add_operator(user_input):
 
 def list_operators():
     operators_list = LocalOperatorManager.list()
-    pprint(operators_list)
+    return operators_list
 
 
 def remove_operator(name, keep_locally, skip_confirm):
