@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import bcdt.operator as op
+import bentoctl.operator as op
 
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 

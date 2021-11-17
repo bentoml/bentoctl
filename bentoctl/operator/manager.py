@@ -12,10 +12,10 @@ from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorNotFound
-from bcdt.operator import Operator
-from bcdt.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
-from bcdt.utils import console
+from bentoctl.exceptions import OperatorExists, OperatorNotFound
+from bentoctl.operator import Operator
+from bentoctl.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
+from bentoctl.utils import console
 
 
 def _get_bcdt_home():

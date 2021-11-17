@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-from bcdt.exceptions import OperatorConfigNotFound, OperatorLoadException
+from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 
 
 def _import_module(module_name, path):

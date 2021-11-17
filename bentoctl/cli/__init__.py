@@ -5,12 +5,12 @@ import cloup
 from cloup import Section
 from rich.pretty import pprint
 
-from bcdt.cli.interactive import deployment_spec_builder, save_deployment_spec
-from bcdt.cli.operator_management import get_operator_management_subcommands
-from bcdt.deployment_spec import DeploymentSpec
-from bcdt.exceptions import BCDTBaseException
-from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
-from bcdt.utils import console
+from bentoctl.cli.interactive import deployment_spec_builder, save_deployment_spec
+from bentoctl.cli.operator_management import get_operator_management_subcommands
+from bentoctl.deployment_spec import DeploymentSpec
+from bentoctl.exceptions import BCDTBaseException
+from bentoctl.ops import delete_spec, deploy_spec, describe_spec, update_spec
+from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 

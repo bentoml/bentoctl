@@ -1,8 +1,8 @@
 import click
 import cloup
 
-from bcdt.exceptions import BCDTBaseException
-from bcdt.operator.manager import (
+from bentoctl.exceptions import BCDTBaseException
+from bentoctl.operator.manager import (
     add_operator,
     list_operators,
     remove_operator,
