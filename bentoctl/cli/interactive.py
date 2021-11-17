@@ -8,10 +8,10 @@ from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
-from bcdt.deployment_spec import metadata_schema
-from bcdt.operator import Operator
-from bcdt.operator.manager import LocalOperatorManager
-from bcdt.utils import console
+from bentoctl.deployment_spec import metadata_schema
+from bentoctl.operator import Operator
+from bentoctl.operator.manager import LocalOperatorManager
+from bentoctl.utils import console
 
 
 def choose_operator_from_list():

@@ -6,7 +6,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-import bcdt.operator.manager as op_manager
+import bentoctl.operator.manager as op_manager
 
 console = Console(highlight=False)
 
@@ -30,7 +30,7 @@ def print_operators_list(op_list_dict: t.Dict[str, t.Tuple[str, str]]):
     table.add_column("Local Operator Location", overflow="fold")
     table.add_column("Operator URL", overflow="fold")
 
-    bcdt_home = op_manager._get_bcdt_home()
+    bcdt_home = op_manager._get_bentoctl_home()
     for op_name, (op_filepath, op_url) in op_list_dict.items():
         if op_url is None:
             op_url = "local-installation"

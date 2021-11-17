@@ -1,5 +1,5 @@
-_bcdt_completion() {
-    local IFS=$'\n'
+_bentoctl_completion() {
+    loal IFS=$'\n'
     local response
 
     response=$(env COMP_WORDS="${COMP_WORDS[*]}" COMP_CWORD=$COMP_CWORD _BCDT_COMPLETE=bash_complete $1)
@@ -21,9 +21,9 @@ _bcdt_completion() {
     return 0
 }
 
-_bcdt_completion_setup() {
-    complete -o nosort -F _bcdt_completion bcdt
+_bentoctl_completion_setup() {
+    complete -o nosort -F _bentoctl_completion bentoctl
 }
 
-_bcdt_completion_setup;
+_bentoctl_completion_setup;
 

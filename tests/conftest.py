@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import bcdt.operator as op
+import bentoctl.operator as op
 
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
@@ -28,7 +28,7 @@ def mock_download_repo(tmpoperator, monkeypatch, expected_repo_url=None):
 
     def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
         """
-        makes a mock function for the _download_repo function in bcdt.operator.manager.
+        makes a mock function for the _download_repo function in bentoctl.operator.manager.
         This mock function has an additional check to ensure the correct URL is
         generated for download.
         """

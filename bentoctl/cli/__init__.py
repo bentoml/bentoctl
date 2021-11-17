@@ -5,36 +5,36 @@ import cloup
 from cloup import Section
 from rich.pretty import pprint
 
-from bcdt.cli.interactive import deployment_spec_builder, save_deployment_spec
-from bcdt.cli.operator_management import get_operator_management_subcommands
-from bcdt.deployment_spec import DeploymentSpec
-from bcdt.exceptions import BCDTBaseException
-from bcdt.ops import delete_spec, deploy_spec, describe_spec, update_spec
-from bcdt.utils import console
+from bentoctl.cli.interactive import deployment_spec_builder, save_deployment_spec
+from bentoctl.cli.operator_management import get_operator_management_subcommands
+from bentoctl.deployment_spec import DeploymentSpec
+from bentoctl.exceptions import BentoctlException
+from bentoctl.ops import delete_spec, deploy_spec, describe_spec, update_spec
+from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-class BcdtSections:
+class BentoctlSections:
     OPERATIONS = Section("Deployment Operations")
     OPERATORS = Section("Operator Management")
     INTERACTIVE = Section("Interactive Mode")
 
 
 @cloup.group(show_subcommand_aliases=True, context_settings=CONTEXT_SETTINGS)
-def bcdt():
+def bentoctl():
     """
-    <name> (bcdt) - Manages deployment of bentos to various cloud services.
+    <name> (bentoctl) - Manages deployment of bentos to various cloud services.
 
     This tool helps you deploy your bentos to any cloud service you want. To start off
     you have to install some operators that you need to deploy to the cloud
-    service of your choice, check out `bcdt operator --help` for more details. You can
-    run `bcdt generate` to start the interactive deployment spec builder or
+    service of your choice, check out `bentoctl operator --help` for more details. You can
+    run `bentoctl generate` to start the interactive deployment spec builder or
     check out the <link to deployment_spec doc> on how to write one yourself.
     """
 
 
-@bcdt.command(section=BcdtSections.OPERATIONS)
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option(
     "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
 )
@@ -70,11 +70,11 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
         if describe_deployment:
             info_json = describe_spec(deployment_spec_path)
             pprint(info_json)
-    except BCDTBaseException as e:
+    except BentoctlException as e:
         e.show()
 
 
-@bcdt.command(section=BcdtSections.OPERATIONS)
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.argument("deployment_spec_path", type=click.Path())
 def describe(deployment_spec_path):
     """
@@ -84,7 +84,7 @@ def describe(deployment_spec_path):
     pprint(info_json)
 
 
-@bcdt.command(section=BcdtSections.OPERATIONS)
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option("--describe-deployment", is_flag=True)
 @click.argument("deployment_spec_path", type=click.Path())
 def update(deployment_spec_path, describe_deployment):
@@ -97,7 +97,7 @@ def update(deployment_spec_path, describe_deployment):
         pprint(info_json)
 
 
-@bcdt.command(section=BcdtSections.OPERATIONS)
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.argument("deployment_spec_path", type=click.Path())
 def delete(deployment_spec_path):
     """
@@ -107,7 +107,7 @@ def delete(deployment_spec_path):
     click.echo(f"Deleted deployment - {deployment_name}!")
 
 
-@bcdt.command(section=BcdtSections.INTERACTIVE)
+@bentoctl.command(section=BentoctlSections.INTERACTIVE)
 def generate():
     """
     Start the interactive deployment spec builder file.
@@ -128,4 +128,4 @@ def generate():
 
 
 # subcommands
-bcdt.add_command(get_operator_management_subcommands(), section=BcdtSections.OPERATORS)
+bentoctl.add_command(get_operator_management_subcommands(), section=BentoctlSections.OPERATORS)

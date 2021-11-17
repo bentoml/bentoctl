@@ -7,17 +7,17 @@ from pathlib import Path
 
 import pytest
 
-from bcdt import operator as op
+from bentoctl import operator as op
 
 from .conftest import TESTOP_PATH
 
 
-def test_bcdt_home_dir(tmpdir):
+def test_bentoctl_home_dir(tmpdir):
 
-    assert op.manager._get_bcdt_home() == Path(os.path.expanduser("~/bcdt"))
+    assert op.manager._get_bentoctl_home() == Path(os.path.expanduser("~/bcdt"))
 
     os.environ["BCDT_HOME"] = tmpdir.dirname
-    bcdt_home = op.manager._get_bcdt_home()
+    bcdt_home = op.manager._get_bentoctl_home()
     assert bcdt_home == Path(tmpdir.dirname)
 
 
@@ -41,8 +41,8 @@ def test_operator_manager(tmpdir):
     """
     Tests all the functionalities for the OperatorManager obj.
     """
-    from bcdt.exceptions import OperatorExists, OperatorNotFound
-    from bcdt.operator.manager import OperatorManager
+    from bentoctl.exceptions import OperatorExists, OperatorNotFound
+    from bentoctl.operator.manager import OperatorManager
 
     # brand new manager, there is no `operator_list.json` file in filesystem.
     op_mngr = OperatorManager(tmpdir)
@@ -140,7 +140,7 @@ def test_operator_management_add_with_url(
 
     def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
         """
-        makes a mock function for the _download_repo function in bcdt.operator.manager.
+        makes a mock function for the _download_repo function in bentoctl.operator.manager.
         This mock function has an additional check to ensure the correct URL is
         generated for download.
         """

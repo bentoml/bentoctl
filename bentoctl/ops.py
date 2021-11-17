@@ -1,8 +1,8 @@
 import shutil
 
-from bcdt.deployment_spec import DeploymentSpec
-from bcdt.operator import Operator
-from bcdt.operator.manager import LocalOperatorManager
+from bentoctl.deployment_spec import DeploymentSpec
+from bentoctl.operator import Operator
+from bentoctl.operator.manager import LocalOperatorManager
 
 
 def load_deployment_spec(spec_path):
