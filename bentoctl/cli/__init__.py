@@ -24,12 +24,12 @@ class BentoctlSections:
 @cloup.group(show_subcommand_aliases=True, context_settings=CONTEXT_SETTINGS)
 def bentoctl():
     """
-    <name> (bentoctl) - Manages deployment of bentos to various cloud services.
+    Bentoctl - Manages deployment of bentos to various cloud services.
 
     This tool helps you deploy your bentos to any cloud service you want. To start off
     you have to install some operators that you need to deploy to the cloud
-    service of your choice, check out `bentoctl operator --help` for more details. You can
-    run `bentoctl generate` to start the interactive deployment spec builder or
+    service of your choice, check out `bentoctl operator --help` for more details.
+    You can run `bentoctl generate` to start the interactive deployment spec builder or
     check out the <link to deployment_spec doc> on how to write one yourself.
     """
 
@@ -128,4 +128,6 @@ def generate():
 
 
 # subcommands
-bentoctl.add_command(get_operator_management_subcommands(), section=BentoctlSections.OPERATORS)
+bentoctl.add_command(
+    get_operator_management_subcommands(), section=BentoctlSections.OPERATORS
+)
