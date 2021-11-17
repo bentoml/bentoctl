@@ -28,9 +28,9 @@ def mock_download_repo(tmpoperator, monkeypatch, expected_repo_url=None):
 
     def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
         """
-        makes a mock function for the _download_repo function in bentoctl.operator.manager.
-        This mock function has an additional check to ensure the correct URL is
-        generated for download.
+        makes a mock function for the _download_repo function in
+        bentoctl.operator.manager. This mock function has an additional check to ensure
+        the correct URL is generated for download.
         """
         if expected_repo_url is not None:
             assert repo_url == expected_repo_url
