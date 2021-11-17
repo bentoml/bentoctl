@@ -1,8 +1,8 @@
 import click
 import cloup
 
-from bcdt.exceptions import BCDTBaseException
-from bcdt.operator.manager import (
+from bentoctl.exceptions import BentoctlException
+from bentoctl.operator.manager import (
     add_operator,
     list_operators,
     remove_operator,
@@ -36,15 +36,15 @@ def get_operator_management_subcommands():
         """
         Add operators.
 
-        There are 5 ways to add an operator into bcdt and they are -
+        There are 5 ways to add an operator into bentoctl and they are -
 
         1. Interactive Mode: lists all official operators for user to choose from. Just
-           type `bcdt add` to enter this mode.
+           type `bentoctl add` to enter this mode.
 
         2. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you. You can see the list of official
            operators <link to list off operators>.
-           eg. `bcdt add aws-lambda`
+           eg. `bentoctl add aws-lambda`
 
         3. Path: If you have the operator locally, either because you are building
            our own operator or if cloning the operator from some other
@@ -55,10 +55,10 @@ def get_operator_management_subcommands():
 
         4. Github Repo: this should be in the format
            `repo_owner/repo_name[:repo_branch]`.
-           eg: `bcdt add bentoml/aws-lambda-repo`
+           eg: `bentoctl add bentoml/aws-lambda-repo`
 
         5. Git Url: of the form https://[\\w]+.git.
-           eg: `bcdt add https://github.com/bentoml/aws-lambda-deploy.git`
+           eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
 
         """
         try:
@@ -68,10 +68,10 @@ def get_operator_management_subcommands():
             else:
                 click.echo(
                     f"Unable to add operator. `{name}` did not match any of the "
-                    "operator addition options. Check `bcdt operator add --help`"
+                    "operator addition options. Check `bentoctl operator add --help`"
                     "for mode details on how you can call this command."
                 )
-        except BCDTBaseException as e:
+        except BentoctlException as e:
             e.show()
 
     @operator_management.command()
@@ -99,7 +99,7 @@ def get_operator_management_subcommands():
             )
             if op_name is not None:
                 click.echo(f"operator '{op_name}' removed!")
-        except BCDTBaseException as e:
+        except BentoctlException as e:
             e.show()
 
     @operator_management.command()
@@ -115,7 +115,7 @@ def get_operator_management_subcommands():
         try:
             update_operator(name)
             click.echo(f"operator '{name}' updated!")
-        except BCDTBaseException as e:
+        except BentoctlException as e:
             e.show()
 
     return operator_management

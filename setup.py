@@ -19,10 +19,10 @@ extras_require = {
 }
 
 setup(
-    name="bcdt",
+    name="bentoctl",
     version="0.1.0",
     py_modules=["cli"],
     install_requires=install_requires,
     extras_require=extras_require,
-    entry_points={"console_scripts": ["bcdt = bcdt.cli:bcdt"]},
+    entry_points={"console_scripts": ["bentoctl = bentoctl.cli:bentoctl"]},
 )

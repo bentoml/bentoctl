@@ -1,6 +1,6 @@
-class BCDTBaseException(Exception):
+class BentoctlException(Exception):
     """
-    Base class for all of bcdt's exceptions.
+    Base class for all of bentoctl's exceptions.
     Each custom exception is derived from this base class.
     """
 
@@ -11,7 +11,7 @@ class BCDTBaseException(Exception):
         print(self)
 
 
-class OperatorExists(BCDTBaseException):
+class OperatorExists(BentoctlException):
     """Raised when an existing operator was found."""
 
     def __init__(self, operator_name, msg=None):
@@ -21,21 +21,21 @@ class OperatorExists(BCDTBaseException):
         self.operator_name = operator_name
 
 
-class OperatorNotFound(BCDTBaseException):
+class OperatorNotFound(BentoctlException):
     """Raised when calling an operator that is not found."""
 
     def __init__(self, operator_name, msg=None):
         if msg is None:
             msg = (
                 f"Operator '{operator_name}' not found! Please check if the operator"
-                " is already added. Use `bcdt operator list` to see all available "
+                " is already added. Use `bentoctl operator list` to see all available "
                 "operators."
             )
         super(OperatorNotFound, self).__init__(msg)
         self.operator_name = operator_name
 
 
-class OperatorConfigNotFound(BCDTBaseException):
+class OperatorConfigNotFound(BentoctlException):
     """
     Raised when trying to load an operator that doesn't have a operator_config.py
     file
@@ -48,16 +48,16 @@ class OperatorConfigNotFound(BCDTBaseException):
         self.operator_path = operator_path
 
 
-class OperatorIsLocal(BCDTBaseException):
+class OperatorIsLocal(BentoctlException):
     """Raised when trying to do unsupported operations on Local operators"""
 
 
-class OperatorLoadException(BCDTBaseException):
+class OperatorLoadException(BentoctlException):
     """Raised when trying to import an operator without the proper structure"""
 
 
-class InvalidDeploymentSpec(BCDTBaseException):
-    """Invalid bcdt config."""
+class InvalidDeploymentSpec(BentoctlException):
+    """Invalid bentoctl config."""
 
     def __init__(self, msg=None, exc=None, spec_errors=None):
         if msg is None and exc is not None:
@@ -83,7 +83,7 @@ class InvalidDeploymentSpec(BCDTBaseException):
         super(InvalidDeploymentSpec, self).__init__(msg)
 
 
-class DeploymentSpecNotFound(BCDTBaseException):
+class DeploymentSpecNotFound(BentoctlException):
     """
     When deployment spec is not found.
     """

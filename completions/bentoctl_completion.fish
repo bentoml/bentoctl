@@ -1,7 +1,7 @@
-function _bcdt_completion;
+function _bentoctl_completion;
     set -l response;
 
-    for value in (env _BCDT_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) bcdt);
+    for value in (env _BENTOCTL_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) bentoctl);
         set response $response $value;
     end;
 
@@ -18,5 +18,5 @@ function _bcdt_completion;
     end;
 end;
 
-complete --no-files --command bcdt --arguments "(_bcdt_completion)";
+complete --no-files --command bentoctl --arguments "(_bentoctl_completion)";
 

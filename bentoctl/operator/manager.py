@@ -12,16 +12,16 @@ from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
-from bcdt.exceptions import OperatorExists, OperatorNotFound
-from bcdt.operator import Operator
-from bcdt.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
-from bcdt.utils import console
+from bentoctl.exceptions import OperatorExists, OperatorNotFound
+from bentoctl.operator import Operator
+from bentoctl.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
+from bentoctl.utils import console
 
 
-def _get_bcdt_home():
-    default_bcdt_home = os.path.expanduser("~/bcdt")
-    bcdt_home = Path(os.environ.get("BCDT_HOME", default_bcdt_home))
-    # if not present create bcdt and bcdt/operators dir
+def _get_bentoctl_home():
+    default_bentoctl_home = os.path.expanduser("~/bentoctl")
+    bcdt_home = Path(os.environ.get("BENTOCTL_HOME", default_bentoctl_home))
+    # if not present create bentoctl and bentoctl/operators dir
     if not bcdt_home.exists():
         os.mkdir(bcdt_home)
 
@@ -36,7 +36,7 @@ def _get_bcdt_home():
     return bcdt_home
 
 
-BCDT_HOME = os.path.expanduser(_get_bcdt_home())
+BENTOCTL_HOME = os.path.expanduser(_get_bentoctl_home())
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
 op = namedtuple("Operator", ["op_path", "op_repo_url"])
@@ -95,7 +95,7 @@ class OperatorManager:
         return op_path, op_repo_url
 
 
-LocalOperatorManager = OperatorManager(_get_bcdt_home() / "operators")
+LocalOperatorManager = OperatorManager(_get_bentoctl_home() / "operators")
 
 
 def _remove_if_exists(path):
@@ -159,7 +159,7 @@ def _download_repo(repo_url: str, operator_dir_name: str) -> str:
         operator_dir: the directory to which the repo has been downloaded and saved.
     """
     # find default location
-    bcdt_home = _get_bcdt_home()
+    bcdt_home = _get_bentoctl_home()
     operator_home = os.path.join(bcdt_home, "operators")
 
     # the operator's name is its directory name
@@ -200,21 +200,21 @@ def add_operator(user_input):
 
         4. Github Repo: this should be in the format
            `repo_owner/repo_name[:repo_branch]`.
-           eg: `bcdt add bentoml/aws-lambda-repo`
+           eg: `bentoctl add bentoml/aws-lambda-repo`
 
         5. Git Url: of the form https://[\\w]+.git.
-           eg: `bcdt add https://github.com/bentoml/aws-lambda-deploy.git`
+           eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
 
     There user_input will be evaluated in that order
 
     Args:
-        user_input: the input from the user after `bcdt operator add`.
+        user_input: the input from the user after `bentoctl operator add`.
 
     Returns:
         operator_name, if installed
 
     Raises:
-        bcdt.exceptions.OperatorExists
+        bentoctl.exceptions.OperatorExists
     """
     # regex to match a github repo
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
