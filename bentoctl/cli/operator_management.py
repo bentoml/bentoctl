@@ -8,6 +8,7 @@ from bentoctl.operator.manager import (
     remove_operator,
     update_operator,
 )
+from bentoctl.utils import print_operators_list
 
 
 def get_operator_management_subcommands():
@@ -28,7 +29,8 @@ def get_operator_management_subcommands():
         Lists the operator, the path from where you can access operator locally and
         if the operator was pulled from github, the github URL is also shown.
         """
-        list_operators()
+        operator_list = list_operators()
+        print_operators_list(operator_list)
 
     @operator_management.command()
     @click.argument("name", default="INTERACTIVE_MODE")
