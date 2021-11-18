@@ -22,10 +22,6 @@ def _get_bentoctl_home():
     if not os.path.exists(operator_home):
         os.mkdir(operator_home)
 
-    deployments_home = os.path.join(bentoctl_home, "deployments")
-    if not os.path.exists(deployments_home):
-        os.mkdir(deployments_home)
-
     return bentoctl_home
 
 

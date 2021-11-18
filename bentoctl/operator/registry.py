@@ -1,28 +1,27 @@
-import os
-import logging
 import json
+import logging
+import os
 import shutil
+import re
 import tempfile
+import typing as t
 from collections import namedtuple
 from pathlib import Path
 
-from bentoctl.exceptions import (
-    OperatorNotFound,
-    OperatorExists,
-    BentoctlException,
-)
-from bentoctl.operator.operator import Operator
+from git import Repo
+
+from bentoctl.exceptions import BentoctlException, OperatorExists, OperatorNotFound
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
+from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
     _download_git_repo,
-    _is_official_operator,
     _fetch_github_info,
+    _get_operator_dir_path,
     _github_archive_link,
     _is_github_link,
     _is_github_repo,
-    _get_operator_dir_path,
+    _is_official_operator,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -45,74 +44,71 @@ class OperatorRegistry:
     def get(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        op_path, repo_url = self.operators_list[name]
-        return Operator(op_path, repo_url)
+        op_path, git_url = self.operators_list[name]
+        return Operator(op_path, git_url)
 
     def _write_to_file(self):
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def add(self, name):
-        """
-        1. Official operator: you can pass the name of one of the official operators
-           and the tool with fetch it for you.
+    def _add(self, operator):
+        self.operators_list[operator.name] = {
+            "path": os.path.abspath(operator.operator_path),
+            "git_url": operator.git_url,
+        }
+        self._write_to_file()
+        return operator.name
 
+    def add_from_path(self, operator_path: t.Union[Path, str]) -> str:
+        return self._add(Operator(operator_path))
+
+    def add_from_github(self, github_repo):
+        """
         2. Github Repo: this should be in the format
            `repo_owner/repo_name[:repo_branch]`.
            eg: `bentoctl add bentoml/aws-lambda-repo`
 
-        3. Git Url: of the form https://[\\w]+.git.
-           eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
+        """
+        if not _is_github_repo(github_repo):
+            raise ValueError(f"{github_repo} is not a Github repo.")
+        github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
+        owner, repo, branch = github_repo_re.match(github_repo).groups()
+        github_git_link = f"https://github.com/{owner}/{repo}.git"
 
-        4. Path: If you have the operator locally, either because you are building
-           our own operator or if cloning and tracking the operator in some other
-           remote repository (other than github) then you can just pass the path
-           after the add command and it will register the local operator for you.
-           This is a special case since the operator will not have an associated URL
-           with it and hence cannot be updated using the tool.
+        return self.add_from_git(github_git_link, branch)
+
+    def add_from_git(self, git_url, branch=None):
+        """
+        Adds a git url. This method with clone the operator repo and add it into
+        the registry.
 
         Args:
-            name: Name of the operator
-        Returns:
-            The the name of the operator installed.
-        Raises:
-            OperatorExists: There is another operator with the same name.
+            git_url: of the form https://[\\w]+.git.
+            branch (Optional): checkout to this branch.
         """
-        if name in self.operators_list:
-            raise OperatorExists(operator_name=name)
-
-        if os.path.exists(name):
-            content_path = name
-            repo_url = None
-            logger.info(
-                f"Adding an operator from local file system ({content_path})..."
-            )
-        elif (
-            _is_official_operator(name)
-            or _is_github_repo(name)
-            or _is_github_link(name)
-        ):
-            if _is_official_operator(name):
-                operator_repo = OFFICIAL_OPERATORS[name]
-            else:
-                operator_repo = name
-            owner, repo, branch = _fetch_github_info(operator_repo)
-            repo_url = _github_archive_link(owner, repo, branch)
-            temp_dir = tempfile.mkdtemp()
-            content_path = _download_git_repo(repo_url, temp_dir)
-        else:
-            raise OperatorNotFound(name)
-
-        operator = Operator(content_path)
+        tempdir = tempfile.mkdtemp()
+        Repo.clone_from(git_url, tempdir)
+        operator = Operator(tempdir)
         operator_path = _get_operator_dir_path(operator.name)
-        shutil.move(content_path, operator_path)
+        shutil.move(tempdir, operator_path)
 
-        self.operators_list[operator.name] = {
-            "path": os.path.abspath(operator_path),
-            "repo_url": repo_url,
-        }
-        self._write_to_file()
-        return operator.name
+        if branch:
+            # checkout to the branch
+            repo = Repo(operator_path)
+            repo.git.checkout(branch)
+
+        operator.path = Path(operator_path)
+        operator.git_url = git_url
+        return self._add(operator)
+
+    def add_official_operator(self, name):
+        """
+        1. Official operator: you can pass the name of one of the official operators
+           and the tool with fetch it for you.
+        """
+        if name not in OFFICIAL_OPERATORS:
+            raise ValueError(f"{name} is not an Official Operator of bentoctl.")
+        return self.add_from_github(OFFICIAL_OPERATORS[name])
 
     def update(self, name):
         try:
