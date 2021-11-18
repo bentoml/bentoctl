@@ -15,6 +15,7 @@ from bentoctl.utils import console
 
 local_operator_registry = get_local_operator_registry()
 
+
 def choose_operator_from_list():
     """
     interactive menu to select operator
