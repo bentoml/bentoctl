@@ -10,7 +10,7 @@ from simple_term_menu import TerminalMenu
 
 from bentoctl.deployment_spec import metadata_schema
 from bentoctl.operator import Operator
-from bentoctl.operator.manager import LocalOperatorManager
+from bentoctl.operator.utils import LocalOperatorRegistry
 from bentoctl.utils import console
 
 
@@ -18,7 +18,7 @@ def choose_operator_from_list():
     """
     interactive menu to select operator
     """
-    available_operators = list(LocalOperatorManager.list())
+    available_operators = list(LocalOperatorRegistry.list())
     tmenu = TerminalMenu(available_operators, title="Choose an operator")
     choice = tmenu.show()
     return available_operators[choice]
@@ -63,7 +63,10 @@ def clear_console(num_lines):
             ControlType.CARRIAGE_RETURN,
             (ControlType.ERASE_IN_LINE, 2),
             *(
-                ((ControlType.CURSOR_UP, 1), (ControlType.ERASE_IN_LINE, 2),)
+                (
+                    (ControlType.CURSOR_UP, 1),
+                    (ControlType.ERASE_IN_LINE, 2),
+                )
                 * num_lines
             ),
         )
@@ -120,7 +123,7 @@ def generate_spec(bento, schema):
     if bento is None:
         bento = prompt_input("bento", bento_schema)
     intended_print(f"bento: {bento}", indent=1)
-    spec['bento'] = bento
+    spec["bento"] = bento
 
     # get other operator schema
     for field, rule in schema.items():
@@ -156,7 +159,7 @@ deployment. Fill out the appropriate values for the fields.
 
     # spec
     console.print("[bold]spec: [/]")
-    op_path, _ = LocalOperatorManager.get(metadata["operator"])
+    op_path, _ = LocalOperatorRegistry.get(metadata["operator"])
     op = Operator(op_path)
     spec = generate_spec(bento, op.operator_schema)
 

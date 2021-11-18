@@ -1,14 +1,17 @@
 import click
 import cloup
+from rich.pretty import pprint
+from rich.prompt import Confirm
+from simple_term_menu import TerminalMenu
 
 from bentoctl.exceptions import BentoctlException
-from bentoctl.operator.manager import (
-    add_operator,
-    list_operators,
-    remove_operator,
-    update_operator,
+from bentoctl.operator.utils import (
+    get_local_operator_registry,
 )
-from bentoctl.utils import print_operators_list
+from bentoctl.operator.constants import OFFICIAL_OPERATORS
+
+
+local_operator_registry = get_local_operator_registry()
 
 
 def get_operator_management_subcommands():
@@ -29,12 +32,12 @@ def get_operator_management_subcommands():
         Lists the operator, the path from where you can access operator locally and
         if the operator was pulled from github, the github URL is also shown.
         """
-        operator_list = list_operators()
-        print_operators_list(operator_list)
+        operators_list = local_operator_registry.list()
+        pprint(operators_list)
 
     @operator_management.command()
-    @click.argument("name", default="INTERACTIVE_MODE")
-    def add(name):
+    @click.argument("name")
+    def add(name=None):
         """
         Add operators.
 
@@ -63,18 +66,27 @@ def get_operator_management_subcommands():
            eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
 
         """
-        try:
-            operator_name = add_operator(name)
-            if operator_name is not None:
-                click.echo(f"Added {operator_name}!")
-            else:
-                click.echo(
-                    f"Unable to add operator. `{name}` did not match any of the "
-                    "operator addition options. Check `bentoctl operator add --help`"
-                    "for mode details on how you can call this command."
-                )
-        except BentoctlException as e:
-            e.show()
+        if not name:
+            # show a simple menu with all the available official operators
+            available_operators = list(OFFICIAL_OPERATORS.keys())
+            tmenu = TerminalMenu(
+                available_operators, title="Choose one of the Official Operators"
+            )
+            choice = tmenu.show()
+            name = available_operators[choice]
+        else:
+            try:
+                operator_name = local_operator_registry.add(name)
+                if operator_name is not None:
+                    click.echo(f"Added {operator_name}!")
+                else:
+                    click.echo(
+                        f"Unable to add operator. `{name}` did not match any of the "
+                        "operator addition options. Check `bentoctl operator add --help`"
+                        "for mode details on how you can call this command."
+                    )
+            except BentoctlException as e:
+                e.show()
 
     @operator_management.command()
     @click.option(
@@ -95,12 +107,15 @@ def get_operator_management_subcommands():
         Pass the flag `--keep-locally` to keep the operator codebase in the local
         director.
         """
-        try:
-            op_name = remove_operator(
-                name, keep_locally=keep_locally, skip_confirm=skip_confirm
+        if not skip_confirm:
+            proceed_with_delete = Confirm.ask(
+                f"Are you sure you want to delete '{name}' operator"
             )
-            if op_name is not None:
-                click.echo(f"operator '{op_name}' removed!")
+            if not proceed_with_delete:
+                return
+        try:
+            local_operator_registry.remove(name, delete_from_disk=not keep_locally)
+            click.echo(f"operator '{name}' removed!")
         except BentoctlException as e:
             e.show()
 
@@ -115,7 +130,7 @@ def get_operator_management_subcommands():
         the Github repo and update the local codebase with it.
         """
         try:
-            update_operator(name)
+            local_operator_registry.update(name)
             click.echo(f"operator '{name}' updated!")
         except BentoctlException as e:
             e.show()

@@ -8,7 +8,7 @@ import click
 import yaml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
-from bentoctl.operator.manager import LocalOperatorManager
+from bentoctl.operator.utils import LocalOperatorRegistry
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
@@ -40,7 +40,7 @@ class DeploymentSpec:
             raise InvalidDeploymentSpec("name not found")
 
         # check `operator`
-        if self.metadata.get("operator") not in LocalOperatorManager.list():
+        if self.metadata.get("operator") not in LocalOperatorRegistry.list():
             raise InvalidDeploymentSpec("operator not found")
         self.operator_name = self.metadata.get("operator")
 

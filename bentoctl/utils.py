@@ -6,7 +6,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-import bentoctl.operator.manager as op_manager
+import bentoctl.operator.utils as op_manager
 
 console = Console(highlight=False)
 
