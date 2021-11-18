@@ -10,12 +10,13 @@ from bentoctl.exceptions import OperatorNotFound, OperatorExists, BentoctlExcept
 from bentoctl.operator import Operator
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.utils import (
-    _download_repo,
+    _download_git_repo,
     _is_official_operator,
     _fetch_github_info,
     _github_archive_link,
     _is_github_link,
-    _is_github_repo, _get_operator_dir_path,
+    _is_github_repo,
+    _get_operator_dir_path,
 )
 
 
@@ -76,27 +77,31 @@ class OperatorRegistry:
         if name in self.operators_list:
             raise OperatorExists(operator_name=name)
 
-        if _is_official_operator(name):
-            logger.log(f"Adding an official operator ({name})...")
-            operator_repo = OFFICIAL_OPERATORS[name]
-            owner, repo, branch = _fetch_github_info(operator_repo)
-            repo_url = _github_archive_link(owner, repo, branch)
-            operator_path = _download_repo(repo_url=repo_url, dir_path=name)
-        elif _is_github_repo(name) or _is_github_link(name):
-            logger.log(f"Adding an operator from Github repo ({name})...")
-            owner, repo, branch = _fetch_github_info(name)
-            repo_url = _github_archive_link(owner, repo, branch)
-            operator_path = _download_repo(repo_url, repo)
-        elif os.path.exists(name):
+        if os.path.exists(name):
             operator_path = name
             repo_url = None
             logger.log(
                 f"Adding an operator from local file system ({operator_path})..."
             )
+        elif _is_official_operator(name) or _is_github_repo(name) or _is_github_link(name):
+            if _is_official_operator(name):
+                operator_repo = OFFICIAL_OPERATORS[name]
+            else:
+                operator_repo = name
+            owner, repo, branch = _fetch_github_info(operator_repo)
+            repo_url = _github_archive_link(owner, repo, branch)
+            temp_dir = tempfile.mkdtemp()
+            downloaded_path = _download_git_repo(repo_url, temp_dir)
+            operator_path = _get_operator_dir_path(name)
+            shutil.rmtree(operator_path)
+            shutil.move(downloaded_path, operator_path)
         else:
             raise OperatorNotFound(name)
 
-        self.operators_list[name] = {"path": os.path.abspath(operator_path), "repo_url": repo_url}
+        self.operators_list[name] = {
+            "path": os.path.abspath(operator_path),
+            "repo_url": repo_url,
+        }
         self._write_to_file()
 
     def update(self, name):
@@ -108,20 +113,22 @@ class OperatorRegistry:
                 )
                 return
             temp_dir = tempfile.mkdtemp()
-            _download_repo(operator.repo_url, temp_dir)
+            downloaded_path = _download_git_repo(operator.repo_url, temp_dir)
 
             operator_path = _get_operator_dir_path(name)
             shutil.rmtree(operator_path)
-            shutil.move(temp_dir, operator_path)
+            shutil.move(downloaded_path, operator_path)
         except BentoctlException as e:
             raise e
 
     def remove(self, name, remove_from_disk=False):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        op_path, op_repo_url = self.operators_list.pop(name)
+        operator_path = self.operators_list[name]["path"]
+        operator_repo_url = self.operators_list[name]["repo_url"]
+        del self.operators_list[name]
         self._write_to_file()
 
-        if remove_from_disk and op_repo_url is not None:
-            shutil.rmtree(op_path)
+        if remove_from_disk and operator_repo_url is not None:
+            shutil.rmtree(operator_path)
         return

@@ -88,7 +88,7 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.option(
-        "--keep-locally", is_flag=True, help="keep the operator code locally."
+        "--delete-from-disk", is_flag=True, help="keep the operator code locally."
     )
     @click.option(
         "-y",
@@ -97,7 +97,7 @@ def get_operator_management_subcommands():
         help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
-    def remove(name, keep_locally, skip_confirm):
+    def remove(name, delete_from_disk, skip_confirm):
         """
         Remove operators.
 
@@ -112,7 +112,7 @@ def get_operator_management_subcommands():
             if not proceed_with_delete:
                 return
         try:
-            local_operator_registry.remove(name, delete_from_disk=not keep_locally)
+            local_operator_registry.remove(name, delete_from_disk=delete_from_disk)
             click.echo(f"operator '{name}' removed!")
         except BentoctlException as e:
             e.show()

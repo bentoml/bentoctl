@@ -91,7 +91,7 @@ def _get_operator_dir_path(operator_name):
     return operator_dir
 
 
-def _download_repo(repo_url: str, dir_path: str) -> str:
+def _download_git_repo(repo_url: str, dir_path: str) -> str:
     """
     Download the `repo_url` and put it in the home operator directory with
     the `operator_dir_name`.
@@ -105,17 +105,13 @@ def _download_repo(repo_url: str, dir_path: str) -> str:
     """
 
     # download the repo as zipfile and extract it
+    zip_file_path = os.path.join(dir_path, "repo.zip")
     with console.status(f"downloading {repo_url}"):
-        _download_url(url=repo_url, dest=dir_path + ".zip")
-    with zipfile.ZipFile(dir_path + ".zip", "r") as z:
-        if os.path.exists(dir_path):
-            _remove_if_exists(dir_path)
+        _download_url(url=repo_url, dest=zip_file_path)
+    with zipfile.ZipFile(zip_file_path, "r") as z:
         extracted_repo_name = z.infolist()[0].filename
-        z.extractall(operator_home)
-        shutil.move(os.path.join(operator_home, extracted_repo_name), dir_path)
-    _remove_if_exists(dir_path + ".zip")
-
-    return dir_path
+        z.extractall(dir_path)
+    return os.path.join(dir_path, extracted_repo_name)
 
 
 def _is_github_repo(link: str) -> bool:
