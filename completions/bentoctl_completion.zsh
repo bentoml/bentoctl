@@ -6,7 +6,7 @@ _bentoctl_completion() {
     local -a response
     (( ! $+commands[bentoctl] )) && return 1
 
-    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _BCDT_COMPLETE=zsh_complete bentoctl)}")
+    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _BENTOCTL_COMPLETE=zsh_complete bentoctl)}")
 
     for type key descr in ${response}; do
         if [[ "$type" == "plain" ]]; then
@@ -31,5 +31,5 @@ _bentoctl_completion() {
     fi
 }
 
-compdef _bcdt_completion bentoctl;
+compdef _bentoctl_completion bentoctl;
 
