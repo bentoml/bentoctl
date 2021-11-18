@@ -18,8 +18,8 @@ def load_deployment_spec(spec_path):
 
 
 def deploy_spec(deployment_spec_path):
-    op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    deployable_path = op.deploy(
+    operator, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
+    deployable_path = operator.deploy(
         deployment_spec.bento_path, deployment_spec.deployment_name, operator_spec
     )
 
@@ -29,8 +29,8 @@ def deploy_spec(deployment_spec_path):
 
 
 def update_spec(deployment_spec_path):
-    op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    deployable_path = op.update(
+    operator, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
+    deployable_path = operator.update(
         deployment_spec.bento_path, deployment_spec.deployment_name, operator_spec
     )
 
@@ -39,12 +39,12 @@ def update_spec(deployment_spec_path):
 
 
 def describe_spec(deployment_spec_path):
-    op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    info_json = op.describe(deployment_spec.deployment_name, operator_spec)
+    operator, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
+    info_json = operator.describe(deployment_spec.deployment_name, operator_spec)
     return info_json
 
 
 def delete_spec(deployment_spec_path):
-    op, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
-    op.delete(deployment_spec.deployment_name, operator_spec)
+    operator, deployment_spec, operator_spec = load_deployment_spec(deployment_spec_path)
+    operator.delete(deployment_spec.deployment_name, operator_spec)
     return deployment_spec.deployment_name

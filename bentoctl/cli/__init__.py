@@ -9,7 +9,7 @@ from bentoctl.cli.interactive import deployment_spec_builder, save_deployment_sp
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.deployment_spec import DeploymentSpec
 from bentoctl.exceptions import BentoctlException
-from bentoctl.ops import delete_spec, deploy_spec, describe_spec, update_spec
+from bentoctl.operations import delete_spec, deploy_spec, describe_spec, update_spec
 from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
