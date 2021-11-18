@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+import bentoctl.operator.operator
+import bentoctl.operator.registry
 from bentoctl import operator as op
 
 from .conftest import TESTOP_PATH
@@ -23,7 +25,7 @@ def test_bentoctl_home_dir(tmpdir):
 
 def test_operator_loader(tmpdir):
     shutil.copytree(TESTOP_PATH, os.path.join(tmpdir, "testop"))
-    operator = op.Operator(os.path.join(tmpdir, "testop"))
+    operator = bentoctl.operator.operator.Operator(os.path.join(tmpdir, "testop"))
     assert operator.name == "testop"
 
     deployable_path = operator.deploy("test_bundle", "first", {})
@@ -42,12 +44,12 @@ def test_operator_manager(tmpdir):
     Tests all the functionalities for the OperatorManager obj.
     """
     from bentoctl.exceptions import OperatorExists, OperatorNotFound
-    from bentoctl.operator.manager import OperatorManager
+    from bentoctl.operator.registry import OperatorRegistry
 
     # brand new manager, there is no `operator_list.json` file in filesystem.
-    op_mngr = OperatorManager(tmpdir)
-    op_mngr.add("testop", TESTOP_PATH, op_repo_url=None)
-    op_mngr.add("testop_with_url", TESTOP_PATH, op_repo_url="testop_url")
+    op_mngr = OperatorRegistry(tmpdir)
+    op_mngr.add("testop", TESTOP_PATH, repo_url=None)
+    op_mngr.add("testop_with_url", TESTOP_PATH, repo_url="testop_url")
 
     op1 = op_mngr.get("testop")
     assert op1.op_path == TESTOP_PATH
@@ -65,7 +67,7 @@ def test_operator_manager(tmpdir):
         op_mngr.add("testop", TESTOP_PATH)
 
     # `operator_list.json` is present, init with existing.
-    op_mngr = OperatorManager(tmpdir)
+    op_mngr = OperatorRegistry(tmpdir)
     ops_list = op_mngr.list()
     (op1_path, op1_url) = ops_list["testop"]
     assert op1_path == TESTOP_PATH
@@ -91,7 +93,7 @@ def test_operator_management_add(tmpdir, monkeypatch):
     Test the operator management operation `add` that adds an operator from the loca
     file system.
     """
-    tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
+    tmpOpsManager = bentoctl.operator.store.OperatorRegistry(tmpdir.dirname)
     monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
 
     assert op.manager.add_operator(TESTOP_PATH) == "testop"
@@ -131,7 +133,7 @@ github_url = "https://github.com/{owner}/{name}/archive/{branch}.zip"
 def test_operator_management_add_with_url(
     tmpdir, monkeypatch, user_input, expected_repo_url
 ):
-    tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
+    tmpOpsManager = bentoctl.operator.store.OperatorRegistry(tmpdir.dirname)
     monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
 
     def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
@@ -158,10 +160,10 @@ def test_operator_management_update(mock_download_repo):
     op = mock_download_repo
     assert op.manager.add_operator("aws-lambda") == "testop"
     creation_time = os.path.getctime(
-        op.manager.LocalOperatorManager.get("testop").op_path
+        op.manager.LocalOperatorRegistry.get("testop").op_path
     )
     op.manager.update_operator("testop")
     updation_time = os.path.getctime(
-        op.manager.LocalOperatorManager.get("testop").op_path
+        op.manager.LocalOperatorRegistry.get("testop").op_path
     )
     assert updation_time > creation_time

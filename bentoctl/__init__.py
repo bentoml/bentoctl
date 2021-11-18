@@ -1,7 +1,7 @@
-from bentoctl.ops import delete_spec as delete
-from bentoctl.ops import deploy_spec as deploy
-from bentoctl.ops import describe_spec as describe
-from bentoctl.ops import update_spec as update
+from bentoctl.operations import delete_spec as delete
+from bentoctl.operations import deploy_spec as deploy
+from bentoctl.operations import describe_spec as describe
+from bentoctl.operations import update_spec as update
 
 
 __all__ = [
