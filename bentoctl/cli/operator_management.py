@@ -5,9 +5,7 @@ from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
 from bentoctl.exceptions import BentoctlException
-from bentoctl.operator.utils import (
-    get_local_operator_registry,
-)
+from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 
 

@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 
 from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
+from bentoctl.operator.registry import OperatorRegistry
+from bentoctl.operator.utils import _get_bentoctl_home
 
 
 def _import_module(module_name, path):
@@ -13,8 +15,9 @@ def _import_module(module_name, path):
 
 
 class Operator:
-    def __init__(self, path):
+    def __init__(self, path, repo_url=None):
         self.path = Path(path)
+        self.repo_url = repo_url
         # load the operator config
         try:
             operator_config = _import_module("operator_config", self.path)
@@ -54,3 +57,7 @@ class Operator:
     def delete(self, deployment_name, config_dict):
         operator = _import_module(self.operator_module, self.path)
         operator.delete(deployment_name, config_dict)
+
+
+def get_local_operator_registry():
+    return OperatorRegistry(_get_bentoctl_home() / "operators")

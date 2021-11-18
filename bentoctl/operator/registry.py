@@ -15,7 +15,7 @@ from bentoctl.operator.utils import (
     _fetch_github_info,
     _github_archive_link,
     _is_github_link,
-    _is_github_repo,
+    _is_github_repo, _get_operator_dir_path,
 )
 
 
@@ -27,8 +27,8 @@ op = namedtuple("Operator", ["op_path", "op_repo_url"])
 class OperatorRegistry:
     def __init__(self, path):
         self.path = Path(path)
-        self.operator_file = self.path / "operator_list.json"
-        self.operators_list = {}
+        self.operator_file = os.path.join(self.path, "operator_list.json")
+        self.operators_list = None
         if self.operator_file.exists():
             self.operators_list = json.loads(
                 self.operator_file.read_text(encoding="utf-8")
@@ -40,8 +40,8 @@ class OperatorRegistry:
     def get(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        op_path, op_repo_url = self.operators_list[name]
-        return op(op_path, op_repo_url)
+        op_path, repo_url = self.operators_list[name]
+        return Operator(op_path, repo_url)
 
     def _write_to_file(self):
         with open(self.operator_file, "w", encoding="UTF-8") as f:
@@ -81,7 +81,7 @@ class OperatorRegistry:
             operator_repo = OFFICIAL_OPERATORS[name]
             owner, repo, branch = _fetch_github_info(operator_repo)
             repo_url = _github_archive_link(owner, repo, branch)
-            operator_path = _download_repo(repo_url=repo_url, operator_dir=name)
+            operator_path = _download_repo(repo_url=repo_url, dir_path=name)
         elif _is_github_repo(name) or _is_github_link(name):
             logger.log(f"Adding an operator from Github repo ({name})...")
             owner, repo, branch = _fetch_github_info(name)
@@ -96,24 +96,24 @@ class OperatorRegistry:
         else:
             raise OperatorNotFound(name)
 
-        self.operators_list[name] = op(os.path.abspath(operator_path), repo_url)
+        self.operators_list[name] = {"path": os.path.abspath(operator_path), "repo_url": repo_url}
         self._write_to_file()
 
     def update(self, name):
         try:
-            operator_path, repo_url = self.get(name)
-            if operator_path is None:
+            operator = self.get(name)
+            if operator.repo_url is None:
                 logger.warning(
                     "Operator is a local installation and hence cannot be updated."
                 )
                 return
             temp_dir = tempfile.mkdtemp()
-            shutil.move(operator_path, temp_dir)
-            _download_repo(repo_url, name)
-            self.operators_list[name] = op(operator_path, repo_url)
-            self._write_to_file()
+            _download_repo(operator.repo_url, temp_dir)
+
+            operator_path = _get_operator_dir_path(name)
+            shutil.rmtree(operator_path)
+            shutil.move(temp_dir, operator_path)
         except BentoctlException as e:
-            # move the old operator back
             raise e
 
     def remove(self, name, remove_from_disk=False):

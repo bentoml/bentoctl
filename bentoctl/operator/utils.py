@@ -7,13 +7,7 @@ from collections import namedtuple
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from rich.pretty import pprint
-from rich.prompt import Confirm
-
-from bentoctl.exceptions import OperatorNotFound
-from bentoctl.operator import Operator
 from bentoctl.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
-from bentoctl.operator.registry import OperatorRegistry
 from bentoctl.utils import console
 
 
@@ -38,10 +32,6 @@ def _get_bentoctl_home():
 BENTOCTL_HOME = os.path.expanduser(_get_bentoctl_home())
 
 github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
-
-
-def get_local_operator_registry():
-    return OperatorRegistry(_get_bentoctl_home() / "operators")
 
 
 def _remove_if_exists(path):
@@ -91,38 +81,41 @@ def _download_url(url, dest):
             os.remove(f.name)
 
 
-def _download_repo(repo_url: str, operator_dir: str) -> str:
+def _get_operator_dir_path(operator_name):
+    # find default location
+    bentoctl_home = _get_bentoctl_home()
+    operator_home = os.path.join(bentoctl_home, "operators")
+
+    # the operator's name is its directory name
+    operator_dir = os.path.join(operator_home, operator_name)
+    return operator_dir
+
+
+def _download_repo(repo_url: str, dir_path: str) -> str:
     """
     Download the `repo_url` and put it in the home operator directory with
     the `operator_dir_name`.
 
     Args:
         repo_url: github archive url that points to the repo.
-        operator_dir: the name of the directory that will be created for in
-            BENTOCTL_HOME/operators.
+        dir_path: where it will be download to
 
     Returns:
         operator_dir: the directory to which the repo has been downloaded and saved.
     """
-    # find default location
-    bentoctl_home = _get_bentoctl_home()
-    operator_home = os.path.join(bentoctl_home, "operators")
-
-    # the operator's name is its directory name
-    operator_dir = os.path.join(operator_home, operator_dir)
 
     # download the repo as zipfile and extract it
     with console.status(f"downloading {repo_url}"):
-        _download_url(url=repo_url, dest=operator_dir + ".zip")
-    with zipfile.ZipFile(operator_dir + ".zip", "r") as z:
-        if os.path.exists(operator_dir):
-            _remove_if_exists(operator_dir)
+        _download_url(url=repo_url, dest=dir_path + ".zip")
+    with zipfile.ZipFile(dir_path + ".zip", "r") as z:
+        if os.path.exists(dir_path):
+            _remove_if_exists(dir_path)
         extracted_repo_name = z.infolist()[0].filename
         z.extractall(operator_home)
-        shutil.move(os.path.join(operator_home, extracted_repo_name), operator_dir)
-    _remove_if_exists(operator_dir + ".zip")
+        shutil.move(os.path.join(operator_home, extracted_repo_name), dir_path)
+    _remove_if_exists(dir_path + ".zip")
 
-    return operator_dir
+    return dir_path
 
 
 def _is_github_repo(link: str) -> bool:
