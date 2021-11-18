@@ -75,10 +75,10 @@ class InvalidDeploymentSpec(BentoctlException):
         if msg is None and spec_errors is not None:
             msg_list = ["Error while parsing Deployment Spec."]
             for field, errors in spec_errors.items():
-                error_msg = '\n'.join(errors)
+                error_msg = "\n".join(errors)
                 msg_list.append(f"{field}: {error_msg}")
 
-            msg = '\n'.join(msg_list)
+            msg = "\n".join(msg_list)
 
         super(InvalidDeploymentSpec, self).__init__(msg)
 

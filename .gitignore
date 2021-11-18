@@ -4,3 +4,4 @@ lambda_config.yaml
 test_plugins/
 testop_spec.yaml
 .idea/
+.DS_Store

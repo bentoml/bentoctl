@@ -8,13 +8,14 @@ from pathlib import Path
 import pytest
 
 import bentoctl.operator as op
+import bentoctl.operator.registry
 
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
 
 @pytest.fixture
 def tmpoperator(tmpdir, monkeypatch):
-    tmpOpsManager = op.manager.OperatorManager(tmpdir.dirname)
+    tmpOpsManager = bentoctl.operator.store.OperatorRegistry(tmpdir.dirname)
     monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
 
     yield (Path(tmpdir), op)
