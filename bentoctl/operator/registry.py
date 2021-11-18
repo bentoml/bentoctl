@@ -32,7 +32,7 @@ op = namedtuple("Operator", ["op_path", "op_repo_url"])
 class OperatorRegistry:
     def __init__(self, path):
         self.path = Path(path)
-        self.operator_file = os.path.join(self.path, "operator_list.json")
+        self.operator_file = self.path / "operator_list.json"
         self.operators_list = {}
         if os.path.exists(self.operator_file):
             self.operators_list = json.loads(
@@ -84,7 +84,9 @@ class OperatorRegistry:
         if os.path.exists(name):
             content_path = name
             repo_url = None
-            logger.log(f"Adding an operator from local file system ({content_path})...")
+            logger.info(
+                f"Adding an operator from local file system ({content_path})..."
+            )
         elif (
             _is_official_operator(name)
             or _is_github_repo(name)
@@ -129,7 +131,7 @@ class OperatorRegistry:
         except BentoctlException as e:
             raise e
 
-    def remove(self, name, remove_from_disk=False):
+    def remove(self, name, delete_from_disk=False):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
         operator_path = self.operators_list[name]["path"]
@@ -137,6 +139,6 @@ class OperatorRegistry:
         del self.operators_list[name]
         self._write_to_file()
 
-        if remove_from_disk and operator_repo_url is not None:
+        if delete_from_disk and operator_repo_url is not None:
             shutil.rmtree(operator_path)
         return
