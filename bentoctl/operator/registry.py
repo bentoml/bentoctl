@@ -6,8 +6,12 @@ import tempfile
 from collections import namedtuple
 from pathlib import Path
 
-from bentoctl.exceptions import OperatorNotFound, OperatorExists, BentoctlException
-from bentoctl.operator import Operator
+from bentoctl.exceptions import (
+    OperatorNotFound,
+    OperatorExists,
+    BentoctlException,
+)
+from bentoctl.operator.operator import Operator
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.utils import (
     _download_git_repo,
@@ -29,8 +33,8 @@ class OperatorRegistry:
     def __init__(self, path):
         self.path = Path(path)
         self.operator_file = os.path.join(self.path, "operator_list.json")
-        self.operators_list = None
-        if self.operator_file.exists():
+        self.operators_list = {}
+        if os.path.exists(self.operator_file):
             self.operators_list = json.loads(
                 self.operator_file.read_text(encoding="utf-8")
             )
@@ -48,7 +52,7 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def add(self, name, path, repo_url=None):
+    def add(self, name):
         """
         1. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you.
@@ -78,12 +82,16 @@ class OperatorRegistry:
             raise OperatorExists(operator_name=name)
 
         if os.path.exists(name):
-            operator_path = name
+            content_path = name
             repo_url = None
             logger.log(
-                f"Adding an operator from local file system ({operator_path})..."
+                f"Adding an operator from local file system ({content_path})..."
             )
-        elif _is_official_operator(name) or _is_github_repo(name) or _is_github_link(name):
+        elif (
+            _is_official_operator(name)
+            or _is_github_repo(name)
+            or _is_github_link(name)
+        ):
             if _is_official_operator(name):
                 operator_repo = OFFICIAL_OPERATORS[name]
             else:
@@ -91,18 +99,20 @@ class OperatorRegistry:
             owner, repo, branch = _fetch_github_info(operator_repo)
             repo_url = _github_archive_link(owner, repo, branch)
             temp_dir = tempfile.mkdtemp()
-            downloaded_path = _download_git_repo(repo_url, temp_dir)
-            operator_path = _get_operator_dir_path(name)
-            shutil.rmtree(operator_path)
-            shutil.move(downloaded_path, operator_path)
+            content_path = _download_git_repo(repo_url, temp_dir)
         else:
             raise OperatorNotFound(name)
 
-        self.operators_list[name] = {
+        operator = Operator(content_path)
+        operator_path = _get_operator_dir_path(operator.name)
+        shutil.move(content_path, operator_path)
+
+        self.operators_list[operator.name] = {
             "path": os.path.abspath(operator_path),
             "repo_url": repo_url,
         }
         self._write_to_file()
+        return operator.name
 
     def update(self, name):
         try:
@@ -115,7 +125,7 @@ class OperatorRegistry:
             temp_dir = tempfile.mkdtemp()
             downloaded_path = _download_git_repo(operator.repo_url, temp_dir)
 
-            operator_path = _get_operator_dir_path(name)
+            operator_path = _get_operator_dir_path(operator.name)
             shutil.rmtree(operator_path)
             shutil.move(downloaded_path, operator_path)
         except BentoctlException as e:

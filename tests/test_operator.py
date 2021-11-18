@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+import bentoctl.operator.operator
 import bentoctl.operator.registry
 from bentoctl import operator as op
 
@@ -24,7 +25,7 @@ def test_bentoctl_home_dir(tmpdir):
 
 def test_operator_loader(tmpdir):
     shutil.copytree(TESTOP_PATH, os.path.join(tmpdir, "testop"))
-    operator = op.Operator(os.path.join(tmpdir, "testop"))
+    operator = bentoctl.operator.operator.Operator(os.path.join(tmpdir, "testop"))
     assert operator.name == "testop"
 
     deployable_path = operator.deploy("test_bundle", "first", {})

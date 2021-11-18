@@ -1,14 +1,16 @@
 import shutil
 
 from bentoctl.deployment_spec import DeploymentSpec
-from bentoctl.operator import Operator
-from bentoctl.operator.utils import LocalOperatorRegistry
+from bentoctl.operator.operator import Operator
+from bentoctl.operator import get_local_operator_registry
+
+
+local_operator_registry = get_local_operator_registry()
 
 
 def load_deployment_spec(spec_path):
     deployment_spec = DeploymentSpec.from_file(spec_path)
-    operator_path = LocalOperatorRegistry.get(deployment_spec.operator_name).op_path
-    operator = Operator(operator_path)
+    operator = local_operator_registry.get(deployment_spec.operator_name)
     operator_schema = operator.operator_schema
     operator_spec = deployment_spec.validate_operator_spec(operator_schema)
 

@@ -125,7 +125,7 @@ def _is_github_link(link: str) -> bool:
 
 
 def _fetch_github_info(github_link):
-    if not _is_github_repo(github_link) or not _is_github_link(github_link):
+    if not _is_github_repo(github_link) and not _is_github_link(github_link):
         raise ValueError(f"{github_link} is not a github repo")
     if _is_github_repo(github_link):
         github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")

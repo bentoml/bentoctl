@@ -8,12 +8,14 @@ import click
 import yaml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
-from bentoctl.operator.utils import LocalOperatorRegistry
+from bentoctl.operator import get_local_operator_registry
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
     "operator": {"required": True},
 }
+
+local_operator_registry = get_local_operator_registry()
 
 
 def load_bento(bundle: t.Union[str, Path]):

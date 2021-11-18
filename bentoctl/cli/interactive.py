@@ -9,16 +9,17 @@ from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
 from bentoctl.deployment_spec import metadata_schema
-from bentoctl.operator import Operator
-from bentoctl.operator.utils import LocalOperatorRegistry
+from bentoctl.operator.operator import Operator
+from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
 
+local_operator_registry = get_local_operator_registry()
 
 def choose_operator_from_list():
     """
     interactive menu to select operator
     """
-    available_operators = list(LocalOperatorRegistry.list())
+    available_operators = list(local_operator_registry.list())
     tmenu = TerminalMenu(available_operators, title="Choose an operator")
     choice = tmenu.show()
     return available_operators[choice]
@@ -159,9 +160,8 @@ deployment. Fill out the appropriate values for the fields.
 
     # spec
     console.print("[bold]spec: [/]")
-    op_path, _ = LocalOperatorRegistry.get(metadata["operator"])
-    op = Operator(op_path)
-    spec = generate_spec(bento, op.operator_schema)
+    operator = local_operator_registry.get(metadata["operator"])
+    spec = generate_spec(bento, operator.operator_schema)
 
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
@@ -171,10 +171,10 @@ def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.y
     spec_path = Path(save_path, filename)
 
     if spec_path.exists():
-        overide = click.confirm(
-            "deployment spec file exists! Should I overide?", default=True
+        override = click.confirm(
+            "deployment spec file exists! Should I override?", default=True
         )
-        if overide:
+        if override:
             spec_path.unlink()
         else:
             return spec_path
