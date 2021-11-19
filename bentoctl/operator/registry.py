@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-import shutil
 import re
+import shutil
 import tempfile
 import typing as t
 from collections import namedtuple
@@ -10,17 +10,13 @@ from pathlib import Path
 
 from git import Repo
 
-from bentoctl.exceptions import BentoctlException, OperatorExists, OperatorNotFound
+from bentoctl.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
-    _download_git_repo,
-    _fetch_github_info,
     _get_operator_dir_path,
-    _github_archive_link,
-    _is_github_link,
     _is_github_repo,
-    _is_official_operator,
+    clone_operator_repo,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,7 +40,9 @@ class OperatorRegistry:
     def get(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        op_path, git_url = self.operators_list[name]
+        op = self.operators_list[name]
+        op_path = op["path"]
+        git_url = op["git_url"]
         return Operator(op_path, git_url)
 
     def _write_to_file(self):
@@ -52,9 +50,13 @@ class OperatorRegistry:
             json.dump(self.operators_list, f)
 
     def _add(self, operator):
+        if operator.name in self.operators_list:
+            raise OperatorExists(operator.name)
+
         self.operators_list[operator.name] = {
-            "path": os.path.abspath(operator.operator_path),
+            "path": os.path.abspath(operator.path),
             "git_url": operator.git_url,
+            "git_branch": operator.git_branch,
         }
         self._write_to_file()
         return operator.name
@@ -73,6 +75,7 @@ class OperatorRegistry:
             raise ValueError(f"{github_repo} is not a Github repo.")
         github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
         owner, repo, branch = github_repo_re.match(github_repo).groups()
+        branch = None if branch == "" else branch
         github_git_link = f"https://github.com/{owner}/{repo}.git"
 
         return self.add_from_git(github_git_link, branch)
@@ -86,19 +89,11 @@ class OperatorRegistry:
             git_url: of the form https://[\\w]+.git.
             branch (Optional): checkout to this branch.
         """
-        tempdir = tempfile.mkdtemp()
-        Repo.clone_from(git_url, tempdir)
-        operator = Operator(tempdir)
+        tmp_repo_path = clone_operator_repo(git_url, branch)
+        operator = Operator(tmp_repo_path, git_url, branch)
         operator_path = _get_operator_dir_path(operator.name)
-        shutil.move(tempdir, operator_path)
-
-        if branch:
-            # checkout to the branch
-            repo = Repo(operator_path)
-            repo.git.checkout(branch)
-
+        shutil.move(tmp_repo_path, operator_path)
         operator.path = Path(operator_path)
-        operator.git_url = git_url
         return self._add(operator)
 
     def add_official_operator(self, name):
@@ -111,30 +106,20 @@ class OperatorRegistry:
         return self.add_from_github(OFFICIAL_OPERATORS[name])
 
     def update(self, name):
-        try:
-            operator = self.get(name)
-            if operator.repo_url is None:
-                logger.warning(
-                    "Operator is a local installation and hence cannot be updated."
-                )
-                return
-            temp_dir = tempfile.mkdtemp()
-            downloaded_path = _download_git_repo(operator.repo_url, temp_dir)
+        operator = self.get(name)
+        if operator.git_url is None:
+            raise OperatorIsLocal
+        temp_operator_repo = clone_operator_repo(operator.git_url, operator.git_branch)
 
-            operator_path = _get_operator_dir_path(operator.name)
-            shutil.rmtree(operator_path)
-            shutil.move(downloaded_path, operator_path)
-        except BentoctlException as e:
-            raise e
+        shutil.rmtree(operator.path)
+        shutil.move(temp_operator_repo, operator.path)
 
     def remove(self, name, delete_from_disk=False):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
         operator_path = self.operators_list[name]["path"]
-        operator_repo_url = self.operators_list[name]["repo_url"]
         del self.operators_list[name]
         self._write_to_file()
 
-        if delete_from_disk and operator_repo_url is not None:
+        if delete_from_disk:
             shutil.rmtree(operator_path)
-        return

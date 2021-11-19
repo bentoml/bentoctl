@@ -2,12 +2,15 @@ import os
 import re
 import shutil
 import tempfile
+import typing as t
 import zipfile
 from collections import namedtuple
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from bentoctl.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
+from git import Repo
+
+from bentoctl.operator.constants import MAIN_BRANCH, OFFICIAL_OPERATORS
 from bentoctl.utils import console
 
 
@@ -111,6 +114,8 @@ def _download_git_repo(repo_url: str, dir_path: str) -> str:
 
 
 def _is_github_repo(link: str) -> bool:
+    # TODO: check github to see if this owner repo is valid in github
+    # but the issue is for private repos
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
     return True if github_repo_re.match(link) else False
 
@@ -138,3 +143,13 @@ def _fetch_github_info(github_link):
 def _is_official_operator(operator_name: str) -> bool:
     official_operators = list(OFFICIAL_OPERATORS.keys())
     return operator_name in official_operators
+
+
+def clone_operator_repo(git_url: str, branch: t.Optional[str] = None) -> str:
+    temp_operator_repo = tempfile.mkdtemp()
+    repo = Repo.clone_from(git_url, temp_operator_repo)
+    if branch is not None:
+        # checkout to the branch
+        repo.git.checkout(branch)
+
+    return temp_operator_repo

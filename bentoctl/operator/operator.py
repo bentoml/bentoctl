@@ -7,9 +7,10 @@ from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 
 
 class Operator:
-    def __init__(self, path, git_url=None):
+    def __init__(self, path, git_url=None, git_branch=None):
         self.path = Path(path)
         self.git_url = git_url
+        self.git_branch = git_branch
 
         # load the operator config
         if not (self.path / "operator_config.py").exists():
