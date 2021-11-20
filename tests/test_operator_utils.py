@@ -24,7 +24,7 @@ class RepoCopy:
 
     @classmethod
     def clone_from(cls, src_path, repo_path):
-        shutil.copytree(src_path, repo_path, dirs_exist_ok=True)
+        shutil.copytree(src_path, repo_path)
         return cls(repo_path)
 
     def checkout(self, branch):
