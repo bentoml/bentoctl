@@ -1,3 +1,4 @@
+# pylint: disable=W0621
 import json
 import os
 import shutil
@@ -82,9 +83,7 @@ def test_registry_add_from_git(op_reg, testop, monkeypatch, tmp_path):
 
     monkeypatch.setattr(registry, "_get_operator_dir_path", patched_get_op_dir_path)
     monkeypatch.setattr(
-        registry,
-        "clone_operator_repo",
-        partial(patched_clone_operator_repo, tmp_path),
+        registry, "clone_operator_repo", partial(patched_clone_operator_repo, tmp_path),
     )
 
     # without branch

@@ -41,7 +41,7 @@ class OperatorConfigNotFound(BentoctlException):
     file
     """
 
-    def __init__(self, operator_path, msg=None):
+    def __init__(self, operator_path=None, msg=None):
         if msg is None:
             msg = f"`operator_config.py` not found in {operator_path}"
         super(OperatorConfigNotFound, self).__init__(msg)

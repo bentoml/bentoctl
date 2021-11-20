@@ -1,6 +1,6 @@
+import copy
 import os
 import typing as t
-import copy
 from pathlib import Path
 
 import cerberus

@@ -1,3 +1,5 @@
+import os
+
 import click
 import cloup
 from rich.pretty import pprint
@@ -7,7 +9,7 @@ from simple_term_menu import TerminalMenu
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-
+from bentoctl.operator.utils import _is_git_link, _is_github_repo, _is_official_operator
 
 local_operator_registry = get_local_operator_registry()
 
@@ -34,7 +36,7 @@ def get_operator_management_subcommands():
         pprint(operators_list)
 
     @operator_management.command()
-    @click.argument("name")
+    @click.argument("name", required=False)
     def add(name=None):
         """
         Add operators.
@@ -64,27 +66,42 @@ def get_operator_management_subcommands():
            eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
 
         """
-        if not name:
-            # show a simple menu with all the available official operators
-            available_operators = list(OFFICIAL_OPERATORS.keys())
-            tmenu = TerminalMenu(
-                available_operators, title="Choose one of the Official Operators"
-            )
-            choice = tmenu.show()
-            name = available_operators[choice]
-        else:
-            try:
-                operator_name = local_operator_registry.add(name)
-                if operator_name is not None:
-                    click.echo(f"Added {operator_name}!")
-                else:
-                    click.echo(
-                        f"Unable to add operator. `{name}` did not match any of the "
-                        "operator addition options. Check `bentoctl operator add --help`"
-                        "for mode details on how you can call this command."
-                    )
-            except BentoctlException as e:
-                e.show()
+        try:
+            operator_name = None
+            # trying to infer which method to use to add the operator
+            if not name:
+                # show a simple menu with all the available official operators
+                available_operators = list(OFFICIAL_OPERATORS.keys())
+                tmenu = TerminalMenu(
+                    available_operators, title="Choose one of the Official Operators"
+                )
+                choice = tmenu.show()
+                name = available_operators[choice]
+                operator_name = local_operator_registry.add_official_operator(name)
+
+            elif _is_official_operator(name):
+                operator_name = local_operator_registry.add_official_operator(name)
+
+            elif os.path.exists(name):
+                operator_name = local_operator_registry.add_from_path(name)
+
+            elif _is_github_repo(name):
+                operator_name = local_operator_registry.add_from_github(name)
+
+            elif _is_git_link(name):
+                operator_name = local_operator_registry.add_from_git(name)
+
+            # check if successfully installed
+            if operator_name is not None:
+                click.echo(f"Added {operator_name}!")
+            else:
+                click.echo(
+                    f"Unable to add operator. `{name}` did not match any of the "
+                    "operator addition options. Check `bentoctl operator add "
+                    "--help` for mode details on how you can call this command."
+                )
+        except BentoctlException as e:
+            e.show()
 
     @operator_management.command()
     @click.option(

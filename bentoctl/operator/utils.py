@@ -114,25 +114,23 @@ def _download_git_repo(repo_url: str, dir_path: str) -> str:
 
 
 def _is_github_repo(link: str) -> bool:
-    # TODO: check github to see if this owner repo is valid in github
-    # but the issue is for private repos
     github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
     return True if github_repo_re.match(link) else False
 
 
-def _is_github_link(link: str) -> bool:
+def _is_git_link(link: str) -> bool:
     github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
     return True if github_http_re.match(link) else False
 
 
 def _fetch_github_info(github_link):
-    if not _is_github_repo(github_link) and not _is_github_link(github_link):
+    if not _is_github_repo(github_link) and not _is_git_link(github_link):
         raise ValueError(f"{github_link} is not a github repo")
     if _is_github_repo(github_link):
         github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
         owner, repo, branch = github_repo_re.match(github_link).groups()
         return owner, repo, branch
-    elif _is_github_link(github_link):
+    elif _is_git_link(github_link):
         github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
         owner, repo = github_http_re.match(github_link).groups()
         return owner, repo, None
@@ -146,10 +144,11 @@ def _is_official_operator(operator_name: str) -> bool:
 
 
 def clone_operator_repo(git_url: str, branch: t.Optional[str] = None) -> str:
-    temp_operator_repo = tempfile.mkdtemp()
-    repo = Repo.clone_from(git_url, temp_operator_repo)
-    if branch is not None:
-        # checkout to the branch
-        repo.git.checkout(branch)
+    with console.status(f"Cloning {git_url}"):
+        temp_operator_repo = tempfile.mkdtemp()
+        repo = Repo.clone_from(git_url, temp_operator_repo)
+        if branch is not None:
+            # checkout to the branch
+            repo.git.checkout(branch)
 
     return temp_operator_repo

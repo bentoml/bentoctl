@@ -1,4 +1,6 @@
 import os
+import typing as t
+import shutil
 from pathlib import Path
 
 from bentoctl.operator import utils
@@ -12,6 +14,7 @@ def test_bentoctl_home_dir(tmp_path):
     assert bcdt_home == tmp_path
 
     assert (tmp_path / "operators").exists()
+
 
 class RepoCopy:
     def __init__(self, path):
@@ -27,4 +30,3 @@ class RepoCopy:
     def checkout(self, branch):
         (self.git_repo_path / branch).touch()
         return branch
-

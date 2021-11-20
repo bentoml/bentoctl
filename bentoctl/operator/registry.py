@@ -3,14 +3,15 @@ import logging
 import os
 import re
 import shutil
-import tempfile
 import typing as t
-from collections import namedtuple
 from pathlib import Path
 
-from git import Repo
-
-from bentoctl.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
+from bentoctl.exceptions import (
+    OperatorConfigNotFound,
+    OperatorExists,
+    OperatorIsLocal,
+    OperatorNotFound,
+)
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
@@ -20,8 +21,6 @@ from bentoctl.operator.utils import (
 )
 
 logger = logging.getLogger(__name__)
-
-op = namedtuple("Operator", ["op_path", "op_repo_url"])
 
 
 class OperatorRegistry:
@@ -90,7 +89,12 @@ class OperatorRegistry:
             branch (Optional): checkout to this branch.
         """
         tmp_repo_path = clone_operator_repo(git_url, branch)
-        operator = Operator(tmp_repo_path, git_url, branch)
+        try:
+            operator = Operator(tmp_repo_path, git_url, branch)
+        except OperatorConfigNotFound:
+            raise OperatorConfigNotFound(
+                msg="`operator_config.py` not found in the operator."
+            )
         operator_path = _get_operator_dir_path(operator.name)
         shutil.move(tmp_repo_path, operator_path)
         operator.path = Path(operator_path)
