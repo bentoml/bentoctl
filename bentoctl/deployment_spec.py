@@ -42,7 +42,7 @@ class DeploymentSpec:
             raise InvalidDeploymentSpec("name not found")
 
         # check `operator`
-        if self.metadata.get("operator") not in get_local_operator_registry().list():
+        if self.metadata.get("operator") not in local_operator_registry.list():
             raise InvalidDeploymentSpec("operator not found")
         self.operator_name = self.metadata.get("operator")
 
