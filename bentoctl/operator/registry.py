@@ -44,7 +44,9 @@ class OperatorRegistry:
     def get(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        op_path, repo_url = self.operators_list[name]
+        operator = self.operators_list[name]
+        op_path = operator["path"]
+        repo_url = operator["repo_url"]
         return Operator(op_path, repo_url)
 
     def _write_to_file(self):
