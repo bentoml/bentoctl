@@ -85,7 +85,9 @@ class OperatorRegistry:
         if os.path.exists(name):
             content_path = name
             repo_url = None
-            logger.info(f"Adding an operator from local file system ({content_path})...")
+            logger.info(
+                f"Adding an operator from local file system ({content_path})..."
+            )
         elif (
             _is_official_operator(name)
             or _is_github_repo(name)
