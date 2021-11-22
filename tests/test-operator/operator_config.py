@@ -1,5 +1,7 @@
 OPERATOR_NAME = "testop"
 
+max_instances = 60
+
 OPERATOR_SCHEMA = {
     "region": {
         "required": True,
@@ -42,5 +44,46 @@ OPERATOR_SCHEMA = {
         "default": False,
         "help_message": "Should all the data related to the model invocation be"
         " captured and saved.",
+    },
+    "instances": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "min": {
+                "type": "integer",
+                "coerce": int,
+                "default": 1,
+                "help_message": "Minimum number of instances",
+                "max": max_instances - 1,
+                "min": 1,
+            },
+            "max": {
+                "type": "integer",
+                "coerce": int,
+                "default": 3,
+                "help_message": "Maximum number of instances",
+                "max": max_instances,
+                "min": 2,
+            },
+        },
+    },
+    "labels": {
+        "type": "list",
+        "required": False,
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "key": {
+                    "type": "string",
+                    "required": True,
+                    "help_message": "Label key",
+                },
+                "value": {
+                    "type": "string",
+                    "required": True,
+                    "help_message": "Label value",
+                },
+            },
+        },
     },
 }
