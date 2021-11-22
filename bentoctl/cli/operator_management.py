@@ -1,5 +1,3 @@
-import os
-
 import click
 import cloup
 from rich.pretty import pprint
@@ -9,7 +7,6 @@ from simple_term_menu import TerminalMenu
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.operator.utils import _is_git_link, _is_github_repo, _is_official_operator
 
 local_operator_registry = get_local_operator_registry()
 

@@ -16,10 +16,10 @@ from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
     _get_operator_dir_path,
-    _is_github_repo,
-    clone_operator_repo,
-    _is_official_operator,
     _is_git_link,
+    _is_github_repo,
+    _is_official_operator,
+    clone_operator_repo,
 )
 
 logger = logging.getLogger(__name__)
