@@ -53,7 +53,7 @@ def test_registry__add_and_get(tmp_path):
     op_reg = registry.OperatorRegistry(tmp_path)
     op = Operator(TESTOP_PATH)
 
-    op_name = op_reg._add(op)
+    op_name = op_reg._add_to_registry(op)
     assert op_name == op.name
     assert op.name in op_reg.list()
 
@@ -62,7 +62,7 @@ def test_registry__add_and_get(tmp_path):
     assert op_from_get.git_url is None
 
     with pytest.raises(OperatorExists):
-        op_reg._add(op)
+        op_reg._add_to_registry(op)
 
 
 def test_registry_add_from_path(op_reg, testop):
@@ -146,13 +146,13 @@ def test_registry_update(op_reg, monkeypatch, tmp_path):
     op = Operator(TESTOP_PATH)
     # git_url is set to TESTOP_PATH for mock Repo to use.
     op_with_url = Operator(TESTOP_PATH, TESTOP_PATH)
-    op_reg._add(op)
+    op_reg._add_to_registry(op)
 
     with pytest.raises(OperatorIsLocal):
         op_reg.update(op.name)
     op_reg.remove(op.name)
 
-    op_reg._add(op_with_url)
+    op_reg._add_to_registry(op_with_url)
     monkeypatch.setattr(
         registry, "clone_operator_repo", partial(patched_clone_operator_repo, tmp_path)
     )

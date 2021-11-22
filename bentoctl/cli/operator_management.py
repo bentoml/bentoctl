@@ -67,8 +67,6 @@ def get_operator_management_subcommands():
 
         """
         try:
-            operator_name = None
-            # trying to infer which method to use to add the operator
             if not name:
                 # show a simple menu with all the available official operators
                 available_operators = list(OFFICIAL_OPERATORS.keys())
@@ -79,17 +77,8 @@ def get_operator_management_subcommands():
                 name = available_operators[choice]
                 operator_name = local_operator_registry.add_official_operator(name)
 
-            elif _is_official_operator(name):
-                operator_name = local_operator_registry.add_official_operator(name)
-
-            elif os.path.exists(name):
-                operator_name = local_operator_registry.add_from_path(name)
-
-            elif _is_github_repo(name):
-                operator_name = local_operator_registry.add_from_github(name)
-
-            elif _is_git_link(name):
-                operator_name = local_operator_registry.add_from_git(name)
+            else:
+                operator_name = local_operator_registry.add(name)
 
             # check if successfully installed
             if operator_name is not None:

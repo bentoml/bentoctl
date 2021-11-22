@@ -18,6 +18,8 @@ from bentoctl.operator.utils import (
     _get_operator_dir_path,
     _is_github_repo,
     clone_operator_repo,
+    _is_official_operator,
+    _is_git_link,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,7 +49,7 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def _add(self, operator):
+    def _add_to_registry(self, operator):
         if operator.name in self.operators_list:
             raise OperatorExists(operator.name)
 
@@ -59,8 +61,25 @@ class OperatorRegistry:
         self._write_to_file()
         return operator.name
 
+    def add(self, user_input):
+        if _is_official_operator(user_input):
+            logger.info("adding official operator")
+            return self.add_official_operator(user_input)
+
+        elif os.path.exists(user_input):
+            logger.info(f"adding operator from path ({user_input})")
+            return self.add_from_path(user_input)
+
+        elif _is_github_repo(user_input):
+            logger.info("Adding from github repo")
+            return self.add_from_github(user_input)
+
+        elif _is_git_link(user_input):
+            logger.info("Adding from git repo")
+            return self.add_from_git(user_input)
+
     def add_from_path(self, operator_path: t.Union[Path, str]) -> str:
-        return self._add(Operator(operator_path))
+        return self._add_to_registry(Operator(operator_path))
 
     def add_from_github(self, github_repo):
         """
@@ -98,7 +117,7 @@ class OperatorRegistry:
         operator_path = _get_operator_dir_path(operator.name)
         shutil.move(tmp_repo_path, operator_path)
         operator.path = Path(operator_path)
-        return self._add(operator)
+        return self._add_to_registry(operator)
 
     def add_official_operator(self, name):
         """

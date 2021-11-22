@@ -7,7 +7,7 @@ def get_local_operator_registry():
 
 
 local_registry = get_local_operator_registry()
-add_from_path = local_registry.add_from_path
-add_official_operator = local_registry.add_official_operator
-add_from_github = local_registry.add_from_github
-add_from_git = local_registry.add_from_git
+add = local_registry.add
+list = local_registry.list
+update = local_registry.update
+remove = local_registry.remove
