@@ -119,7 +119,9 @@ class OperatorRegistry:
     def update(self, name):
         operator = self.get(name)
         if operator.repo_url is None:
-            raise OperatorIsLocal
+            raise OperatorIsLocal(
+                "Error: Operator is a local installation and hence cannot be updated."
+            )
         temp_dir = tempfile.mkdtemp()
         downloaded_path = _download_git_repo(operator.repo_url, temp_dir)
 
