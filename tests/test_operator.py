@@ -1,4 +1,3 @@
-# TODO: remove
 # pylint: disable=W0621
 import os
 import shutil
@@ -48,8 +47,8 @@ def test_operator_manager(tmpdir):
 
     # brand new manager, there is no `operator_list.json` file in filesystem.
     op_mngr = OperatorRegistry(tmpdir)
-    op_mngr.add("testop", TESTOP_PATH, repo_url=None)
-    op_mngr.add("testop_with_url", TESTOP_PATH, repo_url="testop_url")
+    op_mngr.add("testop")
+    op_mngr.add("testop_with_url")
 
     op1 = op_mngr.get("testop")
     assert op1.op_path == TESTOP_PATH
@@ -64,7 +63,7 @@ def test_operator_manager(tmpdir):
 
     # add something that exsits
     with pytest.raises(OperatorExists):
-        op_mngr.add("testop", TESTOP_PATH)
+        op_mngr.add("testop")
 
     # `operator_list.json` is present, init with existing.
     op_mngr = OperatorRegistry(tmpdir)
@@ -77,8 +76,9 @@ def test_operator_manager(tmpdir):
     assert op2_url == "testop_url"
 
     # operator updation
-    op_mngr.update("testop", "new_path", "new_url")
-    op1_path, op1_url = op_mngr.get("testop")
+    op_mngr.update("testop")
+    op = op_mngr.get('testop')
+    op1_path, op1_url = op.path, op.repo_url
     assert op1_path == "new_path"
     assert op1_url == "new_url"
 

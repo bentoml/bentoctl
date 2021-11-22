@@ -9,7 +9,6 @@ from pathlib import Path
 from bentoctl.exceptions import (
     OperatorNotFound,
     OperatorExists,
-    BentoctlException,
     OperatorIsLocal,
 )
 from bentoctl.operator.operator import Operator
@@ -36,7 +35,7 @@ class OperatorRegistry:
         self.operator_file = os.path.join(self.path, "operator_list.json")
         self.operators_list = {}
         if os.path.exists(self.operator_file):
-            with open(self.operator_file) as f:
+            with open(self.operator_file, encoding="UTF-8") as f:
                 self.operators_list = json.load(f)
 
     def list(self):

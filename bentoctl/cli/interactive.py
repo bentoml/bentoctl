@@ -9,7 +9,6 @@ from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
 from bentoctl.deployment_spec import metadata_schema
-from bentoctl.operator.operator import Operator
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
 
