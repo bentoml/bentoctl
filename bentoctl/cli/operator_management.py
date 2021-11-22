@@ -34,7 +34,7 @@ def get_operator_management_subcommands():
         pprint(operators_list)
 
     @operator_management.command()
-    @click.argument("name")
+    @click.argument("name", required=False)
     def add(name=None):
         """
         Add operators.
@@ -72,19 +72,18 @@ def get_operator_management_subcommands():
             )
             choice = tmenu.show()
             name = available_operators[choice]
-        else:
-            try:
-                operator_name = local_operator_registry.add(name)
-                if operator_name is not None:
-                    click.echo(f"Added {operator_name}!")
-                else:
-                    click.echo(
-                        f"Unable to add operator. `{name}` did not match any of the "
-                        "operator addition options. Check `bentoctl operator add --help`"
-                        "for mode details on how you can call this command."
-                    )
-            except BentoctlException as e:
-                e.show()
+        try:
+            operator_name = local_operator_registry.add(name)
+            if operator_name is not None:
+                click.echo(f"Added {operator_name}!")
+            else:
+                click.echo(
+                    f"Unable to add operator. `{name}` did not match any of the "
+                    "operator addition options. Check `bentoctl operator add --help`"
+                    "for mode details on how you can call this command."
+                )
+        except BentoctlException as e:
+            e.show()
 
     @operator_management.command()
     @click.option(
@@ -112,7 +111,7 @@ def get_operator_management_subcommands():
             if not proceed_with_delete:
                 return
         try:
-            local_operator_registry.remove(name, delete_from_disk=delete_from_disk)
+            local_operator_registry.remove(name, remove_from_disk=delete_from_disk)
             click.echo(f"operator '{name}' removed!")
         except BentoctlException as e:
             e.show()
