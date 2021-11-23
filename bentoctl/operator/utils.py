@@ -7,6 +7,7 @@ from collections import namedtuple
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from git import Repo
 from bentoctl.operator.constants import MAIN_BRANCH, OFFICIAL_OPERATORS
 from bentoctl.utils import console
 
@@ -119,19 +120,21 @@ def _is_github_repo(link: str) -> bool:
     return True if github_repo_re.match(link) else False
 
 
-def _is_github_link(link: str) -> bool:
-    github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
-    return True if github_http_re.match(link) else False
+def _is_git_link(link: str) -> bool:
+    # git_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
+    git_http_re = re.compile(r"^https://[.\w]+/([-_.\w]+)/([-_\w]+).git$")
+    git_ssh_re = re.compile(r"^git@[\w]+.[\w]+:[-_.\w]+/[-_\w]+.git$")
+    return True if git_http_re.match(link) or git_ssh_re.match(link) else False
 
 
 def _fetch_github_info(github_link):
-    if not _is_github_repo(github_link) and not _is_github_link(github_link):
+    if not _is_github_repo(github_link) and not _is_git_link(github_link):
         raise ValueError(f"{github_link} is not a github repo")
     if _is_github_repo(github_link):
         github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
         owner, repo, branch = github_repo_re.match(github_link).groups()
         return owner, repo, branch
-    elif _is_github_link(github_link):
+    elif _is_git_link(github_link):
         github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
         owner, repo = github_http_re.match(github_link).groups()
         return owner, repo, None
@@ -142,3 +145,14 @@ def _fetch_github_info(github_link):
 def _is_official_operator(operator_name: str) -> bool:
     official_operators = list(OFFICIAL_OPERATORS.keys())
     return operator_name in official_operators
+
+
+def clone_git_repo(git_url, branch=None):
+    with console.status(f"Cloning {git_url}"):
+        temp_operator_repo = tempfile.mkdtemp()
+        repo = Repo.clone_from(git_url, temp_operator_repo)
+        if branch is not None:
+            # checkout to the branch
+            repo.git.checkout(branch)
+
+    return temp_operator_repo
