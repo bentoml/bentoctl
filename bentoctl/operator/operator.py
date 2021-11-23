@@ -12,7 +12,7 @@ class Operator:
         self.repo_url = repo_url
 
         # load the operator config
-        if not os.path.exists(os.path.join(self.path, 'operator_config.py')):
+        if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
         try:
             operator_config = _import_module("operator_config", self.path)
