@@ -27,13 +27,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [ '3.7', '3.8', '3.9' ]
     defaults:
       run:
         shell: bash
 
-    name: python${{ matrix.python-version }}_unit_tests (${{ matrix.os }})
+    name: unit_test-python${{ matrix.python-version }}-(${{ matrix.os }})
     runs-on: ${{ matrix.os }}
 
     steps:
