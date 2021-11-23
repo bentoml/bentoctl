@@ -126,12 +126,16 @@ class OperatorRegistry:
         try:
             operator = self.get(name)
             git_url = self.operators_list[name]["git_url"]
-            if git_url is None:  # local operator
+            if git_url:  # local operator
+                git_branch = self.operators_list[name]["git_branch"]
+                content_path = _clone_git_repo(git_url, git_branch)
+            elif self.operators_list[name]["path_to_local_operator"]:
                 logger.info("Updating {name} from local")
                 content_path = self.operators_list[name]["path_to_local_operator"]
             else:
-                git_branch = self.operators_list[name]["git_branch"]
-                content_path = _clone_git_repo(git_url, git_branch)
+                raise OperatorRegistryException(
+                    "No git url or local operator path associated with this operator."
+                )
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
