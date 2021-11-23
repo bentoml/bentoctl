@@ -98,6 +98,7 @@ class OperatorRegistry:
             git_url = name
             content_path = _clone_git_repo(git_url)
             git_branch = None
+
         else:
             OperatorNotAdded(
                 f"Operator not Added, Unable to parse {name}. "
@@ -108,11 +109,9 @@ class OperatorRegistry:
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
         operator.path = Path(operator_path)
-        if operator.name in self.operators_list:
-            raise OperatorExists(operator.name)
-
         # if local operator, then keep the orginal path to operator dir
         path_to_local_operator = os.path.abspath(content_path) if not git_url else None
+
         self.operators_list[operator.name] = {
             "path": os.path.abspath(operator.path),
             "git_url": git_url,
@@ -120,6 +119,7 @@ class OperatorRegistry:
             "path_to_local_operator": path_to_local_operator,
         }
         self._write_to_file()
+
         return operator.name
 
     def update(self, name):
