@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 from git import Repo
-from bentoctl.operator.constants import MAIN_BRANCH, OFFICIAL_OPERATORS
+from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.utils import console
 
 
@@ -43,10 +43,8 @@ def _remove_if_exists(path):
             shutil.rmtree(path)
 
 
-def _github_archive_link(repo_owner, repo_name, repo_branch=None):
-    if repo_branch in [None, ""]:
-        repo_branch = MAIN_BRANCH
-    return f"https://github.com/{repo_owner}/{repo_name}/archive/{repo_branch}.zip"
+def _github_git_ssh_link(repo_owner, repo_name):
+    return f"git@github.com:{repo_owner}/{repo_name}.git"
 
 
 def _download_url(url, dest):
@@ -121,25 +119,19 @@ def _is_github_repo(link: str) -> bool:
 
 
 def _is_git_link(link: str) -> bool:
-    # git_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
     git_http_re = re.compile(r"^https://[.\w]+/([-_.\w]+)/([-_\w]+).git$")
     git_ssh_re = re.compile(r"^git@[\w]+.[\w]+:[-_.\w]+/[-_\w]+.git$")
     return True if git_http_re.match(link) or git_ssh_re.match(link) else False
 
 
 def _fetch_github_info(github_link):
-    if not _is_github_repo(github_link) and not _is_git_link(github_link):
+    if not _is_github_repo(github_link):
         raise ValueError(f"{github_link} is not a github repo")
-    if _is_github_repo(github_link):
-        github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
-        owner, repo, branch = github_repo_re.match(github_link).groups()
-        return owner, repo, branch
-    elif _is_git_link(github_link):
-        github_http_re = re.compile(r"^https?://github.com/([-_\w]+)/([-_\w]+).git$")
-        owner, repo = github_http_re.match(github_link).groups()
-        return owner, repo, None
-    else:
-        raise ValueError(f"{github_link} is not a github repo")
+    github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
+    owner, repo, branch = github_repo_re.match(github_link).groups()
+    branch = branch if branch != "" else None
+
+    return owner, repo, branch
 
 
 def _is_official_operator(operator_name: str) -> bool:
@@ -147,7 +139,7 @@ def _is_official_operator(operator_name: str) -> bool:
     return operator_name in official_operators
 
 
-def clone_git_repo(git_url, branch=None):
+def _clone_git_repo(git_url, branch=None):
     """
     Clone git repo into a temp directory. If branch is provided it checks out to it.
     This assumes that git is installed in the system and that you the proper keys.

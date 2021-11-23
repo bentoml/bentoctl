@@ -1,13 +1,11 @@
 import json
 import logging
 import os
-import re
 import shutil
 from pathlib import Path
 
 from bentoctl.exceptions import (
     BentoctlException,
-    OperatorConfigNotFound,
     OperatorExists,
     OperatorNotAdded,
     OperatorNotFound,
@@ -16,11 +14,12 @@ from bentoctl.exceptions import (
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
+    _clone_git_repo,
+    _fetch_github_info,
     _get_operator_dir_path,
     _is_git_link,
     _is_github_repo,
     _is_official_operator,
-    clone_git_repo,
 )
 
 logger = logging.getLogger(__name__)
@@ -75,78 +74,45 @@ class OperatorRegistry:
         Raises:
             OperatorExists: There is another operator with the same name.
         """
-        if _is_official_operator(name):
-            logger.info("adding official operator")
-            if name not in OFFICIAL_OPERATORS:
-                raise ValueError(f"{name} is not an Official Operator of bentoctl.")
-            return self._add_from_github(OFFICIAL_OPERATORS[name])
 
-        elif os.path.exists(name):
+        if name in self.operators_list:
+            raise OperatorExists(operator_name=name)
+
+        if os.path.exists(name):
             logger.info(f"adding operator from path ({name})")
-            return self._add_to_registry(tmp_operator_path=name,)
+            content_path = name
+            git_url = None
+            git_branch = None
 
-        elif _is_github_repo(name):
-            logger.info("Adding from Github")
-            return self._add_from_github(github_repo=name)
+        elif _is_official_operator(name) or _is_github_repo(name):
+            if _is_official_operator(name):
+                operator_repo = OFFICIAL_OPERATORS[name]
+            else:
+                operator_repo = name
+            owner, repo, branch = _fetch_github_info(operator_repo)
+            git_url = f"git@github.com:{owner}/{repo}.git"
+            git_branch = branch
+            content_path = _clone_git_repo(git_url, branch=branch)
 
         elif _is_git_link(name):
-            logger.info("Adding from git repo")
-            tmp_operator_path = clone_git_repo(name)
-            return self._add_to_registry(
-                tmp_operator_path=tmp_operator_path, git_url=name
-            )
+            git_url = name
+            content_path = _clone_git_repo(git_url)
+            git_branch = None
         else:
-            raise OperatorNotAdded(
+            OperatorNotAdded(
                 f"Operator not Added, Unable to parse {name}. "
                 "Please check docs to see the supported ways of adding operators."
             )
 
-    def _add_from_github(self, github_repo):
-        """
-        Add operators that are on Github.
-
-        Args:
-        github_repo: This should be in the format `repo_owner/repo_name[:repo_branch]`.
-                     eg: `bentoctl add bentoml/aws-lambda-repo`
-        """
-        if not _is_github_repo(github_repo):
-            raise ValueError(f"{github_repo} is not a Github repo.")
-        github_repo_re = re.compile(r"^([-_\w]+)/([-_\w]+):?([-_\w]*)$")
-        owner, repo, branch = github_repo_re.match(github_repo).groups()
-        branch = None if branch == "" else branch
-        github_git_link = f"git@github.com:{owner}/{repo}.git"
-        tmp_operator_path = clone_git_repo(git_url=github_git_link, branch=branch)
-
-        return self._add_to_registry(
-            tmp_operator_path=tmp_operator_path,
-            git_url=github_git_link,
-            git_branch=branch,
-        )
-
-    def _add_to_registry(
-        self, tmp_operator_path, git_url=None, git_branch=None, is_local_operator=False,
-    ):
-        """
-        Add operator from a path into the registry.
-
-        Will move the operator from tmp_operator_path into $BENOTOCTL/operators and
-        write the operator and it's metadata to disk.
-        """
-        try:
-            operator = Operator(tmp_operator_path)
-        except OperatorConfigNotFound:
-            raise OperatorConfigNotFound
-
+        operator = Operator(content_path)
         operator_path = _get_operator_dir_path(operator.name)
-        shutil.copytree(tmp_operator_path, operator_path)
+        shutil.copytree(content_path, operator_path)
         operator.path = Path(operator_path)
         if operator.name in self.operators_list:
             raise OperatorExists(operator.name)
 
         # if local operator, then keep the orginal path to operator dir
-        path_to_local_operator = (
-            os.path.abspath(tmp_operator_path) if is_local_operator else None
-        )
+        path_to_local_operator = os.path.abspath(content_path) if not git_url else None
         self.operators_list[operator.name] = {
             "path": os.path.abspath(operator.path),
             "git_url": git_url,
@@ -165,7 +131,7 @@ class OperatorRegistry:
                 content_path = self.operators_list[name]["path_to_local_operator"]
             else:
                 git_branch = self.operators_list[name]["git_branch"]
-                content_path = clone_git_repo(git_url, git_branch)
+                content_path = _clone_git_repo(git_url, git_branch)
 
             operator_path = operator.path
             shutil.rmtree(operator_path)

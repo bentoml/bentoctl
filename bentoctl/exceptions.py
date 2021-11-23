@@ -43,10 +43,7 @@ class OperatorConfigNotFound(BentoctlException):
 
     def __init__(self, operator_path=None, msg=None):
         if msg is None:
-            if operator_path is not None:
-                msg = f"`operator_config.py` not found in {operator_path}"
-            else:
-                msg = "`operator_config.py` not found inside repo."
+            msg = "`operator_config.py` not found inside repo."
         super(OperatorConfigNotFound, self).__init__(msg)
         self.operator_path = operator_path
 
