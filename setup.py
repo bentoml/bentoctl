@@ -8,6 +8,7 @@ install_requires = [
     "simple-term-menu",
     "cloup",
     "PyYAML",
+    "GitPython",
 ]
 
 dev_requires = ["flake8>=3.8.2", "pylint>=2.6.2", "pytest"]
