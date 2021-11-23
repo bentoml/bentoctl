@@ -8,7 +8,6 @@ from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 
-
 local_operator_registry = get_local_operator_registry()
 
 

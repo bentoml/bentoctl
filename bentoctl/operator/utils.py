@@ -7,7 +7,7 @@ from collections import namedtuple
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-from bentoctl.operator.constants import OFFICIAL_OPERATORS, MAIN_BRANCH
+from bentoctl.operator.constants import MAIN_BRANCH, OFFICIAL_OPERATORS
 from bentoctl.utils import console
 
 
