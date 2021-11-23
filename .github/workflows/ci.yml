@@ -63,11 +63,12 @@ jobs:
 
       - name: Run unit tests
         if: ${{ matrix.os != 'windows-latest' }}
-        run: pytest tests
+        run: |
+          pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
 
       - name: Run unit tests (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          pytest tests/unit --cov=bentoml --cov-config=setup.cfg --cov-report=xml:"unit.xml"
+          pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
 
 
