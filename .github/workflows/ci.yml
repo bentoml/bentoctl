@@ -32,6 +32,10 @@ jobs:
     defaults:
       run:
         shell: bash
+
+    name: python${{ matrix.python-version }}_unit_tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
         with:
