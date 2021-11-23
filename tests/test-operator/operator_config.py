@@ -1,25 +1,17 @@
 OPERATOR_NAME = "testop"
 
-max_instances = 60
 
 OPERATOR_SCHEMA = {
     "region": {
         "required": True,
         "type": "string",
-        "default": "ap-south-1",
+        "default": "default_region",
         "help_message": "The AWS region to which you want to deploy the service to.",
     },
     "project_id": {
         "required": True,
         "type": "string",
         "help_message": "project_id of the project that holds this deployment",
-    },
-    "max_instances": {
-        "required": False,
-        "type": "integer",
-        "coerce": int,
-        "default": 3,
-        "help_message": "maximum number of instances the deployment should scale up to",
     },
     "min_instances": {
         "required": False,
@@ -47,10 +39,7 @@ OPERATOR_SCHEMA = {
     },
     "first_list": {
         "type": "list",
-        "schema": {
-            "type": "integer",
-            "help_message": "help message"
-        }
+        "schema": {"type": "integer", "help_message": "help message"},
     },
     "instances": {
         "type": "dict",
