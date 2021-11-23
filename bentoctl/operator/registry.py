@@ -9,7 +9,6 @@ from pathlib import Path
 from bentoctl.exceptions import (
     OperatorNotFound,
     OperatorExists,
-    OperatorIsLocal,
 )
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
@@ -119,15 +118,18 @@ class OperatorRegistry:
     def update(self, name):
         operator = self.get(name)
         if operator.repo_url is None:
-            raise OperatorIsLocal(
-                "Error: Operator is a local installation and hence cannot be updated."
+            logger.warning(
+                "Operator is a local installation and hence cannot be updated."
             )
+            return
         temp_dir = tempfile.mkdtemp()
         downloaded_path = _download_git_repo(operator.repo_url, temp_dir)
 
         operator_path = _get_operator_dir_path(operator.name)
         shutil.rmtree(operator_path)
         shutil.move(downloaded_path, operator_path)
+
+        return operator.name
 
     def remove(self, name, remove_from_disk=False):
         if name not in self.operators_list:

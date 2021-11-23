@@ -127,8 +127,11 @@ def get_operator_management_subcommands():
         the Github repo and update the local codebase with it.
         """
         try:
-            local_operator_registry.update(name)
-            click.echo(f"operator '{name}' updated!")
+            operator_name = local_operator_registry.update(name)
+            if operator_name is not None:
+                click.echo(f"Operator '{operator_name}' updated!")
+            else:
+                click.echo('Operator was not updated!')
         except BentoctlException as e:
             e.show()
 
