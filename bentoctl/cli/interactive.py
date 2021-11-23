@@ -106,6 +106,10 @@ class display_console_message:
 
 
 def prompt_input_value(field_name, rule):
+    """
+    console prompt for input value from user. Display error message if validation fails
+    clean up the prompt message and/or error message afterward.
+    """
     validator = Validator()
     help_message = rule.pop("help_message", None)
     default_value = rule.get("default", None)
@@ -135,7 +139,7 @@ def prompt_confirmation(message):
     This will prompt the user with y/n question. Before the function returns
     value, it will clear up all of the prompt messages and error messages.
 
-    Return boolean value indicating whether user wants to continue
+    Return boolean value
     """
     error_message = "Please enter yes or no"
     line_to_clear = 0
@@ -174,7 +178,7 @@ def prompt_input(
     if rule.get("type") == "list":
         intended_print(f"{field_name}:", indent_level)
         input_value = []
-        should_add_item_to_list = True
+        should_add_item_to_list = True  # user should be able to add at least one item
         while should_add_item_to_list:
             value = prompt_input("", rule["schema"], indent_level, True, True)
             input_value.append(value)
@@ -196,7 +200,7 @@ def prompt_input(
                     rule.get("schema").get(key),
                     indent_level,
                     belongs_to_list,
-                    i == 0,  # require display '-' for first item
+                    i == 0,  # require display '-' for first item of a dict
                 )
     else:
         input_value = prompt_input_value(field_name, rule)
@@ -214,35 +218,25 @@ def prompt_input(
     return input_value
 
 
-def intended_print(string, indent_level=0):
-    indent_level = "    " * indent_level
+def intended_print(message, indent_level=0):
+    """
+    print the message with indentation
+    """
+    indent_level = "    " * indent_level  # 4 spaces for each indentation level
     console.print(indent_level, end="")
-    console.print(string)
-
-
-def generate_metadata(name=None, operator=None):
-    if name is None:
-        name = prompt_input("name", metadata_schema.get("name"))
-    if operator is None:
-        operator = select_operator_from_list()
-    intended_print(f"operator: {operator}", indent_level=1)
-
-    return {"name": name, "operator": operator}
+    console.print(message)
 
 
 def generate_spec(bento, schema):
-    spec = {}
-
-    # get the bento
-    bento_schema = {
-        "required": True,
-        "help_message": "bento tag | path to bento bundle",
-    }
+    spec = {'bento': bento}
     if bento is None:
+        bento_schema = {
+            "required": True,
+            "help_message": "bento tag | path to bento bundle",
+        }
         bento = prompt_input("bento", bento_schema)
         spec["bento"] = bento
 
-    # get other operator schema
     for field, rule in schema.items():
         val = prompt_input(field, rule)
         spec.update({field: val})
