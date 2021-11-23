@@ -10,14 +10,14 @@ class Operator:
     def __init__(self, path, repo_url=None):
         self.path = Path(path)
         self.repo_url = repo_url
+
         # load the operator config
+        if not os.path.exists(os.path.join(self.path, 'operator_config.py')):
+            raise OperatorConfigNotFound(operator_path=self.path)
         try:
             operator_config = _import_module("operator_config", self.path)
-        except ImportError as e:
-            if not (self.path / "operator_config.py").exists():
-                raise OperatorConfigNotFound(operator_path=self.path)
-            else:
-                raise OperatorLoadException(f"Failed to load operator - {e}")
+        except (ImportError, ModuleNotFoundError) as e:
+            raise OperatorLoadException(f"Failed to load operator - {e}")
 
         self.operator_name = operator_config.OPERATOR_NAME
         if hasattr(operator_config, "OPERATOR_MODULE"):

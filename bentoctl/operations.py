@@ -1,9 +1,7 @@
 import shutil
 
 from bentoctl.deployment_spec import DeploymentSpec
-from bentoctl.operator.operator import Operator
 from bentoctl.operator import get_local_operator_registry
-
 
 local_operator_registry = get_local_operator_registry()
 

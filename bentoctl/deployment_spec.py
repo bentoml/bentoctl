@@ -1,6 +1,6 @@
+import copy
 import os
 import typing as t
-import copy
 from pathlib import Path
 
 import cerberus
@@ -43,7 +43,10 @@ class DeploymentSpec:
 
         # check `operator`
         self.operator_name = self.metadata.get("operator")
-        if self.operator_name is None or self.operator_name not in local_operator_registry.operators_list:
+        if (
+            self.operator_name is None
+            or self.operator_name not in local_operator_registry.operators_list
+        ):
             raise InvalidDeploymentSpec("operator not found")
 
         # check `bento`

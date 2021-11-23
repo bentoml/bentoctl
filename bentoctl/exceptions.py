@@ -56,6 +56,10 @@ class OperatorLoadException(BentoctlException):
     """Raised when trying to import an operator without the proper structure"""
 
 
+class OperatorUpdateException(BentoctlException):
+    """Raised when an error is encoundered in Update."""
+
+
 class InvalidDeploymentSpec(BentoctlException):
     """Invalid bentoctl config."""
 
