@@ -2,10 +2,11 @@ from pathlib import Path
 
 import click
 import cloup
+import yaml
 from cloup import Section
 from rich.pretty import pprint
 
-from bentoctl.cli.interactive import deployment_spec_builder, save_deployment_spec
+from bentoctl.cli.interactive import deployment_spec_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.deployment_spec import DeploymentSpec
 from bentoctl.exceptions import BentoctlException
@@ -19,6 +20,24 @@ class BentoctlSections:
     OPERATIONS = Section("Deployment Operations")
     OPERATORS = Section("Operator Management")
     INTERACTIVE = Section("Interactive Mode")
+
+
+def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.yaml"):
+    spec_path = Path(save_path, filename)
+
+    if spec_path.exists():
+        override = click.confirm(
+            "deployment spec file exists! Should I override?", default=True
+        )
+        if override:
+            spec_path.unlink()
+        else:
+            return spec_path
+
+    with open(spec_path, "w", encoding="UTF-8") as f:
+        yaml.safe_dump(deployment_spec, f, default_flow_style=False)
+
+    return spec_path
 
 
 @cloup.group(show_subcommand_aliases=True, context_settings=CONTEXT_SETTINGS)
@@ -113,14 +132,13 @@ def generate():
     Start the interactive deployment spec builder file.
     """
     deployment_spec = deployment_spec_builder()
-    dspec = DeploymentSpec(deployment_spec)
     deployment_spec_filname = console.input(
         "filename for deployment_spec [[b]deployment_spec.yaml[/]]: ",
     )
     if deployment_spec_filname == "":
         deployment_spec_filname = "deployment_spec.yaml"
     spec_path = save_deployment_spec(
-        dspec.deployment_spec, Path.cwd(), deployment_spec_filname
+        deployment_spec, Path.cwd(), deployment_spec_filname
     )
     console.print(
         f"[green]deployment spec generated to: {spec_path.relative_to(Path.cwd())}[/]"
