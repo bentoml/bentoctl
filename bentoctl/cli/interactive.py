@@ -3,7 +3,6 @@ from pathlib import Path
 
 import cerberus
 import click
-import yaml
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
@@ -164,20 +163,3 @@ deployment. Fill out the appropriate values for the fields.
     deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
 
-
-def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.yaml"):
-    spec_path = Path(save_path, filename)
-
-    if spec_path.exists():
-        override = click.confirm(
-            "deployment spec file exists! Should I override?", default=True
-        )
-        if override:
-            spec_path.unlink()
-        else:
-            return spec_path
-
-    with open(spec_path, "w", encoding="UTF-8") as f:
-        yaml.dump(deployment_spec, f)
-
-    return spec_path
