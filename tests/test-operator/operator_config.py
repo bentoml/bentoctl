@@ -1,5 +1,6 @@
 OPERATOR_NAME = "testop"
 
+max_instances = 10
 
 OPERATOR_SCHEMA = {
     "region": {
