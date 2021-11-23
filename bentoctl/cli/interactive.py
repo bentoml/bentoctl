@@ -80,7 +80,6 @@ def clear_console(num_lines):
         )
     )
 
-
 class display_console_message:
     """
     Display a message on the console, and clear it after user exits out of the block
