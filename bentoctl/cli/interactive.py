@@ -9,7 +9,6 @@ from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
 
 from bentoctl.deployment_spec import metadata_schema
-from bentoctl.operator.operator import Operator
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
 
@@ -65,10 +64,7 @@ def clear_console(num_lines):
             ControlType.CARRIAGE_RETURN,
             (ControlType.ERASE_IN_LINE, 2),
             *(
-                (
-                    (ControlType.CURSOR_UP, 1),
-                    (ControlType.ERASE_IN_LINE, 2),
-                )
+                ((ControlType.CURSOR_UP, 1), (ControlType.ERASE_IN_LINE, 2),)
                 * num_lines
             ),
         )
