@@ -148,6 +148,10 @@ def _is_official_operator(operator_name: str) -> bool:
 
 
 def clone_git_repo(git_url, branch=None):
+    """
+    Clone git repo into a temp directory. If branch is provided it checks out to it.
+    This assumes that git is installed in the system and that you the proper keys.
+    """
     with console.status(f"Cloning {git_url}"):
         temp_operator_repo = tempfile.mkdtemp()
         repo = Repo.clone_from(git_url, temp_operator_repo)

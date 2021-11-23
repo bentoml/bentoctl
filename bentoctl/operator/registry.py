@@ -103,7 +103,10 @@ class OperatorRegistry:
 
     def _add_from_github(self, github_repo):
         """
-        Github Repo: This should be in the format `repo_owner/repo_name[:repo_branch]`.
+        Add operators that are on Github.
+
+        Args:
+        github_repo: This should be in the format `repo_owner/repo_name[:repo_branch]`.
                      eg: `bentoctl add bentoml/aws-lambda-repo`
         """
         if not _is_github_repo(github_repo):
@@ -123,6 +126,12 @@ class OperatorRegistry:
     def _add_to_registry(
         self, tmp_operator_path, git_url=None, git_branch=None, is_local_operator=False,
     ):
+        """
+        Add operator from a path into the registry.
+
+        Will move the operator from tmp_operator_path into $BENOTOCTL/operators and
+        write the operator and it's metadata to disk.
+        """
         try:
             operator = Operator(tmp_operator_path)
         except OperatorConfigNotFound:
