@@ -133,7 +133,7 @@ class OperatorRegistry:
                 content_path = _clone_git_repo(git_url, git_branch)
             elif self.operators_list[name]["path_to_local_operator"]:
                 # update from local file path
-                logger.info("Updating {name} from local")
+                logger.info(f"Updating {name} from local")
                 content_path = self.operators_list[name]["path_to_local_operator"]
             else:
                 raise OperatorRegistryException(
