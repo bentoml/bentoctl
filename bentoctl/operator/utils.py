@@ -2,10 +2,8 @@ import os
 import re
 import shutil
 import tempfile
-import zipfile
 from collections import namedtuple
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 from git import Repo
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
@@ -43,43 +41,6 @@ def _remove_if_exists(path):
             shutil.rmtree(path)
 
 
-def _github_git_ssh_link(repo_owner, repo_name):
-    return f"git@github.com:{repo_owner}/{repo_name}.git"
-
-
-def _download_url(url, dest):
-    # TODO: setup progress bar with rich
-    file_size = None
-    req = Request(url)
-    u = urlopen(req)
-    meta = u.info()
-    if hasattr(meta, "getheaders"):
-        content_length = meta.getheaders("Content-Length")
-    else:
-        content_length = meta.get_all("Content-Length")
-    if content_length is not None and len(content_length) > 0:
-        file_size = int(content_length[0])
-        console.print(file_size)
-
-    # download to a temporary file and copy it over so that if there is an existing
-    # file it doesn't get corrupt.
-    dst = os.path.expanduser(dest)
-    f = tempfile.NamedTemporaryFile(delete=False)
-
-    try:
-        while True:
-            buffer = u.read(8192)
-            if len(buffer) == 0:
-                break
-            f.write(buffer)
-        f.close()
-        shutil.move(f.name, dst)
-    finally:
-        f.close()
-        if os.path.exists(f.name):
-            os.remove(f.name)
-
-
 def _get_operator_dir_path(operator_name):
     # find default location
     bentoctl_home = _get_bentoctl_home()
@@ -88,29 +49,6 @@ def _get_operator_dir_path(operator_name):
     # the operator's name is its directory name
     operator_dir = os.path.join(operator_home, operator_name)
     return operator_dir
-
-
-def _download_git_repo(repo_url: str, dir_path: str) -> str:
-    """
-    Download the `repo_url` and put it in the home operator directory with
-    the `operator_dir_name`.
-
-    Args:
-        repo_url: github archive url that points to the repo.
-        dir_path: where it will be download to
-
-    Returns:
-        operator_dir: the directory to which the repo has been downloaded and saved.
-    """
-
-    # download the repo as zipfile and extract it
-    zip_file_path = os.path.join(dir_path, "repo.zip")
-    with console.status(f"downloading {repo_url}"):
-        _download_url(url=repo_url, dest=zip_file_path)
-    with zipfile.ZipFile(zip_file_path, "r") as z:
-        extracted_repo_name = z.infolist()[0].filename
-        z.extractall(dir_path)
-    return os.path.join(dir_path, extracted_repo_name)
 
 
 def _is_github_repo(link: str) -> bool:
