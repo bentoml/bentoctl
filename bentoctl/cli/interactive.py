@@ -80,6 +80,7 @@ def clear_console(num_lines):
         )
     )
 
+
 class display_console_message:
     """
     Display a message on the console, and clear it after user exits out of the block
@@ -88,6 +89,7 @@ class display_console_message:
         with display_console_message("This is a message"):
             # do something
     """
+
     def __init__(self, message, should_render_message=True):
         self.message = message
         self.should_render_message = should_render_message
@@ -97,9 +99,7 @@ class display_console_message:
 
     def __enter__(self):
         if self.should_render_message:
-            console.print(
-                SegmentLines(self.message_lines, new_lines=True)
-            )
+            console.print(SegmentLines(self.message_lines, new_lines=True))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         clear_console(self.line_needed_to_clear)
@@ -137,7 +137,7 @@ def prompt_confirmation(message):
 
     Return boolean value indicating whether user wants to continue
     """
-    error_message = f"Please enter yes or no"
+    error_message = "Please enter yes or no"
     line_to_clear = 0
     input_message = f"{message} [y/n]: "
     message_line_count = len(console.render_lines(input_message))
@@ -168,6 +168,8 @@ def prompt_input(
 
     Returns the user input value
     """
+    # TODO: better display for the case of foo: [bar, baz].  Right now the console
+    #  prompt will display `: your_input`
     input_value = None
     if rule.get("type") == "list":
         intended_print(f"{field_name}:", indent_level)
@@ -177,7 +179,7 @@ def prompt_input(
             value = prompt_input("", rule["schema"], indent_level, True, True)
             input_value.append(value)
             should_add_item_to_list = prompt_confirmation(
-                f"Do you want to add another {field_name}"
+                f"Do you want to add another to {field_name}"
             )
     elif rule.get("type") == "dict":
         input_value = {}
