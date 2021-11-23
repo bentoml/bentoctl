@@ -10,6 +10,7 @@ from bentoctl.exceptions import (
     OperatorNotAdded,
     OperatorNotFound,
     OperatorNotUpdated,
+    OperatorRegistryException,
 )
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator

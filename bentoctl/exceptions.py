@@ -97,7 +97,7 @@ class DeploymentSpecNotFound(BentoctlException):
     """
 
 
-class OperatorRegisterException(BentoctlException):
+class OperatorRegistryException(BentoctlException):
     """
     Exceptions inside the registry.
     """
