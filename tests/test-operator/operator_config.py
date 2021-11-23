@@ -45,6 +45,13 @@ OPERATOR_SCHEMA = {
         "help_message": "Should all the data related to the model invocation be"
         " captured and saved.",
     },
+    "first_list": {
+        "type": "list",
+        "schema": {
+            "type": "integer",
+            "help_message": "help message"
+        }
+    },
     "instances": {
         "type": "dict",
         "required": True,
