@@ -8,7 +8,7 @@ class BentoctlException(Exception):
         """
         used by CLI to generate a user readable error message.
         """
-        print(self)
+        print("Error: ", self)
 
 
 class OperatorExists(BentoctlException):
@@ -41,9 +41,9 @@ class OperatorConfigNotFound(BentoctlException):
     file
     """
 
-    def __init__(self, operator_path, msg=None):
+    def __init__(self, operator_path=None, msg=None):
         if msg is None:
-            msg = f"`operator_config.py` not found in {operator_path}"
+            msg = "`operator_config.py` not found inside repo."
         super(OperatorConfigNotFound, self).__init__(msg)
         self.operator_path = operator_path
 
@@ -56,8 +56,12 @@ class OperatorLoadException(BentoctlException):
     """Raised when trying to import an operator without the proper structure"""
 
 
-class OperatorUpdateException(BentoctlException):
+class OperatorNotUpdated(BentoctlException):
     """Raised when an error is encoundered in Update."""
+
+
+class OperatorNotAdded(BentoctlException):
+    """Raised when calling an operator that is not found."""
 
 
 class InvalidDeploymentSpec(BentoctlException):
@@ -90,4 +94,10 @@ class InvalidDeploymentSpec(BentoctlException):
 class DeploymentSpecNotFound(BentoctlException):
     """
     When deployment spec is not found.
+    """
+
+
+class OperatorRegistryException(BentoctlException):
+    """
+    Exceptions inside the registry.
     """

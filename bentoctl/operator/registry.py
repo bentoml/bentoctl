@@ -2,31 +2,28 @@ import json
 import logging
 import os
 import shutil
-import tempfile
-from collections import namedtuple
 from pathlib import Path
 
 from bentoctl.exceptions import (
     BentoctlException,
     OperatorExists,
+    OperatorNotAdded,
     OperatorNotFound,
-    OperatorUpdateException,
+    OperatorNotUpdated,
+    OperatorRegistryException,
 )
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
-    _download_git_repo,
+    _clone_git_repo,
     _fetch_github_info,
     _get_operator_dir_path,
-    _github_archive_link,
-    _is_github_link,
+    _is_git_link,
     _is_github_repo,
     _is_official_operator,
 )
 
 logger = logging.getLogger(__name__)
-
-op = namedtuple("Operator", ["op_path", "op_repo_url"])
 
 
 class OperatorRegistry:
@@ -46,8 +43,7 @@ class OperatorRegistry:
             raise OperatorNotFound(operator_name=name)
         operator = self.operators_list[name]
         op_path = operator["path"]
-        repo_url = operator["repo_url"]
-        return Operator(op_path, repo_url)
+        return Operator(op_path)
 
     def _write_to_file(self):
         with open(self.operator_file, "w", encoding="UTF-8") as f:
@@ -79,60 +75,76 @@ class OperatorRegistry:
         Raises:
             OperatorExists: There is another operator with the same name.
         """
+
         if name in self.operators_list:
             raise OperatorExists(operator_name=name)
 
         if os.path.exists(name):
+            logger.info(f"adding operator from path ({name})")
             content_path = name
-            repo_url = None
-            logger.info(
-                f"Adding an operator from local file system ({content_path})..."
-            )
-        elif (
-            _is_official_operator(name)
-            or _is_github_repo(name)
-            or _is_github_link(name)
-        ):
+            git_url = None
+            git_branch = None
+
+        elif _is_official_operator(name) or _is_github_repo(name):
             if _is_official_operator(name):
                 operator_repo = OFFICIAL_OPERATORS[name]
             else:
                 operator_repo = name
             owner, repo, branch = _fetch_github_info(operator_repo)
-            repo_url = _github_archive_link(owner, repo, branch)
-            temp_dir = tempfile.mkdtemp()
-            content_path = _download_git_repo(repo_url, temp_dir)
+            git_url = f"git@github.com:{owner}/{repo}.git"
+            git_branch = branch
+            content_path = _clone_git_repo(git_url, branch=branch)
+
+        elif _is_git_link(name):
+            git_url = name
+            content_path = _clone_git_repo(git_url)
+            git_branch = None
+
         else:
-            raise OperatorNotFound(name)
+            OperatorNotAdded(
+                f"Operator not Added, Unable to parse {name}. "
+                "Please check docs to see the supported ways of adding operators."
+            )
 
         operator = Operator(content_path)
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
+        operator.path = Path(operator_path)
+        # if local operator, then keep the orginal path to operator dir
+        path_to_local_operator = os.path.abspath(content_path) if not git_url else None
 
         self.operators_list[operator.name] = {
-            "path": os.path.abspath(operator_path),
-            "repo_url": repo_url,
-            "local_operator_path": os.path.abspath(content_path)
-            if repo_url is None
-            else None,
+            "path": os.path.abspath(operator.path),
+            "git_url": git_url,
+            "git_branch": git_branch,
+            "path_to_local_operator": path_to_local_operator,
         }
         self._write_to_file()
+
         return operator.name
 
     def update(self, name):
         try:
             operator = self.get(name)
-            if operator.repo_url is None:  # local operator
-                logger.info("Updating {name} from local")
+            git_url = self.operators_list[name]["git_url"]
+            if git_url:
+                # update from git repo
+                git_branch = self.operators_list[name]["git_branch"]
+                content_path = _clone_git_repo(git_url, git_branch)
+            elif self.operators_list[name]["path_to_local_operator"]:
+                # update from local file path
+                logger.info(f"Updating {name} from local")
                 content_path = self.operators_list[name]["path_to_local_operator"]
             else:
-                temp_dir = tempfile.mkdtemp()
-                content_path = _download_git_repo(operator.repo_url, temp_dir)
+                raise OperatorRegistryException(
+                    "No git url or local operator path associated with this operator."
+                )
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
             shutil.copytree(content_path, operator_path)
         except BentoctlException as e:
-            raise OperatorUpdateException(f"Error while updating operator {name} - {e}")
+            raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 
     def remove(self, name, remove_from_disk=False):
         if name not in self.operators_list:
