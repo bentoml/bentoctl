@@ -7,9 +7,8 @@ from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 
 
 class Operator:
-    def __init__(self, path, repo_url=None):
+    def __init__(self, path):
         self.path = Path(path)
-        self.repo_url = repo_url
 
         # load the operator config
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
