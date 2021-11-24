@@ -77,7 +77,7 @@ def test_operator_manager(tmpdir):
 
     # operator updation
     op_mngr.update("testop")
-    op = op_mngr.get('testop')
+    op = op_mngr.get("testop")
     op1_path, op1_url = op.path, op.repo_url
     assert op1_path == "new_path"
     assert op1_url == "new_url"

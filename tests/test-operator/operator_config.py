@@ -1,25 +1,20 @@
 OPERATOR_NAME = "testop"
 
+max_instances = 10
+
 OPERATOR_SCHEMA = {
     "region": {"required": True, "type": "string", "default": "ap-south-1"},
     "project_id": {"required": True, "type": "string",},
     "region": {
         "required": True,
         "type": "string",
-        "default": "ap-south-1",
+        "default": "default_region",
         "help_message": "The AWS region to which you want to deploy the service to.",
     },
     "project_id": {
         "required": True,
         "type": "string",
         "help_message": "project_id of the project that holds this deployment",
-    },
-    "max_instances": {
-        "required": False,
-        "type": "integer",
-        "coerce": int,
-        "default": 3,
-        "help_message": "maximum number of instances the deployment should scale up to",
     },
     "min_instances": {
         "required": False,
@@ -44,5 +39,50 @@ OPERATOR_SCHEMA = {
         "default": False,
         "help_message": "Should all the data related to the model invocation be"
         " captured and saved.",
+    },
+    "first_list": {
+        "type": "list",
+        "schema": {"type": "integer", "help_message": "help message"},
+    },
+    "instances": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "min": {
+                "type": "integer",
+                "coerce": int,
+                "default": 1,
+                "help_message": "Minimum number of instances",
+                "max": max_instances - 1,
+                "min": 1,
+            },
+            "max": {
+                "type": "integer",
+                "coerce": int,
+                "default": 3,
+                "help_message": "Maximum number of instances",
+                "max": max_instances,
+                "min": 2,
+            },
+        },
+    },
+    "labels": {
+        "type": "list",
+        "required": False,
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "key": {
+                    "type": "string",
+                    "required": True,
+                    "help_message": "Label key",
+                },
+                "value": {
+                    "type": "string",
+                    "required": True,
+                    "help_message": "Label value",
+                },
+            },
+        },
     },
 }
