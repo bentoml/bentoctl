@@ -114,14 +114,12 @@ def prompt_input_value(field_name, rule):
     help_message = rule.pop("help_message", None)
     default_value = rule.get("default", None)
     validation_error_message = None
-
+    suffix = f" [[b]{default_value}[/]]: " if default_value is not None else ": "
+    input_message = (
+        f"{field_name}{suffix}" if field_name != "" else "Enter your input: "
+    )
     while True:
         with display_console_message(PromptMsg(help_message, validation_error_message)):
-            input_message = (
-                f"{field_name} [[b]{default_value}[/]]: "
-                if default_value is not None
-                else f"{field_name}: "
-            )
             user_input_value = console.input(input_message)
             clear_console(1)
         user_input_value = user_input_value if user_input_value != "" else None
@@ -183,7 +181,7 @@ def prompt_input(
             value = prompt_input("", rule["schema"], indent_level, True, True)
             input_value.append(value)
             should_add_item_to_list = prompt_confirmation(
-                f"Do you want to add another to {field_name}"
+                f"Do you want to add another item to {field_name}"
             )
     elif rule.get("type") == "dict":
         input_value = {}
@@ -207,14 +205,14 @@ def prompt_input(
         if belongs_to_list:
             if require_display_dash:
                 if field_name:
-                    display_value_message = f"- {field_name}: {input_value}"
+                    display_input_result = f"- {field_name}: {input_value}"
                 else:
-                    display_value_message = f"- {input_value}"
+                    display_input_result = f"- {input_value}"
             else:
-                display_value_message = f"  {field_name}: {input_value}"
+                display_input_result = f"  {field_name}: {input_value}"
         else:
-            display_value_message = f"{field_name}: {input_value}"
-        intended_print(display_value_message, indent_level=indent_level)
+            display_input_result = f"{field_name}: {input_value}"
+        intended_print(display_input_result, indent_level=indent_level)
     return input_value
 
 
