@@ -142,7 +142,7 @@ class OperatorRegistry:
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
-            shutil.copytree(content_path, operator_path)
+            shutil.copytree(content_path, operator_path, copy_function=shutil.copy)
         except BentoctlException as e:
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 
