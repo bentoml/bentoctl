@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from bentoctl.exceptions import OperatorExists, OperatorIsLocal
+from bentoctl.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
 from bentoctl.operator import registry, utils
 from bentoctl.operator.operator import Operator
 
@@ -53,6 +53,9 @@ def test_registry_add_local_operator(op_reg):
         "path_to_local_operator": TESTOP_PATH,
     }
 
+    with pytest.raises(OperatorExists):
+        op_reg.add(TESTOP_PATH)
+
 
 @pytest.mark.parametrize(
     "user_input, git_url, git_branch",
@@ -87,8 +90,28 @@ def test_registry_add(user_input, git_url, git_branch, op_reg, monkeypatch):
     }
 
 
+@pytest.mark.skip
 def test_registry_update_local_operator(op_reg):
     op_reg.add(TESTOP_PATH)
+    path_to_first_file_before_updation = next(
+        op_reg.get(TEST_OPERATOR.name).path.iterdir()
+    )
+    creation_time = os.path.getmtime(path_to_first_file_before_updation)
+    op_reg.update(TEST_OPERATOR.name)
+    path_to_first_file_after_updation = next(
+        op_reg.get(TEST_OPERATOR.name).path.iterdir()
+    )
+    updation_time = os.path.getmtime(path_to_first_file_after_updation)
+    assert updation_time > creation_time
+    assert path_to_first_file_before_updation == path_to_first_file_after_updation
+
+
+def test_registry_update_git_url(op_reg, monkeypatch):
+    def patched_clone_git_repo(git_url, branch=None):
+        return TESTOP_PATH
+
+    monkeypatch.setattr(registry, "_clone_git_repo", patched_clone_git_repo)
+    op_reg.add("aws-lambda")
     path_to_first_file_before_updation = next(
         op_reg.get(TEST_OPERATOR.name).path.iterdir()
     )
@@ -119,3 +142,6 @@ def test_registry_remove(op_reg):
     op_reg.remove("testop", remove_from_disk=True)
     assert "testop" not in op_reg.list()
     assert not testop_path.exists()
+
+    with pytest.raises(OperatorNotFound):
+        op_reg.remove("operator_that_is_not_present")

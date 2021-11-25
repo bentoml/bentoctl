@@ -1,4 +1,6 @@
 import os
+from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
 
@@ -48,3 +50,45 @@ def test_get_operator_dir_path(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
     op_dir = operator_utils._get_operator_dir_path(operator_name="test_operator")
     assert op_dir == str(tmp_path / "operators" / "test_operator")
+
+
+class PatchedRepo:
+    def __init__(self, repo_path):
+        self.repo_path = Path(repo_path)
+        self.git = SimpleNamespace()
+        self.git.checkout = self.checkout
+
+    @classmethod
+    def clone_from(cls, git_url, repo_path):
+        return cls(repo_path)
+
+    def checkout(self, branch):
+        Path(self.repo_path / branch).touch()
+
+
+def test_clone_git_repo(monkeypatch):
+    monkeypatch.setattr(operator_utils, "Repo", PatchedRepo)
+    repo_path = operator_utils._clone_git_repo("git_url")
+    assert os.path.exists(repo_path)
+
+    # checkout with branch
+    repo_path = operator_utils._clone_git_repo("git_url", branch="test")
+    assert os.path.exists(repo_path)
+    assert os.path.exists(os.path.join(repo_path, "test"))
+
+
+@pytest.mark.parametrize(
+    "github_link, info, raise_error",
+    [
+        ("bentoml/sagemaker", ("bentoml", "sagemaker", None), False),
+        ("bentoml/sagemaker:test", ("bentoml", "sagemaker", "test"), False),
+        ("not_github_info", ("bentoml", "sagemaker", "test"), True),
+    ],
+)
+def test_fetch_github_info(github_link, info, raise_error):
+    if raise_error:
+        with pytest.raises(ValueError):
+            operator_utils._fetch_github_info(github_link)
+    else:
+        returned_info = operator_utils._fetch_github_info(github_link)
+        assert returned_info == info
