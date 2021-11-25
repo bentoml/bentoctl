@@ -76,9 +76,6 @@ class OperatorRegistry:
             OperatorExists: There is another operator with the same name.
         """
 
-        if name in self.operators_list:
-            raise OperatorExists(operator_name=name)
-
         if os.path.exists(name):
             logger.info(f"adding operator from path ({name})")
             content_path = name
@@ -107,6 +104,8 @@ class OperatorRegistry:
             )
 
         operator = Operator(content_path)
+        if operator.name in self.operators_list:
+            raise OperatorExists(operator_name=operator.name)
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
         operator.path = Path(operator_path)
