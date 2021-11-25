@@ -2,12 +2,10 @@
 import json
 import os
 import shutil
-from functools import partial
-from pathlib import Path
 
 import pytest
 
-from bentoctl.exceptions import OperatorExists, OperatorIsLocal, OperatorNotFound
+from bentoctl.exceptions import OperatorExists, OperatorNotFound
 from bentoctl.operator import registry, utils
 from bentoctl.operator.operator import Operator
 
@@ -62,11 +60,7 @@ def test_registry_add_local_operator(op_reg):
     [
         ("aws-lambda", "git@github.com:bentoml/aws-lambda-deploy.git", None),
         ("bentoml/heroku", "git@github.com:bentoml/heroku.git", None),
-        (
-            "owner/heroku:branch",
-            "git@github.com:owner/heroku.git",
-            "branch",
-        ),
+        ("owner/heroku:branch", "git@github.com:owner/heroku.git", "branch",),
         (
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
@@ -75,7 +69,7 @@ def test_registry_add_local_operator(op_reg):
     ],
 )
 def test_registry_add(user_input, git_url, git_branch, op_reg, monkeypatch):
-    def patched_clone_git_repo(git_url, branch=None):
+    def patched_clone_git_repo(git_url, branch=None):  # pylint: disable=W0613
         return TESTOP_PATH
 
     monkeypatch.setattr(registry, "_clone_git_repo", patched_clone_git_repo)
@@ -107,7 +101,7 @@ def test_registry_update_local_operator(op_reg):
 
 
 def test_registry_update_git_url(op_reg, monkeypatch):
-    def patched_clone_git_repo(git_url, branch=None):
+    def patched_clone_git_repo(git_url, branch=None):  # pylint: disable=W0613
         return TESTOP_PATH
 
     monkeypatch.setattr(registry, "_clone_git_repo", patched_clone_git_repo)

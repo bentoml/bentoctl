@@ -1,6 +1,6 @@
 import os
-from types import SimpleNamespace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -59,7 +59,7 @@ class PatchedRepo:
         self.git.checkout = self.checkout
 
     @classmethod
-    def clone_from(cls, git_url, repo_path):
+    def clone_from(cls, _, repo_path):
         return cls(repo_path)
 
     def checkout(self, branch):
