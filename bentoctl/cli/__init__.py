@@ -35,7 +35,7 @@ def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.y
             return spec_path
 
     with open(spec_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(deployment_spec, f, default_flow_style=False)
+        yaml.safe_dump(deployment_spec, f, default_flow_style=False, sort_keys=False)
 
     return spec_path
 
