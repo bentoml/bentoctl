@@ -33,9 +33,9 @@ def remove_help_message(schema):
         if rules["type"] == "dict":
             rules["schema"] = remove_help_message(rules["schema"])
         elif rules["type"] == "list":
-            rules["schema"] = remove_help_message(
-                {"list_item": rules["schema"]}
-            )['list_item']
+            rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
+                'list_item'
+            ]
         schema[field] = rules
     return schema
 

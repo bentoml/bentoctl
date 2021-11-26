@@ -142,7 +142,7 @@ def prompt_confirmation(message):
     """
     error_message = "Please enter yes or no"
     line_to_clear = 0
-    input_message = f"{message} [y/n]: "
+    input_message = f"{message} [b](y/n)[/]: "
     message_line_count = len(console.render_lines(input_message))
     while True:
         result = console.input(input_message)
