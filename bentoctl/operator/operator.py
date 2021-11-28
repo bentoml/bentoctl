@@ -68,7 +68,9 @@ class Operator:
             return
         with console.status("Installing dependencies from requirements.txt"):
             completedprocess = subprocess.run(
-                ["pip", "install", "-r", requirement_txt_filepath], capture_output=True
+                ["pip", "install", "-r", requirement_txt_filepath],
+                capture_output=True,
+                check=False,
             )
         if completedprocess.returncode == 0:  # success
             logger.info(completedprocess.stdout.decode("utf-8"))
