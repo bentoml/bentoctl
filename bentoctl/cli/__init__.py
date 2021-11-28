@@ -8,6 +8,7 @@ from rich.pretty import pprint
 
 from bentoctl.cli.interactive import deployment_spec_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
+from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.deployment_spec import DeploymentSpec
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operations import delete_spec, deploy_spec, describe_spec, update_spec
@@ -40,7 +41,11 @@ def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.y
     return spec_path
 
 
-@cloup.group(show_subcommand_aliases=True, context_settings=CONTEXT_SETTINGS)
+@cloup.group(
+    show_subcommand_aliases=True,
+    context_settings=CONTEXT_SETTINGS,
+    cls=BentoctlCommandGroup,
+)
 def bentoctl():
     """
     Bentoctl - Manages deployment of bentos to various cloud services.
@@ -63,7 +68,11 @@ def bentoctl():
 @click.option(
     "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
 )
-@click.option("--describe-deployment", is_flag=True)
+@click.option(
+    "--describe-deployment",
+    is_flag=True,
+    help="Show description of the deployment created",
+)
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
 def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
     """
@@ -104,7 +113,11 @@ def describe(deployment_spec_path):
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.option("--describe-deployment", is_flag=True)
+@click.option(
+    "--describe-deployment",
+    is_flag=True,
+    help="Show description of updated deployment.",
+)
 @click.argument("deployment_spec_path", type=click.Path())
 def update(deployment_spec_path, describe_deployment):
     """
