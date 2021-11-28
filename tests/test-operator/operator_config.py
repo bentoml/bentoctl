@@ -40,7 +40,7 @@ OPERATOR_SCHEMA = {
     },
     "first_list": {
         "type": "list",
-        "schema": {"type": "integer", "help_message": "help message"},
+        "schema": {"type": "integer", "help_message": "help message", "coerce": int},
     },
     "instances": {
         "type": "dict",

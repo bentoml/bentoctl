@@ -1,4 +1,5 @@
 import readline
+from collections import OrderedDict
 
 from cerberus import Validator
 from rich.control import Control
@@ -141,7 +142,7 @@ def prompt_confirmation(message):
     """
     error_message = "Please enter yes or no"
     line_to_clear = 0
-    input_message = f"{message} [y/n]: "
+    input_message = f"{message} [b](y/n)[/]: "
     message_line_count = len(console.render_lines(input_message))
     while True:
         result = console.input(input_message)
@@ -226,7 +227,7 @@ def intended_print(message, indent_level=0):
 
 
 def generate_spec(bento, schema):
-    spec = {'bento': bento}
+    spec = OrderedDict({'bento': bento})
     if bento is None:
         bento_schema = {
             "required": True,
@@ -268,6 +269,6 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
     console.print("[bold]spec: [/]")
     operator = local_operator_registry.get(deployment_spec["metadata"]["operator"])
     spec = generate_spec(bento, operator.operator_schema)
-    deployment_spec["spec"] = spec
+    deployment_spec["spec"] = dict(spec)
 
     return deployment_spec

@@ -104,10 +104,15 @@ class OperatorRegistry:
             )
 
         operator = Operator(content_path)
+
         if operator.name in self.operators_list:
             raise OperatorExists(operator_name=operator.name)
+        # move operator to bentoctl home
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
+        # install operator dependencies
+        operator.install_dependencies()
+
         operator.path = Path(operator_path)
         # if local operator, then keep the orginal path to operator dir
         path_to_local_operator = os.path.abspath(content_path) if not git_url else None
@@ -138,6 +143,10 @@ class OperatorRegistry:
                 raise OperatorRegistryException(
                     "No git url or local operator path associated with this operator."
                 )
+
+            # install latest dependencies
+            updated_operator = Operator(content_path)
+            updated_operator.install_dependencies()
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
