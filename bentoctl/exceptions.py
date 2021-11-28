@@ -101,3 +101,16 @@ class OperatorRegistryException(BentoctlException):
     """
     Exceptions inside the registry.
     """
+
+
+class PipInstallException(BentoctlException):
+    """
+    Raised when dependency install fails.
+    """
+
+    def __init__(self, stderr: str):
+        self.stderr = stderr
+        self.msg = (
+            "Installing dependencies via 'pip install -r requirements.txt' failed!"
+        )
+        super(PipInstallException, self).__init__(self.msg)

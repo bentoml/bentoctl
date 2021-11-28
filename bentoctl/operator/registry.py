@@ -107,6 +107,7 @@ class OperatorRegistry:
             )
 
         operator = Operator(content_path)
+        operator.install_dependencies()
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
         operator.path = Path(operator_path)
@@ -139,6 +140,10 @@ class OperatorRegistry:
                 raise OperatorRegistryException(
                     "No git url or local operator path associated with this operator."
                 )
+
+            # install latest dependencies
+            updated_operator = Operator(content_path)
+            updated_operator.install_dependencies()
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
