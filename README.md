@@ -6,32 +6,31 @@
 `pip install --editable .`
 
 To activate tab completion for you shell, source the script in
-`bcdt/completion`. For More info check [click docs](https://click.palletsprojects.com/en/8.0.x/shell-completion/)
+`bentoctl/completion`. For More info check [click docs](https://click.palletsprojects.com/en/8.0.x/shell-completion/)
 
 
 ## Example
 
-### 1. With `testop` - a test operator for testing purposes.
+### 1. With `heroku`
 
-1. add `testop` into bcdt. Since `testop` is present in local filesystem we are
-   using that mode for adding the operator.
+1. add `heroku` into bentoctl
 
   ```
-  bcdt operators add tests/testop
+  bentoctl operators add heroku
   ```
 
   2. you can list all available operators by running -
   ```
-  bcdt operators list
+  bentoctl operators list
   ```
 
-  3. Now you have bcdt configured to do a deployment. Try interactive deployment
+  3. Now you have bentoctl configured to do a deployment. Try interactive deployment
      by calling - 
      
      ```
-     bcdt deploy
+     bentoctl deploy
      # or
-     bcdt deploy --name test --operator testop --bento_bundle .
+     bentoctl deploy --name test --operator heroku --bento_bundle .
      ```
 
      fill in the values requested and it will create a deployment_spec.yaml file
@@ -42,5 +41,5 @@ To activate tab completion for you shell, source the script in
      it with a test spec file
 
      ```
-     bcdt deploy ./tests/test_deployment_spec.yaml
+     bentoctl deploy ./tests/test_deployment_spec.yaml
      ```
