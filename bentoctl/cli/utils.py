@@ -1,7 +1,7 @@
 import functools
 import os
-import cloup
 
+import cloup
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 

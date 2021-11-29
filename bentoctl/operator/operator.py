@@ -1,8 +1,8 @@
 import importlib
-import os
-import sys
 import logging
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 from bentoctl.exceptions import (
