@@ -34,7 +34,7 @@ def remove_help_message(schema):
             rules["schema"] = remove_help_message(rules["schema"])
         elif rules["type"] == "list":
             rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
-                'list_item'
+                "list_item"
             ]
         schema[field] = rules
     return schema
@@ -43,12 +43,18 @@ def remove_help_message(schema):
 class DeploymentSpec:
     def __init__(self, deployment_spec: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
-        if not deployment_spec["api_version"] == "v1":
+        if not deployment_spec.get("api_version") == "v1":
             raise InvalidDeploymentSpec("api_version should be 'v1'.")
 
         self.deployment_spec = deployment_spec
-        self.metadata = copy.deepcopy(deployment_spec["metadata"])
-        self.operator_spec = copy.deepcopy(deployment_spec["spec"])
+        try:
+            self.metadata = copy.deepcopy(deployment_spec["metadata"])
+            self.operator_spec = copy.deepcopy(deployment_spec["spec"])
+        except KeyError as e:
+            missing_key = e.args[0]
+            raise InvalidDeploymentSpec(
+                f"DeploymentSpec is missing {missing_key} field."
+            )
 
         # check `name`
         self.deployment_name = self.metadata.get("name")
