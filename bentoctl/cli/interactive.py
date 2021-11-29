@@ -177,13 +177,22 @@ def prompt_input(
     if rule.get("type") == "list":
         intended_print(f"{field_name}:", indent_level)
         input_value = []
-        should_add_item_to_list = True  # user should be able to add at least one item
+        if rule.get('required') is not True:
+            should_add_item_to_list = prompt_confirmation(
+                f"Do you want to add item to {field_name}"
+            )
+        else:
+            should_add_item_to_list = (
+                True  # user should be able to add at least one item
+            )
         while should_add_item_to_list:
             value = prompt_input("", rule["schema"], indent_level, True, True)
             input_value.append(value)
             should_add_item_to_list = prompt_confirmation(
                 f"Do you want to add another item to {field_name}"
             )
+        if not input_value:
+            input_value = None
     elif rule.get("type") == "dict":
         input_value = {}
         if not belongs_to_list:
@@ -201,6 +210,7 @@ def prompt_input(
                     belongs_to_list,
                     i == 0,  # require display '-' for first item of a dict
                 )
+        input_value = dict((k, v) for k, v in input_value.items() if v is not None)
     else:
         input_value = prompt_input_value(field_name, rule)
         if belongs_to_list:
@@ -238,7 +248,8 @@ def generate_spec(bento, schema):
 
     for field, rule in schema.items():
         val = prompt_input(field, rule)
-        spec.update({field: val})
+        if val:  # only update with non-empty value
+            spec.update({field: val})
 
     return spec
 
