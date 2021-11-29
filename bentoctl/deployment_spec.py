@@ -4,7 +4,6 @@ import typing as t
 from pathlib import Path
 
 import cerberus
-import click
 import yaml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
@@ -103,16 +102,7 @@ class DeploymentSpec:
         return validated_spec
 
     def save(self, save_path, filename="deployment_spec.yaml"):
-        overide = False
         spec_path = Path(save_path, filename)
-
-        if spec_path.exists():
-            overide = click.confirm("deployment spec file exists! Should I overide?")
-        if overide:
-            spec_path.unlink()
-        else:
-            return spec_path
-
         with open(spec_path, "w", encoding="utf-8") as f:
             yaml.dump(self.deployment_spec, f)
 
