@@ -1,48 +1,17 @@
 # TODO: remove
 # pylint: disable=W0621
 import os
-import shutil
-from functools import partial
-from pathlib import Path
-
 import pytest
-
-import bentoctl.operator as op
-import bentoctl.operator.registry
+from bentoctl.operator import get_local_operator_registry
 
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
 
 @pytest.fixture
-def tmpoperator(tmpdir, monkeypatch):
-    tmpOpsManager = bentoctl.operator.store.OperatorRegistry(tmpdir.dirname)
-    monkeypatch.setattr(op.manager, "LocalOperatorManager", tmpOpsManager)
+def op_reg(tmp_path):
+    os.environ["BENTOCTL_HOME"] = str(tmp_path)
+    op_reg = get_local_operator_registry()
 
-    yield (Path(tmpdir), op)
+    yield op_reg
 
-    shutil.rmtree(tmpdir)
-
-
-@pytest.fixture
-def mock_download_repo(tmpoperator, monkeypatch, expected_repo_url=None):
-    tmpdir, op = tmpoperator
-
-    def _mock_download_repo(repo_url, operator_dir_name, expected_repo_url=None):
-        """
-        makes a mock function for the _download_repo function in
-        bentoctl.operator.manager. This mock function has an additional check to ensure
-        the correct URL is generated for download.
-        """
-        if expected_repo_url is not None:
-            assert repo_url == expected_repo_url
-        op_dir = Path(tmpdir, operator_dir_name)
-        shutil.copytree(TESTOP_PATH, op_dir)
-        return op_dir.as_posix()
-
-    monkeypatch.setattr(
-        op.manager,
-        "_download_repo",
-        partial(_mock_download_repo, expected_repo_url=expected_repo_url),
-    )
-
-    yield op
+    del os.environ['BENTOCTL_HOME']
