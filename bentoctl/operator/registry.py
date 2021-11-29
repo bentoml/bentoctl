@@ -76,9 +76,6 @@ class OperatorRegistry:
             OperatorExists: There is another operator with the same name.
         """
 
-        if name in self.operators_list:
-            raise OperatorExists(operator_name=name)
-
         if os.path.exists(name):
             logger.info(f"adding operator from path ({name})")
             content_path = name
@@ -107,9 +104,15 @@ class OperatorRegistry:
             )
 
         operator = Operator(content_path)
-        operator.install_dependencies()
+
+        if operator.name in self.operators_list:
+            raise OperatorExists(operator_name=operator.name)
+        # move operator to bentoctl home
         operator_path = _get_operator_dir_path(operator.name)
         shutil.copytree(content_path, operator_path)
+        # install operator dependencies
+        operator.install_dependencies()
+
         operator.path = Path(operator_path)
         # if local operator, then keep the orginal path to operator dir
         path_to_local_operator = os.path.abspath(content_path) if not git_url else None
@@ -147,7 +150,7 @@ class OperatorRegistry:
 
             operator_path = operator.path
             shutil.rmtree(operator_path)
-            shutil.copytree(content_path, operator_path)
+            shutil.copytree(content_path, operator_path, copy_function=shutil.copy)
         except BentoctlException as e:
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 

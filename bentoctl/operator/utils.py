@@ -1,11 +1,10 @@
 import os
 import re
-import shutil
 import tempfile
-from collections import namedtuple
 from pathlib import Path
 
 from git import Repo
+
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.utils import console
 
@@ -21,24 +20,7 @@ def _get_bentoctl_home():
     if not os.path.exists(operator_home):
         os.mkdir(operator_home)
 
-    deployments_home = os.path.join(bentoctl_home, "deployments")
-    if not os.path.exists(deployments_home):
-        os.mkdir(deployments_home)
-
     return bentoctl_home
-
-
-BENTOCTL_HOME = os.path.expanduser(_get_bentoctl_home())
-
-github_repo = namedtuple("github_repo", ["owner", "name", "branch"])
-
-
-def _remove_if_exists(path):
-    if os.path.exists(path):
-        if os.path.isfile(path):
-            os.remove(path)
-        else:
-            shutil.rmtree(path)
 
 
 def _get_operator_dir_path(operator_name):
