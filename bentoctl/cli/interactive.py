@@ -1,9 +1,7 @@
 import readline
-from pathlib import Path
+from collections import OrderedDict
 
-import cerberus
-import click
-import yaml
+from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
@@ -15,7 +13,18 @@ from bentoctl.utils import console
 local_operator_registry = get_local_operator_registry()
 
 
-def choose_operator_from_list():
+INTERACTIVE_MODE_TITLE = "[r]Bentoctl Interactive Deployment Spec Builder[/]"
+WELCOME_MESSAGE = """
+[green]Welcome![/] You are now in interactive mode.
+
+This mode will help you setup the deployment_spec.yaml file required for
+deployment. Fill out the appropriate values for the fields.
+
+[dim](deployment spec will be saved to: ./deployment_spec.yaml)[/]
+"""
+
+
+def select_operator_from_list():
     """
     interactive menu to select operator
     """
@@ -58,7 +67,9 @@ class PromptMsg:
 
 
 def clear_console(num_lines):
-    """Clears the number of lines"""
+    """
+    clear console message base on the given line count
+    """
     console.print(
         Control(
             ControlType.CARRIAGE_RETURN,
@@ -71,63 +82,163 @@ def clear_console(num_lines):
     )
 
 
-def prompt_input(field, rule):
-    validator = cerberus.Validator()
-    validation_error_msg = None
+class display_console_message:
+    """
+    Display a message on the console, and clear it after user exits out of the block
+
+    Usage:
+        with display_console_message("This is a message"):
+            # do something
+    """
+
+    def __init__(self, message, should_render_message=True):
+        self.message = message
+        self.should_render_message = should_render_message
+        self.message_lines = console.render_lines(self.message)
+        self.clean_up = True
+        self.line_needed_to_clear = len(self.message_lines)
+
+    def __enter__(self):
+        if self.should_render_message:
+            console.print(SegmentLines(self.message_lines, new_lines=True))
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        clear_console(self.line_needed_to_clear)
+
+
+def prompt_input_value(field_name, rule):
+    """
+    console prompt for input value from user. Display error message if validation fails
+    clean up the prompt message and/or error message afterward.
+    """
+    validator = Validator()
     help_message = rule.pop("help_message", None)
-    default = rule.get("default")
-    default_str = "" if default is None else f"[[b]{default}[/]]"
+    default_value = rule.get("default", None)
+    validation_error_message = None
+    suffix = f" [[b]{default_value}[/]]: " if default_value is not None else ": "
+    input_message = (
+        f"{field_name}{suffix}" if field_name != "" else "Enter your input: "
+    )
     while True:
-        prompt_msg_lines = console.render_lines(
-            PromptMsg(help_message, validation_error_msg)
+        with display_console_message(PromptMsg(help_message, validation_error_message)):
+            user_input_value = console.input(input_message)
+            clear_console(1)
+        user_input_value = user_input_value if user_input_value != "" else None
+        validated_field = validator.validated(
+            {field_name: user_input_value}, schema={field_name: rule}
         )
-        num_lines = len(prompt_msg_lines)
-        console.print(SegmentLines(prompt_msg_lines, new_lines=True))
-        value = console.input(f"{field} {default_str}: ")
-        clear_console(num_lines + 1)
-        value = value if value != "" else None
-        validated_field = validator.validated({field: value}, schema={field: rule})
         if validated_field is None:
-            validation_error_msg = ". ".join(validator.errors[field])
+            validation_error_message = ". ".join(validator.errors[field_name])
         else:
-            return validated_field[field]
+            return validated_field[field_name]
 
 
-def intended_print(string, indent=0):
-    indent = "    " * indent
-    console.print(indent, end="")
-    console.print(string)
+def prompt_confirmation(message):
+    """
+    This will prompt the user with y/n question. Before the function returns
+    value, it will clear up all of the prompt messages and error messages.
+
+    Return boolean value
+    """
+    error_message = "Please enter yes or no"
+    line_to_clear = 0
+    input_message = f"{message} [b](y/n)[/]: "
+    message_line_count = len(console.render_lines(input_message))
+    while True:
+        result = console.input(input_message)
+        line_to_clear += message_line_count
+        if result.lower() == "y" or result.lower() == "yes":
+            clear_console(line_to_clear)
+            return True
+        elif result.lower() == "n" or result.lower() == "no":
+            clear_console(line_to_clear)
+            return False
+        else:
+            console.print(error_message)
+            line_to_clear += 1
 
 
-def generate_metadata(name, operator):
-    if name is None:
-        name = prompt_input("name", metadata_schema.get("name"))
-    intended_print(f"name: {name}", indent=1)
-    if operator is None:
-        operator = choose_operator_from_list()
-    intended_print(f"operator: {operator}", indent=1)
+def prompt_input(
+    field_name, rule, indent_level=1, belongs_to_list=False, require_display_dash=False
+):
+    """
+    Need to handle cases:
+        foo: bar,
+        foo: [bar, baz]
+        foo: {bar: baz}
+        foo: {bar: [baz, qux]}
+        foo: {bar: [{baz: qux}, {qux: qux}]}
 
-    return {"name": name, "operator": operator}
+    Returns the user input value
+    """
+    # TODO: better display for the case of foo: [bar, baz].  Right now the console
+    #  prompt will display `: your_input`
+    input_value = None
+    if rule.get("type") == "list":
+        intended_print(f"{field_name}:", indent_level)
+        input_value = []
+        should_add_item_to_list = True  # user should be able to add at least one item
+        while should_add_item_to_list:
+            value = prompt_input("", rule["schema"], indent_level, True, True)
+            input_value.append(value)
+            should_add_item_to_list = prompt_confirmation(
+                f"Do you want to add another item to {field_name}"
+            )
+    elif rule.get("type") == "dict":
+        input_value = {}
+        if not belongs_to_list:
+            intended_print(f"{field_name}:", indent_level)
+            for key in rule.get("schema").keys():
+                input_value[key] = prompt_input(
+                    key, rule.get("schema").get(key), indent_level + 1
+                )
+        else:
+            for i, key in enumerate(rule.get("schema").keys()):
+                input_value[key] = prompt_input(
+                    key,
+                    rule.get("schema").get(key),
+                    indent_level,
+                    belongs_to_list,
+                    i == 0,  # require display '-' for first item of a dict
+                )
+    else:
+        input_value = prompt_input_value(field_name, rule)
+        if belongs_to_list:
+            if require_display_dash:
+                if field_name:
+                    display_input_result = f"- {field_name}: {input_value}"
+                else:
+                    display_input_result = f"- {input_value}"
+            else:
+                display_input_result = f"  {field_name}: {input_value}"
+        else:
+            display_input_result = f"{field_name}: {input_value}"
+        intended_print(display_input_result, indent_level=indent_level)
+    return input_value
+
+
+def intended_print(message, indent_level=0):
+    """
+    print the message with indentation
+    """
+    indent_level = "    " * indent_level  # 4 spaces for each indentation level
+    console.print(indent_level, end="")
+    console.print(message)
 
 
 def generate_spec(bento, schema):
-    spec = {}
-
-    # get the bento
-    bento_schema = {
-        "required": True,
-        "help_message": "bento tag | path to bento bundle",
-    }
+    spec = OrderedDict({'bento': bento})
     if bento is None:
+        bento_schema = {
+            "required": True,
+            "help_message": "bento tag | path to bento bundle",
+        }
         bento = prompt_input("bento", bento_schema)
-    intended_print(f"bento: {bento}", indent=1)
-    spec["bento"] = bento
+        spec["bento"] = bento
 
-    # get other operator schema
     for field, rule in schema.items():
         val = prompt_input(field, rule)
         spec.update({field: val})
-        intended_print(f"{field}: {val}", indent=1)
 
     return spec
 
@@ -136,47 +247,28 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
     """
     Interactively build the deployment spec.
     """
-    console.print("[r]Interactive Deployment Spec Builder[/]")
-    console.print(
-        """
-[green]Welcome![/] You are now in interactive mode.
+    deployment_spec = {
+        "api_version": "v1",
+        "metadata": {"name": name, "operator": operator},
+        "spec": {},
+    }
 
-This mode will help you setup the deployment_spec.yaml file required for
-deployment. Fill out the appropriate values for the fields.
-
-[dim](deployment spec will be saved to: ./deployment_spec.yaml)[/]
-"""
-    )
-
-    # api_version
+    console.print(INTERACTIVE_MODE_TITLE)
+    console.print(WELCOME_MESSAGE)
     console.print("[b]api_version:[/] v1")
-
-    # metadata
     console.print("[bold]metadata: [/]")
-    metadata = generate_metadata(name, operator)
+    if name is None:
+        name = prompt_input("name", metadata_schema.get("name"))
+        deployment_spec["metadata"]["name"] = name
+    if operator is None:
+        operator = select_operator_from_list()
+        deployment_spec["metadata"]["operator"] = operator
+    intended_print(f"name: {name}", indent_level=1)
+    intended_print(f"operator: {operator}", indent_level=1)
 
-    # spec
     console.print("[bold]spec: [/]")
-    operator = local_operator_registry.get(metadata["operator"])
+    operator = local_operator_registry.get(deployment_spec["metadata"]["operator"])
     spec = generate_spec(bento, operator.operator_schema)
+    deployment_spec["spec"] = dict(spec)
 
-    deployment_spec = {"api_version": "v1", "metadata": metadata, "spec": spec}
     return deployment_spec
-
-
-def save_deployment_spec(deployment_spec, save_path, filename="deployment_spec.yaml"):
-    spec_path = Path(save_path, filename)
-
-    if spec_path.exists():
-        override = click.confirm(
-            "deployment spec file exists! Should I override?", default=True
-        )
-        if override:
-            spec_path.unlink()
-        else:
-            return spec_path
-
-    with open(spec_path, "w", encoding="UTF-8") as f:
-        yaml.dump(deployment_spec, f)
-
-    return spec_path

@@ -1,3 +1,6 @@
+import yaml
+
+
 class BentoctlException(Exception):
     """
     Base class for all of bentoctl's exceptions.
@@ -8,7 +11,7 @@ class BentoctlException(Exception):
         """
         used by CLI to generate a user readable error message.
         """
-        print(self)
+        print("Error: ", self)
 
 
 class OperatorExists(BentoctlException):
@@ -41,9 +44,9 @@ class OperatorConfigNotFound(BentoctlException):
     file
     """
 
-    def __init__(self, operator_path, msg=None):
+    def __init__(self, operator_path=None, msg=None):
         if msg is None:
-            msg = f"`operator_config.py` not found in {operator_path}"
+            msg = "`operator_config.py` not found inside repo."
         super(OperatorConfigNotFound, self).__init__(msg)
         self.operator_path = operator_path
 
@@ -56,8 +59,12 @@ class OperatorLoadException(BentoctlException):
     """Raised when trying to import an operator without the proper structure"""
 
 
-class OperatorUpdateException(BentoctlException):
+class OperatorNotUpdated(BentoctlException):
     """Raised when an error is encoundered in Update."""
+
+
+class OperatorNotAdded(BentoctlException):
+    """Raised when calling an operator that is not found."""
 
 
 class InvalidDeploymentSpec(BentoctlException):
@@ -78,10 +85,7 @@ class InvalidDeploymentSpec(BentoctlException):
 
         if msg is None and spec_errors is not None:
             msg_list = ["Error while parsing Deployment Spec."]
-            for field, errors in spec_errors.items():
-                error_msg = "\n".join(errors)
-                msg_list.append(f"{field}: {error_msg}")
-
+            msg_list.append(yaml.safe_dump(spec_errors))
             msg = "\n".join(msg_list)
 
         super(InvalidDeploymentSpec, self).__init__(msg)
@@ -91,3 +95,22 @@ class DeploymentSpecNotFound(BentoctlException):
     """
     When deployment spec is not found.
     """
+
+
+class OperatorRegistryException(BentoctlException):
+    """
+    Exceptions inside the registry.
+    """
+
+
+class PipInstallException(BentoctlException):
+    """
+    Raised when dependency install fails.
+    """
+
+    def __init__(self, stderr: str):
+        self.stderr = stderr
+        self.msg = (
+            "Installing dependencies via 'pip install -r requirements.txt' failed!"
+        )
+        super(PipInstallException, self).__init__(self.msg)

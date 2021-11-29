@@ -26,6 +26,20 @@ def load_bento(bundle: t.Union[str, Path]):
     return Path(bundle)
 
 
+def remove_help_message(schema):
+    for field, rules in schema.items():
+        if "help_message" in rules:
+            del rules["help_message"]
+        if rules["type"] == "dict":
+            rules["schema"] = remove_help_message(rules["schema"])
+        elif rules["type"] == "list":
+            rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
+                'list_item'
+            ]
+        schema[field] = rules
+    return schema
+
+
 class DeploymentSpec:
     def __init__(self, deployment_spec: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
@@ -74,9 +88,7 @@ class DeploymentSpec:
         validate the schema using cerberus and show errors properly.
         """
         # cleanup operator_schema by removing 'help_message' field
-        for _, rules in operator_schema.items():
-            if "help_message" in rules:
-                rules.pop("help_message")
+        operator_schema = remove_help_message(schema=operator_schema)
         v = cerberus.Validator()
         validated_spec = v.validated(self.operator_spec, schema=operator_schema)
         if validated_spec is None:

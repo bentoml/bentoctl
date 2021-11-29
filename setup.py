@@ -8,6 +8,7 @@ install_requires = [
     "simple-term-menu",
     "cloup",
     "PyYAML",
+    "GitPython",
 ]
 
 dev_requires = [
