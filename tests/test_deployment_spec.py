@@ -1,9 +1,9 @@
+# pylint: disable=W0621
 from pathlib import Path
 
 import pytest
 
 from bentoctl import deployment_spec as dspec
-from bentoctl.operator import OperatorRegistry
 from bentoctl.exceptions import InvalidDeploymentSpec, DeploymentSpecNotFound
 from bentoctl.operator.operator import _import_module
 
@@ -119,7 +119,9 @@ def op_reg_with_testop(op_reg, monkeypatch):
     yield op_reg
 
 
-def test_deployment_spec_from_file(tmp_path, op_reg_with_testop):
+def test_deployment_spec_from_file(
+    tmp_path, op_reg_with_testop
+):  # pylint: disable=W0613
     with pytest.raises(DeploymentSpecNotFound):
         dspec.DeploymentSpec.from_file(tmp_path / "nofile.yaml")
 
@@ -131,11 +133,12 @@ def test_deployment_spec_from_file(tmp_path, op_reg_with_testop):
     assert dspec.DeploymentSpec.from_file(tmp_path / "deployment_spec.yaml")
 
 
-def test_validate_operator_spec(op_reg_with_testop):
+def test_validate_operator_spec(op_reg_with_testop):  # pylint: disable=W0613
     operator_config = _import_module("operator_config", TESTOP_PATH)
     schema = operator_config.OPERATOR_SCHEMA
 
     import yaml
+
     dspec_obj = dspec.DeploymentSpec(yaml.safe_load(VALID_YAML))
     dspec_obj.validate_operator_spec(schema)
 
