@@ -51,15 +51,13 @@ def describe_deployment(deployment_spec_path):
     else:
         return deployment_resource.operator.describe(
             deployment_resource.deployment_name, deployment_resource.operator_spec
-       )
+        )
 
 
 def delete_deployment(deployment_spec_path):
     deployment_resource = DeploymentConfig.from_file(deployment_spec_path)
     if deployment_resource.operator.name is YATAI_OPERATOR_NAME:
-        deployment_resource.operator.delete(
-            deployment_resource.deployment_name
-        )
+        deployment_resource.operator.delete(deployment_resource.deployment_name)
     else:
         deployment_resource.operator.delete(
             deployment_resource.deployment_name, deployment_resource.operator_spec

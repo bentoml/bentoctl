@@ -70,8 +70,8 @@ class DeploymentConfig:
 
         # check `bento`
         if self.operator_name is not YATAI_OPERATOR_NAME:
-                self.bento = self.operator_spec.pop("bento")
-                self.bento_path = get_bento_path(self.bento)
+            self.bento = self.operator_spec.pop("bento")
+            self.bento_path = get_bento_path(self.bento)
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
