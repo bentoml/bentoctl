@@ -6,9 +6,11 @@ from pathlib import Path
 import cerberus
 import click
 import yaml
+import bentoml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
 from bentoctl.operator import get_local_operator_registry
+from bentoctl.operator.constants import YATAI_OPERATOR_NAME
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
@@ -18,12 +20,15 @@ metadata_schema = {
 local_operator_registry = get_local_operator_registry()
 
 
-def load_bento(bundle: t.Union[str, Path]):
-    # TODO: hook it up with bento.store and yatai
-    if not os.path.exists(bundle):
-        raise InvalidDeploymentSpec("bundle not found!")
-
-    return Path(bundle)
+def get_bento_path(bento: t.Union[str, Path]):
+    try:
+        bento = bentoml.get(bento)
+        return bento.path
+    except bentoml.exceptions.NotFound:
+        if os.path.exists(bento):
+            return Path(bento)
+        else:
+            raise InvalidDeploymentSpec("Bento not found!")
 
 
 def remove_help_message(schema):
@@ -40,7 +45,7 @@ def remove_help_message(schema):
     return schema
 
 
-class DeploymentSpec:
+class DeploymentConfig:
     def __init__(self, deployment_spec: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
         if not deployment_spec["api_version"] == "v1":
@@ -48,25 +53,11 @@ class DeploymentSpec:
 
         self.deployment_spec = deployment_spec
         self.metadata = copy.deepcopy(deployment_spec["metadata"])
-        self.operator_spec = copy.deepcopy(deployment_spec["spec"])
 
-        # check `name`
-        self.deployment_name = self.metadata.get("name")
-        if self.deployment_name is None:
-            raise InvalidDeploymentSpec("name not found")
-
-        # check `operator`
-        self.operator_name = self.metadata.get("operator")
-        if (
-            self.operator_name is None
-            or self.operator_name not in local_operator_registry.operators_list
-        ):
-            raise InvalidDeploymentSpec("operator not found")
-
-        # check `bento`
-        if "bento" in self.operator_spec:
-            self.bento = self.operator_spec.pop("bento")
-            self.bento_path = load_bento(self.bento)
+        self._set_name()
+        self._set_operator()
+        self._set_operator_spec()
+        self._set_bento()
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
@@ -83,26 +74,15 @@ class DeploymentSpec:
 
         return cls(config_dict)
 
-    def validate_operator_spec(self, operator_schema):
-        """
-        validate the schema using cerberus and show errors properly.
-        """
-        # cleanup operator_schema by removing 'help_message' field
-        operator_schema = remove_help_message(schema=operator_schema)
-        v = cerberus.Validator()
-        validated_spec = v.validated(self.operator_spec, schema=operator_schema)
-        if validated_spec is None:
-            raise InvalidDeploymentSpec(spec_errors=v.errors)
-
-        return validated_spec
-
     def save(self, save_path, filename="deployment_spec.yaml"):
-        overide = False
+        overwrite = False
         spec_path = Path(save_path, filename)
 
         if spec_path.exists():
-            overide = click.confirm("deployment spec file exists! Should I overide?")
-        if overide:
+            overwrite = click.confirm(
+                "deployment spec file exists! Should I overwrite it?"
+            )
+        if overwrite:
             spec_path.unlink()
         else:
             return spec_path
@@ -111,3 +91,34 @@ class DeploymentSpec:
             yaml.dump(self.deployment_spec, f)
 
         return spec_path
+
+    def _set_name(self):
+        self.deployment_name = self.metadata.get("name")
+        if self.deployment_name is None:
+            raise InvalidDeploymentSpec("name not found")
+
+    def _set_operator(self):
+        self.operator_name = self.metadata.get("operator")
+        if (
+            self.operator_name is None
+            or self.operator_name not in local_operator_registry.operators_list
+        ):
+            raise InvalidDeploymentSpec("operator not found")
+        # TODO: add try/except block
+        self.operator = local_operator_registry.get(self.operator_name)
+
+    def _set_bento(self):
+        if self.operator_name is not YATAI_OPERATOR_NAME:
+            self.bento = self.operator_spec.pop("bento")
+            self.bento_path = get_bento_path(self.bento)
+
+    def _set_operator_spec(self):
+        # cleanup operator_schema by removing 'help_message' field
+        operator_schema = remove_help_message(schema=self.operator.operator_schema)
+        v = cerberus.Validator()
+        validated_spec = v.validated(
+            self.deployment_spec['spec'], schema=operator_schema
+        )
+        if validated_spec is None:
+            raise InvalidDeploymentSpec(spec_errors=v.errors)
+        self.operator_spec = validated_spec

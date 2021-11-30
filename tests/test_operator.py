@@ -5,22 +5,21 @@ import sys
 import pytest
 
 from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
-from bentoctl.operator import operator as operator_module
+from bentoctl.operator import operator as op
+from bentoctl.operator.operator import _import_module, Operator
 
 
 from .conftest import TESTOP_PATH
 
 
 def test_import_module():
-    testop = operator_module._import_module("testop", TESTOP_PATH)
+    testop = _import_module("testop", TESTOP_PATH)
     # check if the imported module has the operations delete and update
     assert hasattr(testop, "deploy")
     assert hasattr(testop, "update")
 
-    with pytest.raises(ModuleNotFoundError):
-        testop = operator_module._import_module(
-            "MODULE_THAT_IS_NOT_PRESENT", TESTOP_PATH
-        )
+    with pytest.raises(OperatorLoadException):
+        testop = _import_module("MODULE_THAT_IS_NOT_PRESENT", TESTOP_PATH)
     # clean the paths in sys.path
     sys.path.pop(0)
 
@@ -28,26 +27,26 @@ def test_import_module():
 def test_operator_class_init(tmp_path, monkeypatch):
     testop_path = tmp_path / "test-operator"
     shutil.copytree(TESTOP_PATH, testop_path)
-    operator = operator_module.Operator(testop_path)
+    operator = Operator(testop_path)
     assert operator.name == "testop"
-    assert operator.operator_module == "testop"
+    assert operator.module_name == "testop"
 
     with pytest.raises(OperatorConfigNotFound):
-        operator_module.Operator(tmp_path)
+        Operator(tmp_path)
 
     with pytest.raises(OperatorLoadException):
 
-        def raise_import_error(*_):
-            raise ImportError
+        def raise_error(*_):
+            raise OperatorLoadException
 
-        monkeypatch.setattr(operator_module, "_import_module", raise_import_error)
-        operator_module.Operator(testop_path)
+        monkeypatch.setattr(op, '_import_module', raise_error)
+        Operator(testop_path)
 
 
 def test_operator_class_operations(tmp_path):
     testop_path = tmp_path / "test-operator"
     shutil.copytree(TESTOP_PATH, testop_path)
-    operator = operator_module.Operator(testop_path)
+    operator = Operator(testop_path)
 
     deployable_path = operator.deploy("test_bundle", "first", {})
     assert os.path.exists(deployable_path)

@@ -22,41 +22,35 @@ class Operator:
         # load the operator config
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
-        try:
-            operator_config = _import_module("operator_config", self.path)
-        except (ImportError, ModuleNotFoundError) as e:
-            raise OperatorLoadException(f"Failed to load operator - {e}")
+
+        operator_config = _import_module("operator_config", self.path)
 
         self.operator_name = operator_config.OPERATOR_NAME
         if hasattr(operator_config, "OPERATOR_MODULE"):
-            self.operator_module = operator_config.OPERATOR_MODULE
+            self.module_name = operator_config.OPERATOR_MODULE
         else:
-            self.operator_module = self.operator_name
+            self.module_name = self.operator_name
         self.operator_schema = operator_config.OPERATOR_SCHEMA
 
     @property
     def name(self):
         return self.operator_name
 
-    def update(self, bento_path, deployment_name, config_dict):
-        operator = _import_module(self.operator_module, self.path)
-        d_path = operator.update(bento_path, deployment_name, config_dict)
+    def deploy(self, *args, **kwargs):
+        operator = self._load_operator_module()
+        return operator.deploy(*args, **kwargs)
 
-        return d_path
+    def update(self, *args, **kwargs):
+        operator = self._load_operator_module()
+        return operator.update(*args, **kwargs)
 
-    def deploy(self, bento_path, deployment_name, config_dict):
-        operator = _import_module(self.operator_module, self.path)
-        d_path = operator.deploy(bento_path, deployment_name, config_dict)
-        return d_path
+    def describe(self, *args, **kwargs):
+        operator = self._load_operator_module()
+        return operator.describe(*args, **kwargs)
 
-    def describe(self, deployment_name, config_dict):
-        operator = _import_module(self.operator_module, self.path)
-        info_json = operator.describe(deployment_name, config_dict)
-        return info_json
-
-    def delete(self, deployment_name, config_dict):
-        operator = _import_module(self.operator_module, self.path)
-        operator.delete(deployment_name, config_dict)
+    def delete(self, *args, **kwargs):
+        operator = self._load_operator_module()
+        return operator.delete(*args, **kwargs)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")
@@ -78,8 +72,14 @@ class Operator:
             logger.error(completedprocess.stderr.decode("utf-8"))
             raise PipInstallException(stderr=completedprocess.stderr.decode("utf-8"))
 
+    def _load_operator_module(self):
+        return _import_module(self.module_name, self.path)
+
 
 def _import_module(module_name, path):
-    sys.path.insert(0, os.path.abspath(path))
-    module = importlib.import_module(module_name)
-    return module
+    try:
+        sys.path.insert(0, os.path.abspath(path))
+        module = importlib.import_module(module_name)
+        return module
+    except (ImportError, ModuleNotFoundError) as e:
+        raise OperatorLoadException(f"Failed to load module {module_name} - {e}")
