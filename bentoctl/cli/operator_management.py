@@ -22,7 +22,7 @@ def get_operator_management_subcommands():
         """
 
     @operator_management.command(name="list")
-    def list_operator_command():
+    def list_operator_command():  # pylint: disable=unused-variable
         """
         List all the available operators.
 
@@ -34,7 +34,7 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name", required=False)
-    def add(name=None):
+    def add(name=None):  # pylint: disable=unused-variable
         """
         Add operators.
 
@@ -95,7 +95,7 @@ def get_operator_management_subcommands():
         help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
-    def remove(name, delete_from_disk, skip_confirm):
+    def remove(name, delete_from_disk, skip_confirm):  # pylint: disable=unused-variable
         """
         Remove operators.
 
@@ -117,7 +117,7 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name")
-    def update(name):
+    def update(name):  # pylint: disable=unused-variable
         """
         Update an operator given its name.
 

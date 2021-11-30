@@ -1,3 +1,5 @@
+YATAI_OPERATOR_NAME = 'yatai'
+
 OFFICIAL_OPERATORS = {
     "yatai": "bentoml/yatai-deployment-operator",
     "heroku": "bentoml/heroku-deploy",

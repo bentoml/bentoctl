@@ -9,9 +9,14 @@ from rich.pretty import pprint
 from bentoctl.cli.interactive import deployment_spec_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
-from bentoctl.deployment_spec import DeploymentSpec
+from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlException
-from bentoctl.operations import delete_spec, deploy_spec, describe_spec, update_spec
+from bentoctl.deployment import (
+    delete_deployment,
+    deploy_deployment,
+    describe_deployment,
+    update_deployment,
+)
 from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -72,12 +77,10 @@ def bentoctl():
     help="The path to bento bundle.",
 )
 @click.option(
-    "--describe-deployment",
-    is_flag=True,
-    help="Show description of the deployment created",
+    "--display-deployment-info", is_flag=True, help="Show deployment info",
 )
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
-def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
+def deploy(deployment_spec_path, name, operator, bento, display_deployment_info):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_spec.
 
@@ -88,7 +91,7 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
     try:
         if deployment_spec_path is None:
             deployment_spec = deployment_spec_builder(bento, name, operator)
-            dspec = DeploymentSpec(deployment_spec)
+            dspec = DeploymentConfig(deployment_spec)
             deployment_spec_path = save_deployment_spec(
                 dspec.deployment_spec, Path.cwd()
             )
@@ -96,10 +99,10 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
                 "[green]deployment spec generated to: "
                 f"{deployment_spec_path.relative_to(Path.cwd())}[/]"
             )
-        deploy_spec(deployment_spec_path)
+        deploy_deployment(deployment_spec_path)
         print("Successful deployment!")
-        if describe_deployment:
-            info_json = describe_spec(deployment_spec_path)
+        if display_deployment_info:
+            info_json = display_deployment_info(deployment_spec_path)
             pprint(info_json)
     except BentoctlException as e:
         e.show()
@@ -111,24 +114,22 @@ def describe(deployment_spec_path):
     """
     Shows the properties of the deployment given a deployment_spec.
     """
-    info_json = describe_spec(deployment_spec_path=deployment_spec_path)
+    info_json = describe_deployment(deployment_spec_path=deployment_spec_path)
     pprint(info_json)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option(
-    "--describe-deployment",
-    is_flag=True,
-    help="Show description of updated deployment.",
+    "--display-deployment-info", is_flag=True, help="Show deployment info.",
 )
 @click.argument("deployment_spec_path", type=click.Path())
-def update(deployment_spec_path, describe_deployment):
+def update(deployment_spec_path, display_deployment_info):
     """
     Update the deployment given a deployment_spec.
     """
-    update_spec(deployment_spec_path=deployment_spec_path)
-    if describe_deployment:
-        info_json = describe_spec(deployment_spec_path)
+    update_deployment(deployment_spec_path=deployment_spec_path)
+    if display_deployment_info:
+        info_json = display_deployment_info(deployment_spec_path)
         pprint(info_json)
 
 
@@ -138,7 +139,7 @@ def delete(deployment_spec_path):
     """
     Delete the deployment given a deployment_spec.
     """
-    deployment_name = delete_spec(deployment_spec_path=deployment_spec_path)
+    deployment_name = delete_deployment(deployment_spec_path=deployment_spec_path)
     click.echo(f"Deleted deployment - {deployment_name}!")
 
 
