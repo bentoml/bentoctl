@@ -74,12 +74,10 @@ def bentoctl():
     "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
 )
 @click.option(
-    "--describe-deployment",
-    is_flag=True,
-    help="Show description of the deployment created",
+    "--display-deployment-info", is_flag=True, help="Show deployment info",
 )
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
-def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
+def deploy(deployment_spec_path, name, operator, bento, display_deployment_info):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_spec.
 
@@ -100,8 +98,8 @@ def deploy(deployment_spec_path, name, operator, bento, describe_deployment):
             )
         deploy_deployment(deployment_spec_path)
         print("Successful deployment!")
-        if describe_deployment:
-            info_json = describe_deployment(deployment_spec_path)
+        if display_deployment_info:
+            info_json = display_deployment_info(deployment_spec_path)
             pprint(info_json)
     except BentoctlException as e:
         e.show()
@@ -119,18 +117,16 @@ def describe(deployment_spec_path):
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option(
-    "--describe-deployment",
-    is_flag=True,
-    help="Show description of updated deployment.",
+    "--display-deployment-info", is_flag=True, help="Show deployment info.",
 )
 @click.argument("deployment_spec_path", type=click.Path())
-def update(deployment_spec_path, describe_deployment):
+def update(deployment_spec_path, display_deployment_info):
     """
     Update the deployment given a deployment_spec.
     """
     update_deployment(deployment_spec_path=deployment_spec_path)
-    if describe_deployment:
-        info_json = describe_deployment(deployment_spec_path)
+    if display_deployment_info:
+        info_json = display_deployment_info(deployment_spec_path)
         pprint(info_json)
 
 

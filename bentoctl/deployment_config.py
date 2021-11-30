@@ -24,7 +24,7 @@ def get_bento_path(bento: t.Union[str, Path]):
     try:
         bento = bentoml.get(bento)
         return bento.path
-    except bentoml.exceptions.NotFound as e:
+    except bentoml.exceptions.NotFound:
         if os.path.exists(bento):
             return Path(bento)
         else:
@@ -117,7 +117,7 @@ class DeploymentConfig:
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
         v = cerberus.Validator()
         validated_spec = v.validated(
-            self.deployment_spec['spec'], schema=self.operator.operator_schema
+            self.deployment_spec['spec'], schema=operator_schema
         )
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)

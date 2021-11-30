@@ -38,25 +38,25 @@ class Operator:
     def name(self):
         return self.operator_name
 
-    def update(self, bento_path, deployment_name, config_dict):
+    def update(self, *args, **kwargs):
         operator = _import_module(self.operator_module, self.path)
-        d_path = operator.update(bento_path, deployment_name, config_dict)
+        d_path = operator.update(*args, **kwargs)
 
         return d_path
 
-    def deploy(self, bento_path, deployment_name, config_dict):
+    def deploy(self, *args, **kwargs):
         operator = _import_module(self.operator_module, self.path)
-        d_path = operator.deploy(bento_path, deployment_name, config_dict)
+        d_path = operator.deploy(*args, **kwargs)
         return d_path
 
-    def describe(self, deployment_name, config_dict):
+    def describe(self, *args, **kwargs):
         operator = _import_module(self.operator_module, self.path)
-        info_json = operator.describe(deployment_name, config_dict)
+        info_json = operator.describe(*args, **kwargs)
         return info_json
 
-    def delete(self, deployment_name, config_dict):
+    def delete(self, *args, **kwargs):
         operator = _import_module(self.operator_module, self.path)
-        operator.delete(deployment_name, config_dict)
+        operator.delete(*args, **kwargs)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")

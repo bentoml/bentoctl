@@ -12,13 +12,14 @@ def deploy_deployment(deployment_spec_path):
     if deployment_resource.operator.name is YATAI_OPERATOR_NAME:
         # TODO update yatai signature
         deployment_resource.operator.deploy(
-            deployment_resource.deployment_name, deployment_resource.operator_spec
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
     else:
         deployable_path = deployment_resource.operator.deploy(
-            deployment_resource.bento_path,
-            deployment_resource.deployment_name,
-            deployment_resource.operator_spec,
+            bento_path=deployment_resource.bento_path,
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
         # remove the deployable
         if deployable_path is not None:
@@ -30,13 +31,14 @@ def update_deployment(deployment_spec_path):
     if deployment_resource.operator.name is YATAI_OPERATOR_NAME:
         # TODO update yatai signature
         deployment_resource.operator.update(
-            deployment_resource.deployment_name, deployment_resource.operator_spec
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
     else:
         deployable_path = deployment_resource.operator.update(
-            deployment_resource.bento_path,
-            deployment_resource.deployment_name,
-            deployment_resource.operator_spec,
+            bento_path=deployment_resource.bento_path,
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
         if deployable_path is not None:
             shutil.rmtree(deployable_path)
@@ -46,20 +48,24 @@ def describe_deployment(deployment_spec_path):
     deployment_resource = DeploymentConfig.from_file(deployment_spec_path)
     if deployment_resource.operator.name is YATAI_OPERATOR_NAME:
         return deployment_resource.operator.describe(
-            deployment_resource.deployment_name
+            deployment_name=deployment_resource.deployment_name
         )
     else:
         return deployment_resource.operator.describe(
-            deployment_resource.deployment_name, deployment_resource.operator_spec
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
 
 
 def delete_deployment(deployment_spec_path):
     deployment_resource = DeploymentConfig.from_file(deployment_spec_path)
     if deployment_resource.operator.name is YATAI_OPERATOR_NAME:
-        deployment_resource.operator.delete(deployment_resource.deployment_name)
+        deployment_resource.operator.delete(
+            deployment_name=deployment_resource.deployment_name
+        )
     else:
         deployment_resource.operator.delete(
-            deployment_resource.deployment_name, deployment_resource.operator_spec
+            deployment_name=deployment_resource.deployment_name,
+            deployment_spec=deployment_resource.operator_spec,
         )
     return deployment_resource.deployment_name
