@@ -2,6 +2,7 @@
 import json
 import os
 import shutil
+import sys
 
 import pytest
 
@@ -88,7 +89,13 @@ def test_registry_add(user_input, git_url, git_branch, op_reg, monkeypatch):
     }
 
 
-@pytest.mark.skip
+@pytest.mark.skipif(
+    sys.platform.startswith("darwin"),
+    reason=(
+        "This check doesnot work on macOS. shutil.copytree() function doesnot "
+        "copy over the timestamp in mac"
+    ),
+)
 def test_registry_update_local_operator(op_reg):
     op_reg.add(TESTOP_PATH)
     path_to_first_file_before_updation = next(
@@ -104,6 +111,13 @@ def test_registry_update_local_operator(op_reg):
     assert path_to_first_file_before_updation == path_to_first_file_after_updation
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("darwin"),
+    reason=(
+        "This check doesnot work on macOS. shutil.copytree() function doesnot "
+        "copy over the timestamp in mac"
+    ),
+)
 def test_registry_update_git_url(op_reg, monkeypatch):
     def patched_clone_git_repo(git_url, branch=None):  # pylint: disable=W0613
         return TESTOP_PATH
