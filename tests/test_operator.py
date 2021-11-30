@@ -19,9 +19,7 @@ def test_import_module():
     assert hasattr(testop, "update")
 
     with pytest.raises(OperatorLoadException):
-        testop = _import_module(
-            "MODULE_THAT_IS_NOT_PRESENT", TESTOP_PATH
-        )
+        testop = _import_module("MODULE_THAT_IS_NOT_PRESENT", TESTOP_PATH)
     # clean the paths in sys.path
     sys.path.pop(0)
 

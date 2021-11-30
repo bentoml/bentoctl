@@ -82,6 +82,4 @@ def _import_module(module_name, path):
         module = importlib.import_module(module_name)
         return module
     except (ImportError, ModuleNotFoundError) as e:
-        raise OperatorLoadException(
-            f"Failed to load module {module_name} - {e}"
-        )
+        raise OperatorLoadException(f"Failed to load module {module_name} - {e}")
