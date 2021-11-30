@@ -11,7 +11,13 @@ install_requires = [
     "GitPython",
 ]
 
-dev_requires = ["flake8>=3.8.2", "pylint>=2.6.2", "pytest"]
+dev_requires = [
+    "flake8>=3.8.2",
+    "pylint>=2.6.2",
+    "pytest",
+    "coverage>=4.4",
+    "pytest-cov>=2.7.1",
+]
 
 dev_all = install_requires + dev_requires
 

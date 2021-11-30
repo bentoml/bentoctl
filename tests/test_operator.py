@@ -1,4 +1,3 @@
-# pylint: disable=W0621
 import os
 import shutil
 import sys
@@ -7,6 +6,7 @@ import pytest
 
 from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 from bentoctl.operator import operator as operator_module
+
 
 from .conftest import TESTOP_PATH
 
