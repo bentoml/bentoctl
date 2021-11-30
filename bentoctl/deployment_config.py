@@ -6,9 +6,11 @@ from pathlib import Path
 import cerberus
 import click
 import yaml
+import bentoml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
 from bentoctl.operator import get_local_operator_registry
+from bentoctl.operator.constants import YATAI_OPERATOR_NAME
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
@@ -18,12 +20,15 @@ metadata_schema = {
 local_operator_registry = get_local_operator_registry()
 
 
-def load_bento(bundle: t.Union[str, Path]):
-    # TODO: hook it up with bento.store and yatai
-    if not os.path.exists(bundle):
-        raise InvalidDeploymentSpec("bundle not found!")
-
-    return Path(bundle)
+def get_bento_path(bento: t.Union[str, Path]):
+    try:
+        bento = bentoml.get(bento)
+        return bento.path
+    except bentoml.exceptions.NotFound as e:
+        if os.path.exists(bento):
+            return Path(bento)
+        else:
+            raise InvalidDeploymentSpec("Bento not found!")
 
 
 def remove_help_message(schema):
@@ -40,7 +45,7 @@ def remove_help_message(schema):
     return schema
 
 
-class DeploymentSpec:
+class DeploymentConfig:
     def __init__(self, deployment_spec: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
         if not deployment_spec["api_version"] == "v1":
@@ -64,9 +69,9 @@ class DeploymentSpec:
             raise InvalidDeploymentSpec("operator not found")
 
         # check `bento`
-        if "bento" in self.operator_spec:
-            self.bento = self.operator_spec.pop("bento")
-            self.bento_path = load_bento(self.bento)
+        if self.operator_name is not YATAI_OPERATOR_NAME:
+                self.bento = self.operator_spec.pop("bento")
+                self.bento_path = get_bento_path(self.bento)
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
