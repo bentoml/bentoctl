@@ -53,25 +53,11 @@ class DeploymentConfig:
 
         self.deployment_spec = deployment_spec
         self.metadata = copy.deepcopy(deployment_spec["metadata"])
-        self.operator_spec = copy.deepcopy(deployment_spec["spec"])
 
-        # check `name`
-        self.deployment_name = self.metadata.get("name")
-        if self.deployment_name is None:
-            raise InvalidDeploymentSpec("name not found")
-
-        # check `operator`
-        self.operator_name = self.metadata.get("operator")
-        if (
-            self.operator_name is None
-            or self.operator_name not in local_operator_registry.operators_list
-        ):
-            raise InvalidDeploymentSpec("operator not found")
-
-        # check `bento`
-        if self.operator_name is not YATAI_OPERATOR_NAME:
-            self.bento = self.operator_spec.pop("bento")
-            self.bento_path = get_bento_path(self.bento)
+        self._set_name()
+        self._set_operator()
+        self._set_operator_spec()
+        self._set_bento()
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
@@ -88,26 +74,15 @@ class DeploymentConfig:
 
         return cls(config_dict)
 
-    def validate_operator_spec(self, operator_schema):
-        """
-        validate the schema using cerberus and show errors properly.
-        """
-        # cleanup operator_schema by removing 'help_message' field
-        operator_schema = remove_help_message(schema=operator_schema)
-        v = cerberus.Validator()
-        validated_spec = v.validated(self.operator_spec, schema=operator_schema)
-        if validated_spec is None:
-            raise InvalidDeploymentSpec(spec_errors=v.errors)
-
-        return validated_spec
-
     def save(self, save_path, filename="deployment_spec.yaml"):
-        overide = False
+        overwrite = False
         spec_path = Path(save_path, filename)
 
         if spec_path.exists():
-            overide = click.confirm("deployment spec file exists! Should I overide?")
-        if overide:
+            overwrite = click.confirm(
+                "deployment spec file exists! Should I overwrite it?"
+            )
+        if overwrite:
             spec_path.unlink()
         else:
             return spec_path
@@ -116,3 +91,34 @@ class DeploymentConfig:
             yaml.dump(self.deployment_spec, f)
 
         return spec_path
+
+    def _set_name(self):
+        self.deployment_name = self.metadata.get("name")
+        if self.deployment_name is None:
+            raise InvalidDeploymentSpec("name not found")
+
+    def _set_operator(self):
+        self.operator_name = self.metadata.get("operator")
+        if (
+            self.operator_name is None
+            or self.operator_name not in local_operator_registry.operators_list
+        ):
+            raise InvalidDeploymentSpec("operator not found")
+        # TODO: add try/except block
+        self.operator = local_operator_registry.get(self.operator_name)
+
+    def _set_bento(self):
+        if self.operator_name is not YATAI_OPERATOR_NAME:
+            self.bento = self.operator_spec.pop("bento")
+            self.bento_path = get_bento_path(self.bento)
+
+    def _set_operator_spec(self):
+        # cleanup operator_schema by removing 'help_message' field
+        operator_schema = remove_help_message(schema=self.operator.operator_schema)
+        v = cerberus.Validator()
+        validated_spec = v.validated(
+            self.deployment_spec['spec'], schema=self.operator.operator_schema
+        )
+        if validated_spec is None:
+            raise InvalidDeploymentSpec(spec_errors=v.errors)
+        self.operator_spec = validated_spec
