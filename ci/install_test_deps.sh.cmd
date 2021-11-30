@@ -10,4 +10,4 @@ exit
 :: cmd script
 :WINDOWS
 python -m pip install --upgrade pip
-python -m pip install --upgrade --editable ".[dev
+python -m pip install --upgrade --editable ".[dev]"
