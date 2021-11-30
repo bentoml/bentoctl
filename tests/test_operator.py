@@ -30,7 +30,7 @@ def test_operator_class_init(tmp_path, monkeypatch):
     shutil.copytree(TESTOP_PATH, testop_path)
     operator = operator_module.Operator(testop_path)
     assert operator.name == "testop"
-    assert operator.operator_module == "testop"
+    assert operator.module_name == "testop"
 
     with pytest.raises(OperatorConfigNotFound):
         operator_module.Operator(tmp_path)
