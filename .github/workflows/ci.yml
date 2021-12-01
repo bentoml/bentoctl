@@ -24,7 +24,7 @@ jobs:
         run: ./ci/linter.sh
 
   unit_tests:
-      name: ${{ matrix.os }} Pytho ${{ matrix.python-version }} Unit Tests
+      name: ${{ matrix.os }} Python ${{ matrix.python-version }} Unit Tests
       runs-on: ${{ matrix.os }}
       strategy:
         matrix:
