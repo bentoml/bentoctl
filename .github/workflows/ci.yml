@@ -24,51 +24,23 @@ jobs:
         run: ./ci/linter.sh
 
   unit_tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [ '3.7', '3.8', '3.9' ]
-    defaults:
-      run:
-        shell: bash
-
-    name: unit_test-python${{ matrix.python-version }}-(${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # fetch all tags and branches
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Get pip cache dir
-        id: cache-dir
-        run: |
-          echo ::set-output name=dir::$(pip cache dir)
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v2
-        id: cache-pip
-        with:
-          path: ${{ steps.cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-tests-${{ hashFiles('requirements/tests-requirements.txt') }}
-
-      - name: Install dependencies
-        run: ./ci/install_test_deps.sh.cmd
-
-      - name: Run unit tests
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: |
-          pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
-
-      - name: Run unit tests (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
-
-
+      name: ${{ matrix.os }} Python ${{ matrix.python-version }} Unit Tests
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          python-version: [ '3.7', '3.8', '3.9' ]
+          os: [ubuntu-latest, macos-latest, windows-latest]
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            fetch-depth: 0 # fetch all tags and branches
+        - name: Setup python
+          uses: actions/setup-python@v2
+          with :
+            python-version: ${{ matrix.python-version }}
+            architecture: x64
+        - name: Install test dependencies
+          run: ./ci/install_test_deps.sh.cmd
+        - name: Rnu Uni tests
+          run: ./ci/unit_tests.sh
+          shell: bash
