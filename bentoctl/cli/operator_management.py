@@ -4,6 +4,7 @@ from rich.pretty import pprint
 from rich.prompt import Confirm
 from simple_term_menu import TerminalMenu
 
+from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
@@ -12,7 +13,7 @@ local_operator_registry = get_local_operator_registry()
 
 
 def get_operator_management_subcommands():
-    @cloup.group(name="operator", aliases=["operators"])
+    @cloup.group(name="operator", aliases=["operators"], cls=BentoctlCommandGroup)
     def operator_management():
         """
         Sub-commands to add, list, remove and update operators.
