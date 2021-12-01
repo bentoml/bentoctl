@@ -77,7 +77,9 @@ def bentoctl():
     help="The path to bento bundle.",
 )
 @click.option(
-    "--display-deployment-info", is_flag=True, help="Show deployment info",
+    "--display-deployment-info",
+    is_flag=True,
+    help="Show deployment info",
 )
 @click.argument("deployment_spec_path", type=click.Path(), required=False)
 def deploy(deployment_spec_path, name, operator, bento, display_deployment_info):
@@ -120,7 +122,9 @@ def describe(deployment_spec_path):
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option(
-    "--display-deployment-info", is_flag=True, help="Show deployment info.",
+    "--display-deployment-info",
+    is_flag=True,
+    help="Show deployment info.",
 )
 @click.argument("deployment_spec_path", type=click.Path())
 def update(deployment_spec_path, display_deployment_info):
