@@ -34,7 +34,7 @@ def get_bento_path(bento_name_or_path: t.Union[str, Path]):
             else:
                 raise InvalidDeploymentSpec(
                     f"Bento at path {bento_name_or_path} not found!"
-               )
+                )
         else:
             raise InvalidDeploymentSpec(e)
 
