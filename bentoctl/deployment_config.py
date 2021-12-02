@@ -21,22 +21,14 @@ local_operator_registry = get_local_operator_registry()
 
 
 def get_bento_path(bento_name_or_path: t.Union[str, Path]):
-    try:
-        bento_tag = bentoml.Tag.from_taglike(bento_name_or_path)
-        bento = bentoml.get(bento_tag)
-        return bento.path
-    except bentoml.exceptions.BentoMLException as e:
-        if isinstance(e, bentoml.exceptions.BentoMLNotFound):
+    if os.path.isdir(bento_name_or_path) and os.path.isfile(os.path.join(bento_name_or_path, 'bento.yaml')):
+        return Path(bento_name_or_path)
+    else:
+        try:
+            bento = bentoml.get(bento_name_or_path)
+            return bento.path
+        except bentoml.exceptions.BentoMLException:
             raise InvalidDeploymentSpec(f"Bento {bento_name_or_path} not found!")
-        elif isinstance(e, bentoml.exceptions.InvalidArgument):
-            if os.path.exists(bento_name_or_path):
-                return Path(bento_name_or_path)
-            else:
-                raise InvalidDeploymentSpec(
-                    f"Bento at path {bento_name_or_path} not found!"
-                )
-        else:
-            raise InvalidDeploymentSpec(e)
 
 
 def remove_help_message(schema):
