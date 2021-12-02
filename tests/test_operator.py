@@ -39,7 +39,7 @@ def test_operator_class_init(tmp_path, monkeypatch):
         def raise_error(*_):
             raise OperatorLoadException
 
-        monkeypatch.setattr(op, '_import_module', raise_error)
+        monkeypatch.setattr(op, "_import_module", raise_error)
         Operator(testop_path)
 
 

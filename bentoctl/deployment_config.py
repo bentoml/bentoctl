@@ -40,7 +40,7 @@ def remove_help_message(schema):
             rules["schema"] = remove_help_message(rules["schema"])
         elif rules["type"] == "list":
             rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
-                'list_item'
+                "list_item"
             ]
         schema[field] = rules
     return schema
@@ -117,7 +117,7 @@ class DeploymentConfig:
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
         v = cerberus.Validator()
         validated_spec = v.validated(
-            self.deployment_spec['spec'], schema=operator_schema
+            self.deployment_spec["spec"], schema=operator_schema
         )
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)
