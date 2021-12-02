@@ -10,7 +10,6 @@ import bentoml
 
 from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
 from bentoctl.operator import get_local_operator_registry
-from bentoctl.operator.constants import YATAI_OPERATOR_NAME
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
@@ -21,7 +20,9 @@ local_operator_registry = get_local_operator_registry()
 
 
 def get_bento_path(bento_name_or_path: t.Union[str, Path]):
-    if os.path.isdir(bento_name_or_path) and os.path.isfile(os.path.join(bento_name_or_path, 'bento.yaml')):
+    if os.path.isdir(bento_name_or_path) and os.path.isfile(
+        os.path.join(bento_name_or_path, 'bento.yaml')
+    ):
         return Path(bento_name_or_path)
     else:
         try:
@@ -108,9 +109,8 @@ class DeploymentConfig:
         self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_bento(self):
-        if self.operator_name is not YATAI_OPERATOR_NAME:
-            self.bento = self.operator_spec.pop("bento")
-            self.bento_path = get_bento_path(self.bento)
+        self.bento = self.operator_spec.pop("bento")
+        self.bento_path = get_bento_path(self.bento)
 
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
