@@ -1,10 +1,6 @@
-YATAI_OPERATOR_NAME = 'yatai'
-
-
 MAIN_BRANCH = "main"
 
 OFFICIAL_OPERATORS = {
-    "yatai": f"bentoml/yatai-deployment-operator:{MAIN_BRANCH}",
     "heroku": f"bentoml/heroku-deploy:{MAIN_BRANCH}",
     "aws-lambda": f"bentoml/aws-lambda-deploy:{MAIN_BRANCH}",
     "aws-sagemaker": f"bentoml/aws-sagemaker-deploy:{MAIN_BRANCH}",
