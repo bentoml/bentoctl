@@ -59,13 +59,9 @@ def test_registry_add_local_operator(op_reg):
 @pytest.mark.parametrize(
     "user_input, git_url, git_branch",
     [
-        ("aws-lambda", "git@github.com:bentoml/aws-lambda-deploy.git", None),
+        ("aws-lambda", "git@github.com:bentoml/aws-lambda-deploy.git", 'main'),
         ("bentoml/heroku", "git@github.com:bentoml/heroku.git", None),
-        (
-            "owner/heroku:branch",
-            "git@github.com:owner/heroku.git",
-            "branch",
-        ),
+        ("owner/heroku:branch", "git@github.com:owner/heroku.git", "branch",),
         (
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
