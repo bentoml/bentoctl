@@ -17,7 +17,7 @@ dev_requires = [
     "pytest",
     "coverage>=4.4",
     "pytest-cov>=2.7.1",
-    "twine"
+    "twine",
 ]
 
 dev_all = install_requires + dev_requires
