@@ -65,8 +65,8 @@ class DeploymentConfig:
 
         self._set_name()
         self._set_operator()
-        self._set_operator_spec()
         self._set_bento()
+        self._set_operator_spec()
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
@@ -123,8 +123,12 @@ class DeploymentConfig:
                 self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_bento(self):
-        self.bento = self.operator_spec.pop("bento")
-        self.bento_path = get_bento_path(self.bento)
+        self.bento = self.deployment_spec['spec'].get("bento")
+        if self.bento is not None:
+            self.bento_path = get_bento_path(self.bento)
+            del self.deployment_spec['spec']['bento']
+        else:
+            raise InvalidDeploymentSpec("'bento' not provided in deployment_config")
 
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
