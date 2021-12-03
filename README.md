@@ -1,8 +1,8 @@
-# BentoML Control (BentoCtl)
+# bentoctl
 ### Best way to deploy BentoML to the cloud.
 
-BentoCtl is a command-lin tool that uses easy and approachable YAML syntax to deploy Bento to the cloud. 
-It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more.  It is completely extensible with
+bentoctl is a command-lin tool that uses easy and approachable YAML syntax to deploy Bento to the cloud.
+It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more. It is completely extensible with
 operators that can add more cloud providers, uses-cases and workflows.
 
 
@@ -11,7 +11,7 @@ operators that can add more cloud providers, uses-cases and workflows.
 ### Installing
 `pip install bentoctl`
 
-To activate tab completion for you shell, source the script in `bentoctl/completion`. 
+To activate tab completion for you shell, source the script in `bentoctl/completion`.
 For More info please check [click's documentation](https://click.palletsprojects.com/en/8.0.x/shell-completion/)
 
 
@@ -24,7 +24,7 @@ For More info please check [click's documentation](https://click.palletsprojects
 
 Use the interactive deployment helper. This will generate a deployment YAML file and will then deploy the Bento to the cloud.
 ```
-$ bentoctl deploy 
+$ bentoctl deploy
 ```
 
 `bentoctl deploy` also accepts deployment configuration file.
