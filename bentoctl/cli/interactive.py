@@ -177,7 +177,7 @@ def prompt_input(
     if rule.get("type") == "list":
         intended_print(f"{field_name}:", indent_level)
         input_value = []
-        if rule.get('required') is not True:
+        if rule.get("required") is not True:
             should_add_item_to_list = prompt_confirmation(
                 f"Do you want to add item to {field_name}"
             )
@@ -237,7 +237,7 @@ def intended_print(message, indent_level=0):
 
 
 def generate_spec(bento, schema):
-    spec = OrderedDict({'bento': bento})
+    spec = OrderedDict({"bento": bento})
     if bento is None:
         bento_schema = {
             "required": True,
