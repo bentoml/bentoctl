@@ -9,7 +9,11 @@ import cerberus
 import click
 import yaml
 
-from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec, OperatorNotFound
+from bentoctl.exceptions import (
+    DeploymentSpecNotFound,
+    InvalidDeploymentSpec,
+    OperatorNotFound,
+)
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.utils import _is_official_operator
 
