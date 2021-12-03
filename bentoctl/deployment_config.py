@@ -1,15 +1,23 @@
 import copy
+import logging
 import os
 import typing as t
 from pathlib import Path
 
+import bentoml
 import cerberus
 import click
 import yaml
-import bentoml
 
-from bentoctl.exceptions import DeploymentSpecNotFound, InvalidDeploymentSpec
+from bentoctl.exceptions import (
+    DeploymentSpecNotFound,
+    InvalidDeploymentSpec,
+    OperatorNotFound,
+)
 from bentoctl.operator import get_local_operator_registry
+from bentoctl.operator.utils import _is_official_operator
+
+logger = logging.getLogger(__name__)
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
@@ -40,7 +48,7 @@ def remove_help_message(schema):
             rules["schema"] = remove_help_message(rules["schema"])
         elif rules["type"] == "list":
             rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
-                'list_item'
+                "list_item"
             ]
         schema[field] = rules
     return schema
@@ -100,13 +108,19 @@ class DeploymentConfig:
 
     def _set_operator(self):
         self.operator_name = self.metadata.get("operator")
-        if (
-            self.operator_name is None
-            or self.operator_name not in local_operator_registry.operators_list
-        ):
-            raise InvalidDeploymentSpec("operator not found")
-        # TODO: add try/except block
-        self.operator = local_operator_registry.get(self.operator_name)
+        if self.operator_name is None:
+            raise InvalidDeploymentSpec("operator is a required field")
+        try:
+            self.operator = local_operator_registry.get(self.operator_name)
+        except OperatorNotFound:
+            if not _is_official_operator(self.operator_name):
+                raise InvalidDeploymentSpec(
+                    f"operator {self.operator_name} not found in local registry"
+                )
+            else:
+                logger.warning("Install operator %s from bentoml", self.operator_name)
+                local_operator_registry.add(self.operator_name)
+                self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_bento(self):
         self.bento = self.operator_spec.pop("bento")
@@ -117,7 +131,7 @@ class DeploymentConfig:
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
         v = cerberus.Validator()
         validated_spec = v.validated(
-            self.deployment_spec['spec'], schema=operator_schema
+            self.deployment_spec["spec"], schema=operator_schema
         )
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)

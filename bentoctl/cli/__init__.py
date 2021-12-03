@@ -76,8 +76,13 @@ def bentoctl():
 @click.option(
     "--display-deployment-info", is_flag=True, help="Show deployment info",
 )
-@click.argument("deployment_spec_path", type=click.Path(), required=False)
-def deploy(deployment_spec_path, name, operator, bento, display_deployment_info):
+@click.option(
+    "--file",
+    "-f",
+    type=click.Path(exists=True),
+    help="The path to the deployment spec file.",
+)
+def deploy(name, operator, bento, display_deployment_info, file):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_spec.
 
@@ -86,7 +91,7 @@ def deploy(deployment_spec_path, name, operator, bento, display_deployment_info)
     3. display results from deploy_bento
     """
     try:
-        if deployment_spec_path is None:
+        if file is None:
             deployment_spec = deployment_spec_builder(bento, name, operator)
             dspec = DeploymentConfig(deployment_spec)
             deployment_spec_path = save_deployment_spec(
@@ -96,48 +101,75 @@ def deploy(deployment_spec_path, name, operator, bento, display_deployment_info)
                 "[green]deployment spec generated to: "
                 f"{deployment_spec_path.relative_to(Path.cwd())}[/]"
             )
-        deploy_deployment(deployment_spec_path)
+        deploy_deployment(file)
         print("Successful deployment!")
         if display_deployment_info:
-            info_json = display_deployment_info(deployment_spec_path)
+            info_json = describe(file)
             pprint(info_json)
     except BentoctlException as e:
         e.show()
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.argument("deployment_spec_path", type=click.Path())
-def describe(deployment_spec_path):
+@click.option(
+    "--file",
+    "-f",
+    type=click.Path(exists=True),
+    help="The path to the deployment spec file.",
+    required=True,
+)
+def describe(file):
     """
     Shows the properties of the deployment given a deployment_spec.
     """
-    info_json = describe_deployment(deployment_spec_path=deployment_spec_path)
+    info_json = describe_deployment(deployment_spec_path=file)
     pprint(info_json)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
 @click.option(
+    "--file",
+    "-f",
+    type=click.Path(exists=True),
+    help="The path to the deployment spec file.",
+    required=True,
+)
+@click.option(
     "--display-deployment-info", is_flag=True, help="Show deployment info.",
 )
-@click.argument("deployment_spec_path", type=click.Path())
-def update(deployment_spec_path, display_deployment_info):
+def update(file, display_deployment_info):
     """
     Update the deployment given a deployment_spec.
     """
-    update_deployment(deployment_spec_path=deployment_spec_path)
+    update_deployment(deployment_spec_path=file)
     if display_deployment_info:
-        info_json = display_deployment_info(deployment_spec_path)
+        info_json = describe(file)
         pprint(info_json)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.argument("deployment_spec_path", type=click.Path())
-def delete(deployment_spec_path):
+@click.option(
+    "--file",
+    "-f",
+    type=click.Path(exists=True),
+    help="The path to the deployment spec file.",
+    required=True,
+)
+@click.option(
+    "--yes",
+    "-y",
+    "--assume-yes",
+    is_flag=True,
+    help="Skip confirmation prompt when deleting the deployment.",
+)
+def delete(file, yes):
     """
     Delete the deployment given a deployment_spec.
     """
-    deployment_name = delete_deployment(deployment_spec_path=deployment_spec_path)
-    click.echo(f"Deleted deployment - {deployment_name}!")
+    if yes or click.confirm("Are you sure you want to delete the deployment?"):
+        delete_deployment(deployment_spec_path=file)
+        deployment_name = delete_deployment(deployment_spec_path=file)
+        click.echo(f"Deleted deployment - {deployment_name}!")
 
 
 @bentoctl.command(section=BentoctlSections.INTERACTIVE)
