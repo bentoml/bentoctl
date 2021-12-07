@@ -51,7 +51,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Topic :: Software Development",
     ],
-    description="Command line tool for deployint ML models to the cloud",
+    description="Command line tool for deploying ML models to the cloud",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/bentoml/bentoctl",
