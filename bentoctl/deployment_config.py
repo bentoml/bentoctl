@@ -126,16 +126,17 @@ class DeploymentConfig:
         self.bento = self.deployment_spec['spec'].get("bento")
         if self.bento is not None:
             self.bento_path = get_bento_path(self.bento)
-            del self.deployment_spec['spec']['bento']
         else:
             raise InvalidDeploymentSpec("'bento' not provided in deployment_config")
 
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
+        copied_operator_spec = copy.deepcopy(self.deployment_spec["spec"])
+        del copied_operator_spec["bento"]
         v = cerberus.Validator()
         validated_spec = v.validated(
-            self.deployment_spec["spec"], schema=operator_schema
+            copied_operator_spec, schema=operator_schema
         )
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)

@@ -98,14 +98,15 @@ def deploy(name, operator, bento, display_deployment_info, file):
     try:
         if file is None:
             deployment_spec = deployment_spec_builder(bento, name, operator)
-            dspec = DeploymentConfig(deployment_spec)
+            deployment_config = DeploymentConfig(deployment_spec)
             deployment_spec_path = save_deployment_spec(
-                dspec.deployment_spec, Path.cwd()
+                deployment_config.deployment_spec, Path.cwd()
             )
             console.print(
                 "[green]deployment spec generated to: "
                 f"{deployment_spec_path.relative_to(Path.cwd())}[/]"
             )
+            file = deployment_spec_path
         deploy_deployment(file)
         print("Successful deployment!")
         if display_deployment_info:
