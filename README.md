@@ -52,7 +52,7 @@ $ bentoctl deploy deployment_config.yaml
 $ bentoctl delete deployment_config.yaml
 ```
 
-##Features:
+## Features:
 
 * Supports multiple cloud providers: AWS, Azure, Google Cloud, and more.
 * Manages the lifecycle of the BentoML deployment.
