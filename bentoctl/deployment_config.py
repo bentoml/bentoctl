@@ -135,9 +135,7 @@ class DeploymentConfig:
         copied_operator_spec = copy.deepcopy(self.deployment_spec["spec"])
         del copied_operator_spec["bento"]
         v = cerberus.Validator()
-        validated_spec = v.validated(
-            copied_operator_spec, schema=operator_schema
-        )
+        validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
         if validated_spec is None:
             raise InvalidDeploymentSpec(spec_errors=v.errors)
         self.operator_spec = validated_spec
