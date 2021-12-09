@@ -87,16 +87,13 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.option(
-        "--delete-from-disk", is_flag=True, help="keep the operator code locally."
-    )
-    @click.option(
         "-y",
         "skip_confirm",
         is_flag=True,
         help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
-    def remove(name, delete_from_disk, skip_confirm):  # pylint: disable=unused-variable
+    def remove(name, skip_confirm):  # pylint: disable=unused-variable
         """
         Remove operators.
 
@@ -111,7 +108,7 @@ def get_operator_management_subcommands():
             if not proceed_with_delete:
                 return
         try:
-            local_operator_registry.remove(name, remove_from_disk=delete_from_disk)
+            local_operator_registry.remove(name)
             click.echo(f"operator '{name}' removed!")
         except BentoctlException as e:
             e.show()
