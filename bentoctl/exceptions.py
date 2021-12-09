@@ -114,3 +114,9 @@ class PipInstallException(BentoctlException):
             "Installing dependencies via 'pip install -r requirements.txt' failed!"
         )
         super(PipInstallException, self).__init__(self.msg)
+
+
+class BentoNotFound(BentoctlException):
+    """
+    Raised when bento is not found.
+    """

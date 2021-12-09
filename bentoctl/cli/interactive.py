@@ -1,3 +1,4 @@
+import os
 import readline
 from collections import OrderedDict
 
@@ -5,10 +6,12 @@ from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 from simple_term_menu import TerminalMenu
+import bentoml
 
 from bentoctl.deployment_config import metadata_schema
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
+from bentoctl.exceptions import BentoNotFoundError
 
 local_operator_registry = get_local_operator_registry()
 
@@ -236,15 +239,43 @@ def intended_print(message, indent_level=0):
     console.print(message)
 
 
-def generate_spec(bento, schema):
-    spec = OrderedDict({"bento": bento})
+def parse_bento(bento) -> bool:
+    if os.path.isdir(bento) and os.path.isfile(os.path.join(bento, "bento.yml")):
+        return bento
+    else:
+        try:
+            bento = bentoml.get(bento)
+            return str(bento.tag)
+        except bentoml.exceptions.BentoMLException as e:
+            raise BentoNotFoundError(e)
+
+
+def prompt_and_validate_bento(bento=None):
+    help_message = 'Provide either a path to the bento or the bento tag'
+    input_message = "bento: "
+    validation_error_message = None
     if bento is None:
-        bento_schema = {
-            "required": True,
-            "help_message": "bento tag | path to bento bundle",
-        }
-        bento = prompt_input("bento", bento_schema)
-        spec["bento"] = bento
+        with display_console_message(PromptMsg(help_message)):
+            bento = console.input(input_message)
+            clear_console(1)
+    while True:
+        try:
+            return parse_bento(bento)
+        except BentoNotFoundError as e:
+            validation_error_message = (
+                f"{bento} not found. Please provide a valid "
+                f"bento tag or a path to the bento directory"
+            )
+            with display_console_message(
+                PromptMsg(help_message, validation_error_message)
+            ):
+                bento = console.input(input_message)
+                clear_console(1)
+
+
+def generate_spec(bento, schema):
+    spec = OrderedDict({"bento": prompt_and_validate_bento(bento)})
+    intended_print(f"bento: {spec['bento']}", 1)
 
     for field, rule in schema.items():
         val = prompt_input(field, rule)
