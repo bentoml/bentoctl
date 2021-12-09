@@ -7,7 +7,7 @@ cd "$GIT_ROOT"
 has_errors=0
 
 # Code auto formatting check with black
-black -S .
+black --skip-string-normalization --check .
 GIT_STATUS="$(git status --porcelain)"
 if [ "$GIT_STATUS" ];
 then
