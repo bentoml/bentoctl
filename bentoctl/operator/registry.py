@@ -154,12 +154,11 @@ class OperatorRegistry:
         except BentoctlException as e:
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 
-    def remove(self, name, remove_from_disk=False):
+    def remove(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
         operator_path = self.operators_list[name]["path"]
         del self.operators_list[name]
         self._write_to_file()
 
-        if remove_from_disk:
-            shutil.rmtree(operator_path)
+        shutil.rmtree(operator_path)
