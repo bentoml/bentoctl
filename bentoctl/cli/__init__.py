@@ -71,10 +71,15 @@ def bentoctl():
     "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
 )
 @click.option(
-    "--bento", "-b", type=click.STRING, help="The path to bento bundle.",
+    "--bento",
+    "-b",
+    type=click.STRING,
+    help="The path to bento bundle.",
 )
 @click.option(
-    "--display-deployment-info", is_flag=True, help="Show deployment info",
+    "--display-deployment-info",
+    is_flag=True,
+    help="Show deployment info",
 )
 @click.option(
     "--file",
@@ -136,7 +141,9 @@ def describe(file):
     required=True,
 )
 @click.option(
-    "--display-deployment-info", is_flag=True, help="Show deployment info.",
+    "--display-deployment-info",
+    is_flag=True,
+    help="Show deployment info.",
 )
 def update(file, display_deployment_info):
     """
