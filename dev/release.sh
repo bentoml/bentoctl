@@ -36,7 +36,7 @@ fi
 tag_name="v$VERSION_STR"
 
 echo "Installing dev dependencies..."
-pip install .[dev]
+poetry install
 
 if git rev-parse "$tag_name" >/dev/null 2>&1; then
   echo "git tag '$tag_name' exist, using existing tag."
@@ -51,13 +51,14 @@ fi
 
 echo "Generating PyPI source distribution..."
 cd "$GIT_ROOT"
-python3 setup.py sdist bdist_wheel
+poetry build
 
 # Use testpypi by default, run script with: "REPO=pypi release.sh" for
 # releasing to Pypi.org
 REPO=${REPO:=testpypi}
+poetry config repositories.testpypi https://test.pypi.org/legacy/
 
 echo "Uploading PyPI package to $REPO..."
-twine upload --repository $REPO dist/* --verbose
+poetry publish --repository $REPO
 
 echo "Done releasing bentoctl version:$VERSION_STR"
