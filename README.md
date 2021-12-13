@@ -2,6 +2,7 @@
   <h1>bentoctl</h1>
   <i>Best way to deploy BentoML to the cloud.</i>
   <p>
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/bentoctl?style=flat-square">
     <img alt="GitHub branch checks state" src="https://img.shields.io/github/checks-status/bentoml/bentoctl/main?style=flat-square">
     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/bentoml/bentoctl?style=flat-square">
 </p>
