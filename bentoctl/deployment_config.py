@@ -10,8 +10,8 @@ import click
 import yaml
 
 from bentoctl.exceptions import (
-    DeploymentSpecNotFound,
-    InvalidDeploymentSpec,
+    DeploymentConfigNotFound,
+    InvalidDeploymentConfig,
     OperatorNotFound,
 )
 from bentoctl.operator import get_local_operator_registry
@@ -29,7 +29,7 @@ local_operator_registry = get_local_operator_registry()
 
 def get_bento_path(bento_name_or_path: str):
     if os.path.isdir(bento_name_or_path) and os.path.isfile(
-        os.path.join(bento_name_or_path, 'bento.yaml')
+        os.path.join(bento_name_or_path, "bento.yaml")
     ):
         return os.path.abspath(bento_name_or_path)
     else:
@@ -37,7 +37,7 @@ def get_bento_path(bento_name_or_path: str):
             bento = bentoml.get(bento_name_or_path)
             return bento.path
         except bentoml.exceptions.BentoMLException:
-            raise InvalidDeploymentSpec(f"Bento {bento_name_or_path} not found!")
+            raise InvalidDeploymentConfig(f"Bento {bento_name_or_path} not found!")
 
 
 def remove_help_message(schema):
@@ -57,11 +57,13 @@ def remove_help_message(schema):
 class DeploymentConfig:
     def __init__(self, deployment_spec: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
-        if not deployment_spec["api_version"] == "v1":
-            raise InvalidDeploymentSpec("api_version should be 'v1'.")
+        if not deployment_spec.get("api_version") == "v1":
+            raise InvalidDeploymentConfig("api_version should be 'v1'.")
 
         self.deployment_spec = deployment_spec
-        self.metadata = copy.deepcopy(deployment_spec["metadata"])
+        self.metadata = copy.deepcopy(deployment_spec.get("metadata"))
+        if self.metadata is None:
+            raise InvalidDeploymentConfig("'metadata' not found in deployment_config")
 
         self._set_name()
         self._set_operator()
@@ -72,14 +74,14 @@ class DeploymentConfig:
     def from_file(cls, file_path: t.Union[str, Path]):
         file_path = Path(file_path)
         if not file_path.exists():
-            raise DeploymentSpecNotFound
+            raise DeploymentConfigNotFound
         elif file_path.suffix in [".yaml", ".yml"]:
             try:
                 config_dict = yaml.safe_load(file_path.read_text(encoding="utf-8"))
             except yaml.YAMLError as e:
-                raise InvalidDeploymentSpec(exc=e)
+                raise InvalidDeploymentConfig(exc=e)
         else:
-            raise InvalidDeploymentSpec
+            raise InvalidDeploymentConfig
 
         return cls(config_dict)
 
@@ -104,17 +106,17 @@ class DeploymentConfig:
     def _set_name(self):
         self.deployment_name = self.metadata.get("name")
         if self.deployment_name is None:
-            raise InvalidDeploymentSpec("name not found")
+            raise InvalidDeploymentConfig("name not found")
 
     def _set_operator(self):
         self.operator_name = self.metadata.get("operator")
         if self.operator_name is None:
-            raise InvalidDeploymentSpec("operator is a required field")
+            raise InvalidDeploymentConfig("operator is a required field")
         try:
             self.operator = local_operator_registry.get(self.operator_name)
         except OperatorNotFound:
             if not _is_official_operator(self.operator_name):
-                raise InvalidDeploymentSpec(
+                raise InvalidDeploymentConfig(
                     f"operator {self.operator_name} not found in local registry"
                 )
             else:
@@ -123,11 +125,11 @@ class DeploymentConfig:
                 self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_bento(self):
-        self.bento = self.deployment_spec['spec'].get("bento")
+        self.bento = self.deployment_spec["spec"].get("bento")
         if self.bento is not None:
             self.bento_path = get_bento_path(self.bento)
         else:
-            raise InvalidDeploymentSpec("'bento' not provided in deployment_config")
+            raise InvalidDeploymentConfig("'bento' not provided in deployment_config")
 
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
@@ -137,5 +139,5 @@ class DeploymentConfig:
         v = cerberus.Validator()
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
         if validated_spec is None:
-            raise InvalidDeploymentSpec(spec_errors=v.errors)
+            raise InvalidDeploymentConfig(config_errors=v.errors)
         self.operator_spec = validated_spec
