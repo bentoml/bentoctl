@@ -1,6 +1,9 @@
 <div align="center">
   <h1>bentoctl</h1>
   <i>Best way to deploy BentoML to the cloud.</i>
+  <p>
+  <img src="./demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2">
+  </p>
 </div>
 
 
