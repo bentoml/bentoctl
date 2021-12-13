@@ -67,12 +67,12 @@ class OperatorNotAdded(BentoctlException):
     """Raised when calling an operator that is not found."""
 
 
-class InvalidDeploymentSpec(BentoctlException):
+class InvalidDeploymentConfig(BentoctlException):
     """Invalid bentoctl config."""
 
-    def __init__(self, msg=None, exc=None, spec_errors=None):
+    def __init__(self, msg=None, exc=None, config_errors=None):
         if msg is None and exc is not None:
-            msg_list = ["Error while parsing Deployment Spec:"]
+            msg_list = ["Error while parsing Deployment Config:"]
             if hasattr(exc, "problem_mark"):
                 if exc.context is not None:
                     msg_list.extend([exc.problem_mark, exc.problem, exc.context])
@@ -83,17 +83,17 @@ class InvalidDeploymentSpec(BentoctlException):
 
             msg = "\n".join([str(m) for m in msg_list])
 
-        if msg is None and spec_errors is not None:
-            msg_list = ["Error while parsing Deployment Spec."]
-            msg_list.append(yaml.safe_dump(spec_errors))
+        if msg is None and config_errors is not None:
+            msg_list = ["Error while parsing Deployment Config."]
+            msg_list.append(yaml.safe_dump(config_errors))
             msg = "\n".join(msg_list)
 
-        super(InvalidDeploymentSpec, self).__init__(msg)
+        super(InvalidDeploymentConfig, self).__init__(msg)
 
 
-class DeploymentSpecNotFound(BentoctlException):
+class DeploymentConfigNotFound(BentoctlException):
     """
-    When deployment spec is not found.
+    When deployment config is not found.
     """
 
 
