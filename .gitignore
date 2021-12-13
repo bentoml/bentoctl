@@ -1,0 +1,7 @@
+__pycache__
+*.egg-info/
+testop_spec.yaml
+.idea/
+.DS_Store
+.coverage
+dist/*
