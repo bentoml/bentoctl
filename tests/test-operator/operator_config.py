@@ -3,12 +3,10 @@ OPERATOR_NAME = "testop"
 max_instances = 10
 
 OPERATOR_SCHEMA = {
-    "region": {"required": True, "type": "string", "default": "ap-south-1"},
-    "project_id": {"required": True, "type": "string",},
     "region": {
         "required": True,
         "type": "string",
-        "default": "default_region",
+        "default": "ap-south-1",
         "help_message": "The AWS region to which you want to deploy the service to.",
     },
     "project_id": {

@@ -27,11 +27,11 @@ metadata_schema = {
 local_operator_registry = get_local_operator_registry()
 
 
-def get_bento_path(bento_name_or_path: t.Union[str, Path]):
+def get_bento_path(bento_name_or_path: str):
     if os.path.isdir(bento_name_or_path) and os.path.isfile(
         os.path.join(bento_name_or_path, 'bento.yaml')
     ):
-        return Path(bento_name_or_path)
+        return os.path.abspath(bento_name_or_path)
     else:
         try:
             bento = bentoml.get(bento_name_or_path)

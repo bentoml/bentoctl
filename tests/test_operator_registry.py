@@ -2,7 +2,7 @@
 import json
 import os
 import shutil
-import sys
+from pathlib import Path
 
 import pytest
 
@@ -61,7 +61,11 @@ def test_registry_add_local_operator(op_reg):
     [
         ("aws-lambda", "git@github.com:bentoml/aws-lambda-deploy.git", "main"),
         ("bentoml/heroku", "git@github.com:bentoml/heroku.git", None),
-        ("owner/heroku:branch", "git@github.com:owner/heroku.git", "branch",),
+        (
+            "owner/heroku:branch",
+            "git@github.com:owner/heroku.git",
+            "branch",
+        ),
         (
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
             "git@github.com:bentoml/aws-sagemaker-deploy.git",
@@ -85,51 +89,39 @@ def test_registry_add(user_input, git_url, git_branch, op_reg, monkeypatch):
     }
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("darwin"),
-    reason=(
-        "This check doesnot work on macOS. shutil.copytree() function doesnot "
-        "copy over the timestamp in mac"
-    ),
-)
-def test_registry_update_local_operator(op_reg):
-    op_reg.add(TESTOP_PATH)
-    path_to_first_file_before_updation = next(
-        op_reg.get(TEST_OPERATOR.name).path.iterdir()
-    )
-    creation_time = os.path.getmtime(path_to_first_file_before_updation)
+def test_registry_update_local_operator(op_reg, tmpdir):
+    tmp_testop_path = os.path.join(tmpdir, "testop")
+    shutil.copytree(TESTOP_PATH, tmp_testop_path)
+    op_reg.add(tmp_testop_path)
+    path_to_first_file_before_updation = op_reg.get(TEST_OPERATOR.name).path
+
+    # create new file
+    Path(tmp_testop_path, "new_file").touch()
     op_reg.update(TEST_OPERATOR.name)
-    path_to_first_file_after_updation = next(
-        op_reg.get(TEST_OPERATOR.name).path.iterdir()
-    )
-    updation_time = os.path.getmtime(path_to_first_file_after_updation)
-    assert updation_time > creation_time
+    path_to_first_file_after_updation = op_reg.get(TEST_OPERATOR.name).path
+
+    assert (op_reg.get(TEST_OPERATOR.name).path / "new_file").exists()
     assert path_to_first_file_before_updation == path_to_first_file_after_updation
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("darwin"),
-    reason=(
-        "This check doesnot work on macOS. shutil.copytree() function doesnot "
-        "copy over the timestamp in mac"
-    ),
-)
-def test_registry_update_git_url(op_reg, monkeypatch):
+def test_registry_update_git_url(op_reg, monkeypatch, tmpdir):
+    tmp_testop_path = os.path.join(tmpdir, "testop")
+    shutil.copytree(TESTOP_PATH, tmp_testop_path)
+
     def patched_clone_git_repo(git_url, branch=None):  # pylint: disable=W0613
-        return TESTOP_PATH
+        return tmp_testop_path
 
     monkeypatch.setattr(registry, "_clone_git_repo", patched_clone_git_repo)
     op_reg.add("aws-lambda")
-    path_to_first_file_before_updation = next(
-        op_reg.get(TEST_OPERATOR.name).path.iterdir()
-    )
-    creation_time = os.path.getmtime(path_to_first_file_before_updation)
+    path_to_first_file_before_updation = op_reg.get(TEST_OPERATOR.name).path
+
+    # create new file
+    Path(tmp_testop_path, "new_file").touch()
+
     op_reg.update(TEST_OPERATOR.name)
-    path_to_first_file_after_updation = next(
-        op_reg.get(TEST_OPERATOR.name).path.iterdir()
-    )
-    updation_time = os.path.getmtime(path_to_first_file_after_updation)
-    assert updation_time > creation_time
+    path_to_first_file_after_updation = op_reg.get(TEST_OPERATOR.name).path
+
+    assert (op_reg.get(TEST_OPERATOR.name).path / "new_file").exists()
     assert path_to_first_file_before_updation == path_to_first_file_after_updation
 
 

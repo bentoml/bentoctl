@@ -11,7 +11,7 @@ import bentoml
 from bentoctl.deployment_config import metadata_schema
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
-from bentoctl.exceptions import BentoNotFoundError
+from bentoctl.exceptions import BentoNotFound
 
 local_operator_registry = get_local_operator_registry()
 
@@ -78,7 +78,10 @@ def clear_console(num_lines):
             ControlType.CARRIAGE_RETURN,
             (ControlType.ERASE_IN_LINE, 2),
             *(
-                ((ControlType.CURSOR_UP, 1), (ControlType.ERASE_IN_LINE, 2),)
+                (
+                    (ControlType.CURSOR_UP, 1),
+                    (ControlType.ERASE_IN_LINE, 2),
+                )
                 * num_lines
             ),
         )
@@ -247,11 +250,11 @@ def parse_bento(bento) -> bool:
             bento = bentoml.get(bento)
             return str(bento.tag)
         except bentoml.exceptions.BentoMLException as e:
-            raise BentoNotFoundError(e)
+            raise BentoNotFound(e)
 
 
 def prompt_and_validate_bento(bento=None):
-    help_message = 'Provide either a path to the bento or the bento tag'
+    help_message = "Provide either a path to the bento or the bento tag"
     input_message = "bento: "
     validation_error_message = None
     if bento is None:
@@ -261,7 +264,7 @@ def prompt_and_validate_bento(bento=None):
     while True:
         try:
             return parse_bento(bento)
-        except BentoNotFoundError as e:
+        except BentoNotFound:
             validation_error_message = (
                 f"{bento} not found. Please provide a valid "
                 f"bento tag or a path to the bento directory"
