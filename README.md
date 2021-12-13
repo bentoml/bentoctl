@@ -1,7 +1,10 @@
-# bentoctl
-### Best way to deploy BentoML to the cloud.
+<div align="center">
+  <h1>bentoctl</h1>
+  <i>Best way to deploy BentoML to the cloud.</i>
+</div>
 
-bentoctl is a command-lin tool that uses easy and approachable YAML syntax to deploy Bento to the cloud.
+
+bentoctl is a command-line tool that uses easy and approachable YAML syntax to deploy Bento to the cloud.
 It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more. It is completely extensible with
 operators that can add more cloud providers, uses-cases and workflows.
 
