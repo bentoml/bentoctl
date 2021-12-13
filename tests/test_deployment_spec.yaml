@@ -1,9 +1,9 @@
 api_version: v1
 metadata:
-  bento_bundle: .
   name: test
   operator: testop
 spec:
+  bento: .
   data_capture: true
   instance_type: m1.tiny
   max_instances: 3
