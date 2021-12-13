@@ -132,15 +132,6 @@ def test_registry_remove(op_reg):
     assert "testop" in op_reg.list()
     op_reg.remove("testop")
     assert "testop" not in op_reg.list()
-    assert testop_path.exists()
-    # clean up the testop dir inside BENTOCTL_HOME/operators
-    shutil.rmtree(testop_path)
-
-    # remove directory also
-    op_reg.add(TESTOP_PATH)
-    assert "testop" in op_reg.list()
-    op_reg.remove("testop", remove_from_disk=True)
-    assert "testop" not in op_reg.list()
     assert not testop_path.exists()
 
     with pytest.raises(OperatorNotFound):
