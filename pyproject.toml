@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "bentoctl"
+version = "0.1.1"
+description = "Command line tool for deploying ML models to the cloud."
+authors = ["bentoml.org <contact@bentoml.ai>"]
+homepage = "https://github.com/bentoml/bentoctl"
+repository = "https://github.com/bentoml/bentoctl"
+readme = "./README.md"
+license = "Apache-2.0"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Software Development",
+]
+
+[tool.poetry.scripts]
+bentoctl = "bentoctl.cli:bentoctl"
+
+[tool.poetry.urls]
+"Source" =  "https://github.com/bentoml/bentoctl"
+"User Slack community" = "https://bit.ly/2N5IpbB"
+"Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+bentoml = {git = "https://github.com/bentoml/BentoML", branch="main"}
+click = "^7"
+cerberus = "^1"
+rich = "^10"
+cloup = "^0.12"
+PyYaml = "^6"
+simple-term-menu = "0.4.4"
+GitPython = "3.1.24"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.2"
+pylint = "^2.6.2"
+black = "*"
+isort = "^5"
+pytest = "^6"
+pytest-cov = "^3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
