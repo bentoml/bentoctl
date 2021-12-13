@@ -2,9 +2,9 @@ name: Bentoctl-CI
 
 on:
   push:
-    branches: [ protype ]
+    branches: [ main ]
   pull_request:
-    branches: [ prototype ]
+    branches: [ main ]
 #  schedule:
 #    - cron '0 2 * * *'
 
