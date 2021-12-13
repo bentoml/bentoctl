@@ -2,15 +2,22 @@
   <h1>bentoctl</h1>
   <i>Best way to deploy BentoML to the cloud.</i>
   <p>
-  <img src="./demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2">
-  </p>
+    <img alt="GitHub branch checks state" src="https://img.shields.io/github/checks-status/bentoml/bentoctl/main?style=flat-square">
+    <img alt="Codecov" src="https://img.shields.io/codecov/c/github/bentoml/bentoctl?style=flat-square">
+</p>
 </div>
 
+<br>
 
 bentoctl is a command-line tool that uses easy and approachable YAML syntax to deploy Bento to the cloud.
 It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more. It is completely extensible with
 operators that can add more cloud providers, uses-cases and workflows.
 
+<div>
+  <p>
+  <img src="./demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2">
+  </p>
+</div>
 
 ## Quick Start
 
