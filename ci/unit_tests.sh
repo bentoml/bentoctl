@@ -9,6 +9,6 @@ trap 'error=1' ERR
 GIT_ROOT=$(git rev-parse --show-toplevel)
 cd "$GIT_ROOT" || exit
 
-python -m pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
+poetry run pytest tests --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:"unit.xml"
 
 test $error = 0 # Return non-zero if pytest failed
