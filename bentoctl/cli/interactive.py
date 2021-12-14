@@ -27,11 +27,10 @@ deployment. Fill out the appropriate values for the fields.
 """
 
 
-def select_operator_from_list():
+def select_operator_from_list(available_operators):
     """
     interactive menu to select operator
     """
-    available_operators = list(local_operator_registry.list())
     tmenu = TerminalMenu(available_operators, title="Choose an operator")
     choice = tmenu.show()
     return available_operators[choice]
@@ -242,7 +241,7 @@ def intended_print(message, indent_level=0):
     console.print(message)
 
 
-def parse_bento(bento) -> bool:
+def parse_bento(bento):
     if os.path.isdir(bento) and os.path.isfile(os.path.join(bento, "bento.yml")):
         return bento
     else:
@@ -305,10 +304,15 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
     if name is None:
         name = prompt_input("name", metadata_schema.get("name"))
         deployment_spec["metadata"]["name"] = name
-    if operator is None:
-        operator = select_operator_from_list()
-        deployment_spec["metadata"]["operator"] = operator
     intended_print(f"name: {name}", indent_level=1)
+    if operator is None:
+        available_operators = list(local_operator_registry.list())
+        # automatically select the first operator if there is only one
+        if len(available_operators) == 1:
+            operator = available_operators[0]
+        else:
+            operator = select_operator_from_list(available_operators)
+        deployment_spec["metadata"]["operator"] = operator
     intended_print(f"operator: {operator}", indent_level=1)
 
     console.print("[bold]spec: [/]")
