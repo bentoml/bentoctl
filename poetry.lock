@@ -136,7 +136,7 @@ tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>
 
 [[package]]
 name = "bentoml"
-version = "0.13.2.dev304+g0448974b"
+version = "1.0.0.dev2+g021ad7ee"
 description = "bentoml: A framework for machine learning model serving"
 category = "main"
 optional = false
@@ -183,7 +183,7 @@ tracing = ["jaeger-client", "opentracing", "py-zipkin"]
 type = "git"
 url = "https://github.com/bentoml/BentoML"
 reference = "main"
-resolved_reference = "0448974bdc29477d5d4a9272533667f21d6636b3"
+resolved_reference = "021ad7eed8d07e1187261bed6e132db7a7d27117"
 
 [[package]]
 name = "black"
