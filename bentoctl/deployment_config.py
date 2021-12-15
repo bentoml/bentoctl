@@ -55,13 +55,13 @@ def remove_help_message(schema):
 
 
 class DeploymentConfig:
-    def __init__(self, deployment_spec: t.Dict[str, t.Any]):
+    def __init__(self, deployment_config: t.Dict[str, t.Any]):
         # currently there is only 1 version for config
-        if not deployment_spec.get("api_version") == "v1":
+        if not deployment_config.get("api_version") == "v1":
             raise InvalidDeploymentConfig("api_version should be 'v1'.")
 
-        self.deployment_spec = deployment_spec
-        self.metadata = copy.deepcopy(deployment_spec.get("metadata"))
+        self.deployment_config = deployment_config
+        self.metadata = copy.deepcopy(deployment_config.get("metadata"))
         if self.metadata is None:
             raise InvalidDeploymentConfig("'metadata' not found in deployment_config")
 
@@ -85,23 +85,23 @@ class DeploymentConfig:
 
         return cls(config_dict)
 
-    def save(self, save_path, filename="deployment_spec.yaml"):
+    def save(self, save_path, filename="deployment_config.yaml"):
         overwrite = False
-        spec_path = Path(save_path, filename)
+        config_path = Path(save_path, filename)
 
-        if spec_path.exists():
+        if config_path.exists():
             overwrite = click.confirm(
-                "deployment spec file exists! Should I overwrite it?"
+                "deployment config file exists! Should I overwrite it?"
             )
         if overwrite:
-            spec_path.unlink()
+            config_path.unlink()
         else:
-            return spec_path
+            return config_path
 
-        with open(spec_path, "w", encoding="utf-8") as f:
-            yaml.dump(self.deployment_spec, f)
+        with open(config_path, "w", encoding="utf-8") as f:
+            yaml.dump(self.deployment_config, f)
 
-        return spec_path
+        return config_path
 
     def _set_name(self):
         self.deployment_name = self.metadata.get("name")
@@ -125,7 +125,7 @@ class DeploymentConfig:
                 self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_bento(self):
-        self.bento = self.deployment_spec["spec"].get("bento")
+        self.bento = self.deployment_config["spec"].get("bento")
         if self.bento is not None:
             self.bento_path = get_bento_path(self.bento)
         else:
@@ -134,7 +134,7 @@ class DeploymentConfig:
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
-        copied_operator_spec = copy.deepcopy(self.deployment_spec["spec"])
+        copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
         del copied_operator_spec["bento"]
         v = cerberus.Validator()
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)

@@ -16,14 +16,14 @@ from bentoctl.exceptions import BentoNotFound
 local_operator_registry = get_local_operator_registry()
 
 
-INTERACTIVE_MODE_TITLE = "[r]Bentoctl Interactive Deployment Spec Builder[/]"
+INTERACTIVE_MODE_TITLE = "[r]Bentoctl Interactive Deployment Config Builder[/]"
 WELCOME_MESSAGE = """
 [green]Welcome![/] You are now in interactive mode.
 
-This mode will help you setup the deployment_spec.yaml file required for
+This mode will help you setup the deployment_config.yaml file required for
 deployment. Fill out the appropriate values for the fields.
 
-[dim](deployment spec will be saved to: ./deployment_spec.yaml)[/]
+[dim](deployment config will be saved to: ./deployment_config.yaml)[/]
 """
 
 
@@ -287,11 +287,11 @@ def generate_spec(bento, schema):
     return spec
 
 
-def deployment_spec_builder(bento=None, name=None, operator=None):
+def deployment_config_builder(bento=None, name=None, operator=None):
     """
-    Interactively build the deployment spec.
+    Interactively build the deployment config.
     """
-    deployment_spec = {
+    deployment_config = {
         "api_version": "v1",
         "metadata": {"name": name, "operator": operator},
         "spec": {},
@@ -303,7 +303,7 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
     console.print("[bold]metadata: [/]")
     if name is None:
         name = prompt_input("name", metadata_schema.get("name"))
-        deployment_spec["metadata"]["name"] = name
+        deployment_config["metadata"]["name"] = name
     intended_print(f"name: {name}", indent_level=1)
     if operator is None:
         available_operators = list(local_operator_registry.list())
@@ -312,12 +312,12 @@ def deployment_spec_builder(bento=None, name=None, operator=None):
             operator = available_operators[0]
         else:
             operator = select_operator_from_list(available_operators)
-        deployment_spec["metadata"]["operator"] = operator
+        deployment_config["metadata"]["operator"] = operator
     intended_print(f"operator: {operator}", indent_level=1)
 
     console.print("[bold]spec: [/]")
-    operator = local_operator_registry.get(deployment_spec["metadata"]["operator"])
+    operator = local_operator_registry.get(deployment_config["metadata"]["operator"])
     spec = generate_spec(bento, operator.operator_schema)
-    deployment_spec["spec"] = dict(spec)
+    deployment_config["spec"] = dict(spec)
 
-    return deployment_spec
+    return deployment_config

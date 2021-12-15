@@ -47,20 +47,20 @@ def test_remove_help_message():
     assert_no_help_message_in_schema(schema_without_help_msg)
 
 
-def test_deployment_spec_init(op_reg, monkeypatch, tmpdir):
-    # empty deployment_spec
+def test_deployment_config_init(op_reg, monkeypatch, tmpdir):
+    # empty deployment_config
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig({})
 
-    # deployment_spec with incorrect api_version
+    # deployment_config with incorrect api_version
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig({"api_version": "v1"})
 
-    # deployment_spec with no deployment name
+    # deployment_config with no deployment name
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig({"api_version": "v1", "metadata": {}, "spec": {}})
 
-    # deployment_spec with operator that is not installed
+    # deployment_config with operator that is not installed
     monkeypatch.setattr(dconf, "local_operator_registry", op_reg)
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig(
@@ -74,7 +74,7 @@ def test_deployment_spec_init(op_reg, monkeypatch, tmpdir):
     # valid bento
     op_reg.add(TESTOP_PATH)
     Path(tmpdir, "bento.yaml").touch()
-    dspecobj = dconf.DeploymentConfig(
+    dconfigobj = dconf.DeploymentConfig(
         {
             "api_version": "v1",
             "metadata": {"name": "test", "operator": "testop"},
@@ -85,8 +85,8 @@ def test_deployment_spec_init(op_reg, monkeypatch, tmpdir):
             },
         }
     )
-    assert dspecobj.bento == tmpdir
-    assert dspecobj.bento_path == tmpdir
+    assert dconfigobj.bento == tmpdir
+    assert dconfigobj.bento_path == tmpdir
 
 
 VALID_YAML = """
@@ -116,7 +116,7 @@ spec:
 
 
 def create_yaml_file(yml_str, path):
-    with open(Path(path, "deployment_spec.yaml"), "w", encoding="utf-8") as f:
+    with open(Path(path, "deployment_config.yaml"), "w", encoding="utf-8") as f:
         f.write(yml_str)
 
 
@@ -134,7 +134,7 @@ def tmp_bento_path(tmpdir):
     return tmpdir
 
 
-def test_deployment_spec_from_file(
+def test_deployment_config_from_file(
     tmp_path, op_reg_with_testop, tmp_bento_path
 ):  # pylint: disable=W0613
     with pytest.raises(DeploymentConfigNotFound):
@@ -142,13 +142,13 @@ def test_deployment_spec_from_file(
 
     create_yaml_file(INVALID_YAML, tmp_path)
     with pytest.raises(InvalidDeploymentConfig):
-        dconf.DeploymentConfig.from_file(tmp_path / "deployment_spec.yaml")
+        dconf.DeploymentConfig.from_file(tmp_path / "deployment_config.yaml")
 
     create_yaml_file(VALID_YAML.format(bento_path=tmp_bento_path), tmp_path)
-    assert dconf.DeploymentConfig.from_file(tmp_path / "deployment_spec.yaml")
+    assert dconf.DeploymentConfig.from_file(tmp_path / "deployment_config.yaml")
 
 
-def test_validate_operator_spec(
+def test_validate_operator_config(
     op_reg_with_testop, tmp_bento_path
 ):  # pylint: disable=W0613
     import yaml
