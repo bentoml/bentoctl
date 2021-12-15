@@ -4,7 +4,6 @@ version = "0.1.1"
 description = "Command line tool for deploying ML models to the cloud."
 authors = ["bentoml.org <contact@bentoml.ai>"]
 homepage = "https://github.com/bentoml/bentoctl"
-repository = "https://github.com/bentoml/bentoctl"
 readme = "./README.md"
 license = "Apache-2.0"
 classifiers = [
