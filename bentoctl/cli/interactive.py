@@ -4,7 +4,6 @@ from collections import OrderedDict
 from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
-from simple_term_menu import TerminalMenu
 import bentoml
 
 from bentoctl.deployment_config import metadata_schema
@@ -26,13 +25,23 @@ deployment. Fill out the appropriate values for the fields.
 """
 
 
-def select_operator_from_list(available_operators):
+def select_operator(available_operators):
     """
     interactive menu to select operator
     """
-    tmenu = TerminalMenu(available_operators, title="Choose an operator")
-    choice = tmenu.show()
-    return available_operators[choice]
+    # automatically select the first operator if there is only one
+    if len(available_operators) == 1:
+        return available_operators[0]
+
+    try:
+        from simple_term_menu import TerminalMenu
+
+        tmenu = TerminalMenu(available_operators, title="Choose an operator")
+        choice = tmenu.show()
+        return available_operators[choice]
+    except ImportError:
+        operator = prompt_input_value("operator", metadata_schema.get("operator"))
+        return operator
 
 
 class PromptMsg:
@@ -281,16 +290,12 @@ def deployment_config_builder(bento=None, name=None, operator=None):
     console.print("[b]api_version:[/] v1")
     console.print("[bold]metadata: [/]")
     if name is None:
-        name = prompt_input("name", metadata_schema.get("name"))
+        name = prompt_input_value("name", metadata_schema.get("name"))
         deployment_config["metadata"]["name"] = name
     intended_print(f"name: {name}", indent_level=1)
     if operator is None:
         available_operators = list(local_operator_registry.list())
-        # automatically select the first operator if there is only one
-        if len(available_operators) == 1:
-            operator = available_operators[0]
-        else:
-            operator = select_operator_from_list(available_operators)
+        operator = select_operator(available_operators)
         deployment_config["metadata"]["operator"] = operator
     intended_print(f"operator: {operator}", indent_level=1)
 

@@ -18,13 +18,26 @@ from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.utils import _is_official_operator
 
 logger = logging.getLogger(__name__)
+local_operator_registry = get_local_operator_registry()
+
+
+def operator_exists(field, operator_name, error):
+    available_operators = list(local_operator_registry.list().keys())
+    if operator_name not in available_operators:
+        error(
+            field,
+            f"{operator_name} not in list of available operators {available_operators}",
+        )
+
 
 metadata_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
-    "operator": {"required": True},
+    "operator": {
+        "required": True,
+        "help_message": "The operator to use for deployment",
+        "check_with": operator_exists,
+    },
 }
-
-local_operator_registry = get_local_operator_registry()
 
 
 def get_bento_path(bento_name_or_path: str):
