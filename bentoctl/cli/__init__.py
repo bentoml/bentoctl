@@ -104,9 +104,16 @@ def deploy(name, operator, bento, display_deployment_info, file):
             deployment_config_path = save_deployment_config(
                 deployment_config.deployment_config, Path.cwd()
             )
+            deployment_config_path_relative = deployment_config_path.relative_to(
+                Path.cwd()
+            )
             console.print(
                 "[green]deployment config generated to: "
-                f"{deployment_config_path.relative_to(Path.cwd())}[/]"
+                f"{deployment_config_path_relative}[/]"
+            )
+            console.print(
+                "Deploying with generated deployment_config "
+                f"[{deployment_config_path_relative}]"
             )
             file = deployment_config_path
         deploy_deployment(file)
