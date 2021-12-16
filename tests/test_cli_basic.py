@@ -39,15 +39,15 @@ def test_cli_deploy(op_reg_with_testop):  # pylint: disable=W0613
         bentoctl,
         ["deploy", "-f", TEST_DEPLOYMENT_CONFIG_PATH],
     )
-    assert result.exit_code == 0
     assert "testdeployment" in result.output
+    assert result.exit_code == 0
 
 
 def test_cli_describe(op_reg_with_testop):  # pylint: disable=W0613
     runner = CliRunner()
     result = runner.invoke(bentoctl, ["describe", "-f", TEST_DEPLOYMENT_CONFIG_PATH])
-    assert result.exit_code == 0
     assert "testdeployment" in result.output
+    assert result.exit_code == 0
 
 
 def test_cli_delete(op_reg_with_testop):  # pylint: disable=W0613
@@ -55,12 +55,12 @@ def test_cli_delete(op_reg_with_testop):  # pylint: disable=W0613
     result = runner.invoke(
         bentoctl, ["delete", "-f", TEST_DEPLOYMENT_CONFIG_PATH, "--assume-yes"]
     )
-    assert result.exit_code == 0
     assert "testdeployment" in result.output
+    assert result.exit_code == 0
 
 
 def test_cli_update(op_reg_with_testop):  # pylint: disable=W0613
     runner = CliRunner()
     result = runner.invoke(bentoctl, ["update", "-f", TEST_DEPLOYMENT_CONFIG_PATH])
-    assert result.exit_code == 0
     assert "testdeployment" in result.output
+    assert result.exit_code == 0
