@@ -3,7 +3,7 @@ metadata:
   name: testdeployment
   operator: testop
 spec:
-  bento: testservice:utix3ms4kwy6zdauusy4drbc6
+  bento: .
   region: ap-south-1
   project_id: test
   min_instances: 1
