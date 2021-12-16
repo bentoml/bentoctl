@@ -1,15 +1,20 @@
 import os
 from collections import OrderedDict
 
+import bentoml
 from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
+<<<<<<< HEAD
 import bentoml
+=======
+from simple_term_menu import TerminalMenu
+>>>>>>> 5903764 (isort fixes)
 
 from bentoctl.deployment_config import metadata_schema
+from bentoctl.exceptions import BentoNotFound
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
-from bentoctl.exceptions import BentoNotFound
 
 local_operator_registry = get_local_operator_registry()
 
