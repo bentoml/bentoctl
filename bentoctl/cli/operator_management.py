@@ -2,7 +2,6 @@ import click
 import cloup
 from rich.pretty import pprint
 from rich.prompt import Confirm
-from simple_term_menu import TerminalMenu
 
 from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.exceptions import BentoctlException
@@ -65,13 +64,20 @@ def get_operator_management_subcommands():
 
         """
         if not name:
-            # show a simple menu with all the available official operators
-            available_operators = list(OFFICIAL_OPERATORS.keys())
-            tmenu = TerminalMenu(
-                available_operators, title="Choose one of the Official Operators"
-            )
-            choice = tmenu.show()
-            name = available_operators[choice]
+            try:
+                from simple_term_menu import TerminalMenu
+
+                # show a simple menu with all the available official operators
+                available_operators = list(OFFICIAL_OPERATORS.keys())
+                tmenu = TerminalMenu(
+                    available_operators, title="Choose one of the Official Operators"
+                )
+                choice = tmenu.show()
+                name = available_operators[choice]
+            except ImportError:
+                raise BentoctlException(
+                    "Please specify the name of the operator to add."
+                )
         try:
             operator_name = local_operator_registry.add(name)
             if operator_name is not None:
