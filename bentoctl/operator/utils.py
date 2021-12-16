@@ -38,10 +38,26 @@ def _is_github_repo(link: str) -> bool:
     return True if github_repo_re.match(link) else False
 
 
+git_http_re = re.compile(r"^https://[.\w]+/([-_.\w]+)/([-_\w]+).git$")
+git_ssh_re = re.compile(r"^git@[\w]+.[\w]+:([-_.\w]+)/([-_\w]+).git$")
+
+
 def _is_git_link(link: str) -> bool:
-    git_http_re = re.compile(r"^https://[.\w]+/([-_.\w]+)/([-_\w]+).git$")
-    git_ssh_re = re.compile(r"^git@[\w]+.[\w]+:[-_.\w]+/[-_\w]+.git$")
     return True if git_http_re.match(link) or git_ssh_re.match(link) else False
+
+
+def fetch_git_info(git_url):
+    if not _is_git_link(git_url):
+        raise ValueError(f"{git_url} is not a git link")
+
+    if git_url.startswith("https://"):
+        owner, repo = git_http_re.match(git_url).groups()
+    elif git_url.startswith("git@"):
+        owner, repo = git_ssh_re.match(git_url).groups()
+    else:
+        raise ValueError(f"{git_url} is not a git link")
+
+    return owner, repo
 
 
 def _fetch_github_info(github_link):
