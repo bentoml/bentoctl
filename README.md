@@ -14,10 +14,8 @@ bentoctl is a command-line tool that uses easy and approachable YAML syntax to d
 It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more. It is completely extensible with
 operators that can add more cloud providers, uses-cases and workflows.
 
-<div>
-  <p>
-  <img src="./demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2">
-  </p>
+<div align="center">
+<img src="https://raw.githubusercontent.com/bentoml/bentoctl/master/demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2"/>
 </div>
 
 ## Quick Start
