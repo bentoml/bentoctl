@@ -1,5 +1,4 @@
 import os
-import readline
 from collections import OrderedDict
 
 from cerberus import Validator
@@ -34,26 +33,6 @@ def select_operator_from_list(available_operators):
     tmenu = TerminalMenu(available_operators, title="Choose an operator")
     choice = tmenu.show()
     return available_operators[choice]
-
-
-def _input_with_default_value(prompt, default_value=None):
-    def hook():
-        def _hook():
-            readline.insert_text(str(default_value))
-            readline.redisplay()
-
-        if default_value is None:
-            return None
-        else:
-            return _hook
-
-    readline.set_pre_input_hook(hook())
-    result = input(prompt)
-    readline.set_pre_input_hook()
-
-    if result == "":
-        return None
-    return result
 
 
 class PromptMsg:
