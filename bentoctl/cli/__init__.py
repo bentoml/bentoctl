@@ -9,14 +9,14 @@ from rich.pretty import pprint
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
-from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.exceptions import BentoctlException
 from bentoctl.deployment import (
     delete_deployment,
     deploy_deployment,
     describe_deployment,
     update_deployment,
 )
+from bentoctl.deployment_config import DeploymentConfig
+from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
