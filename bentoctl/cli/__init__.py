@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import click
@@ -123,6 +124,7 @@ def deploy(name, operator, bento, display_deployment_info, file):
             pprint(info_json)
     except BentoctlException as e:
         e.show()
+        sys.exit(1)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
@@ -137,8 +139,12 @@ def describe(file):
     """
     Shows the properties of the deployment given a deployment_config.
     """
-    info_json = describe_deployment(deployment_config_path=file)
-    pprint(info_json)
+    try:
+        info_json = describe_deployment(deployment_config_path=file)
+        pprint(info_json)
+    except BentoctlException as e:
+        e.show()
+        sys.exit(1)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
@@ -158,10 +164,14 @@ def update(file, display_deployment_info):
     """
     Update the deployment given a deployment_config.
     """
-    update_deployment(deployment_config_path=file)
-    if display_deployment_info:
-        info_json = describe(file)
-        pprint(info_json)
+    try:
+        update_deployment(deployment_config_path=file)
+        if display_deployment_info:
+            info_json = describe(file)
+            pprint(info_json)
+    except BentoctlException as e:
+        e.show()
+        sys.exit(1)
 
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
@@ -183,10 +193,14 @@ def delete(file, yes):
     """
     Delete the deployment given a deployment_config.
     """
-    if yes or click.confirm("Are you sure you want to delete the deployment?"):
-        delete_deployment(deployment_config_path=file)
-        deployment_name = delete_deployment(deployment_config_path=file)
-        click.echo(f"Deleted deployment - {deployment_name}!")
+    try:
+        if yes or click.confirm("Are you sure you want to delete the deployment?"):
+            delete_deployment(deployment_config_path=file)
+            deployment_name = delete_deployment(deployment_config_path=file)
+            click.echo(f"Deleted deployment - {deployment_name}!")
+    except BentoctlException as e:
+        e.show()
+        sys.exit(1)
 
 
 @bentoctl.command(section=BentoctlSections.INTERACTIVE)
