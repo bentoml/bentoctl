@@ -107,21 +107,26 @@ class OperatorRegistry:
 
         if operator.name in self.operators_list:
             raise OperatorExists(operator_name=operator.name)
+
         # move operator to bentoctl home
         operator_path = _get_operator_dir_path(operator.name)
-        shutil.copytree(content_path, operator_path)
+        if git_url:  # if from git repo
+            shutil.copytree(content_path, operator_path)
+            is_local = False
+        else:  # if from local path
+            is_local = True
+            operator_path = content_path
+
         # install operator dependencies
         operator.install_dependencies()
 
         operator.path = Path(operator_path)
-        # if local operator, then keep the orginal path to operator dir
-        path_to_local_operator = os.path.abspath(content_path) if not git_url else None
 
         self.operators_list[operator.name] = {
             "path": os.path.abspath(operator.path),
             "git_url": git_url,
             "git_branch": git_branch,
-            "path_to_local_operator": path_to_local_operator,
+            "is_local": is_local,
         }
         self._write_to_file()
 
@@ -135,10 +140,10 @@ class OperatorRegistry:
                 # update from git repo
                 git_branch = self.operators_list[name]["git_branch"]
                 content_path = _clone_git_repo(git_url, git_branch)
-            elif self.operators_list[name]["path_to_local_operator"]:
+            elif self.operators_list[name]["is_local"]:
                 # update from local file path
-                logger.info(f"Updating {name} from local")
-                content_path = self.operators_list[name]["path_to_local_operator"]
+                logger.info("Local Operator need not be updated!")
+                return
             else:
                 raise OperatorRegistryException(
                     "No git url or local operator path associated with this operator."
@@ -157,8 +162,8 @@ class OperatorRegistry:
     def remove(self, name):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
-        operator_path = self.operators_list[name]["path"]
+
+        if not self.operators_list[name]["is_local"]:
+            shutil.rmtree(self.operators_list[name]["path"])
         del self.operators_list[name]
         self._write_to_file()
-
-        shutil.rmtree(operator_path)
