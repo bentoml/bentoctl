@@ -44,12 +44,12 @@ def test_registry_add_local_operator(op_reg):
     op_reg_path = op_reg.path
     assert not (op_reg_path / TEST_OPERATOR.name).exists()
     op_reg.add(TESTOP_PATH)
-    assert (op_reg_path / TEST_OPERATOR.name).exists()
+    assert not (op_reg_path / TEST_OPERATOR.name).exists()
     assert op_reg.operators_list[TEST_OPERATOR.name] == {
-        "path": str(op_reg_path / TEST_OPERATOR.name),
+        "path": TESTOP_PATH,
         "git_url": None,
         "git_branch": None,
-        "path_to_local_operator": TESTOP_PATH,
+        "is_local": True,
     }
 
     with pytest.raises(OperatorExists):
@@ -85,7 +85,7 @@ def test_registry_add(user_input, git_url, git_branch, op_reg, monkeypatch):
         "path": str(op_reg.path / TEST_OPERATOR.name),
         "git_url": git_url,
         "git_branch": git_branch,
-        "path_to_local_operator": None,
+        "is_local": False,
     }
 
 
