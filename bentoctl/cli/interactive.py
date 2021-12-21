@@ -5,11 +5,6 @@ import bentoml
 from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
-<<<<<<< HEAD
-import bentoml
-=======
-from simple_term_menu import TerminalMenu
->>>>>>> 5903764 (isort fixes)
 
 from bentoctl.deployment_config import metadata_schema
 from bentoctl.exceptions import BentoNotFound
