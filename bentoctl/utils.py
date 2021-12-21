@@ -1,6 +1,5 @@
 import os
 
-from rich.box import SIMPLE
 from rich.table import Table
 
 from bentoctl.console import console
