@@ -1,12 +1,12 @@
 import click
 import cloup
-from rich.pretty import pprint
 from rich.prompt import Confirm
 
 from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
+from bentoctl.utils import print_operator_list
 
 local_operator_registry = get_local_operator_registry()
 
@@ -30,7 +30,7 @@ def get_operator_management_subcommands():
         if the operator was pulled from github, the github URL is also shown.
         """
         operators_list = local_operator_registry.list()
-        pprint(operators_list)
+        print_operator_list(operators_list)
 
     @operator_management.command()
     @click.argument("name", required=False)

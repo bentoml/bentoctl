@@ -10,14 +10,14 @@ from rich.pretty import pprint
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
-from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.exceptions import BentoctlException
 from bentoctl.deployment import (
     delete_deployment,
     deploy_deployment,
     describe_deployment,
     update_deployment,
 )
+from bentoctl.deployment_config import DeploymentConfig
+from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -105,9 +105,16 @@ def deploy(name, operator, bento, display_deployment_info, file):
             deployment_config_path = save_deployment_config(
                 deployment_config.deployment_config, Path.cwd()
             )
+            deployment_config_path_relative = deployment_config_path.relative_to(
+                Path.cwd()
+            )
             console.print(
                 "[green]deployment config generated to: "
-                f"{deployment_config_path.relative_to(Path.cwd())}[/]"
+                f"{deployment_config_path_relative}[/]"
+            )
+            console.print(
+                "Deploying with generated deployment_config "
+                f"[{deployment_config_path_relative}]"
             )
             file = deployment_config_path
         deploy_deployment(file)
@@ -188,7 +195,6 @@ def delete(file, yes):
     """
     try:
         if yes or click.confirm("Are you sure you want to delete the deployment?"):
-            delete_deployment(deployment_config_path=file)
             deployment_name = delete_deployment(deployment_config_path=file)
             click.echo(f"Deleted deployment - {deployment_name}!")
     except BentoctlException as e:
