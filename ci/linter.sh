@@ -7,7 +7,7 @@ cd "$GIT_ROOT"
 has_errors=0
 
 # Code auto formatting check with black
-black --skip-string-normalization --check .
+poetry run black --skip-string-normalization --check .
 GIT_STATUS="$(git status --porcelain)"
 if [ "$GIT_STATUS" ];
 then
@@ -24,7 +24,7 @@ fi
 # always empty if there are no linting errors
 
 echo "Running flake8 on bentoctl module.."
-output=$( flake8 --config=.flake8 bentoctl )
+output=$( poetry run flake8 --config=.flake8 bentoctl )
 first_line=$(echo "${output}" | head -1)
 echo "$output"
 if [ -n "$first_line" ]; then
@@ -32,7 +32,7 @@ if [ -n "$first_line" ]; then
 fi
 
 echo "Running flake8 on test module.."
-output=$( flake8 --config=.flake8 tests )
+output=$( poetry run flake8 --config=.flake8 tests )
 first_line=$(echo "${output}" | head -1)
 echo "$output"
 if [ -n "$first_line" ]; then
@@ -40,7 +40,7 @@ if [ -n "$first_line" ]; then
 fi
 
 echo "Running pylint on bentoctl module.."
-output=$( pylint --rcfile="./pylintrc" bentoctl )
+output=$( poetry run pylint --rcfile="./pylintrc" bentoctl )
 first_line=$(echo "${output}" | head -1)
 echo "$output"
 if [ -n "$first_line" ]; then
@@ -48,7 +48,7 @@ if [ -n "$first_line" ]; then
 fi
 
 echo "Running pylint on test module.."
-output=$( pylint --rcfile="./pylintrc" tests )
+output=$( poetry run pylint --rcfile="./pylintrc" tests )
 first_line=$(echo "${output}" | head -1)
 echo "$output"
 if [ -n "$first_line" ]; then
