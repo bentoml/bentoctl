@@ -6,7 +6,8 @@ import pytest
 
 from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 from bentoctl.operator import operator as op
-from bentoctl.operator.operator import Operator, _import_module
+from bentoctl.operator.operator import _import_module, Operator
+
 
 from .conftest import TESTOP_PATH
 

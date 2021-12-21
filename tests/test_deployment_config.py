@@ -2,11 +2,11 @@
 import os
 from pathlib import Path
 
-import bentoml
 import pytest
+import bentoml
 
 from bentoctl import deployment_config as dconf
-from bentoctl.exceptions import DeploymentConfigNotFound, InvalidDeploymentConfig
+from bentoctl.exceptions import InvalidDeploymentConfig, DeploymentConfigNotFound
 from bentoctl.operator.operator import _import_module
 
 from .conftest import TESTOP_PATH
