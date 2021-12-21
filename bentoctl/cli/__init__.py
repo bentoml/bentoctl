@@ -195,7 +195,6 @@ def delete(file, yes):
     """
     try:
         if yes or click.confirm("Are you sure you want to delete the deployment?"):
-            delete_deployment(deployment_config_path=file)
             deployment_name = delete_deployment(deployment_config_path=file)
             click.echo(f"Deleted deployment - {deployment_name}!")
     except BentoctlException as e:
