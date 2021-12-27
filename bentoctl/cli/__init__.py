@@ -141,7 +141,8 @@ def describe(file):
     """
     try:
         info_json = describe_deployment(deployment_config_path=file)
-        pprint(info_json)
+        if info_json is not None:
+            pprint(info_json)
     except BentoctlException as e:
         e.show()
         sys.exit(1)

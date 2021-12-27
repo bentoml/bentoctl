@@ -57,10 +57,10 @@ def remove_help_message(schema):
     for field, rules in schema.items():
         if "help_message" in rules:
             del rules["help_message"]
-        if rules["type"] == "dict":
-            rules["schema"] = remove_help_message(rules["schema"])
-        elif rules["type"] == "list":
-            rules["schema"] = remove_help_message({"list_item": rules["schema"]})[
+        if rules.get("type") == "dict":
+            rules["schema"] = remove_help_message(rules.get("schema"))
+        elif rules.get("type") == "list":
+            rules["schema"] = remove_help_message({"list_item": rules.get("schema")})[
                 "list_item"
             ]
         schema[field] = rules
