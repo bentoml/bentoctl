@@ -1,13 +1,20 @@
 import functools
 import os
+import logging
 
 import cloup
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
 
-def set_debug_mode(enabled: bool):
-    os.environ[DEBUG_ENV_VAR] = str(enabled)
+def set_debug_mode(is_enabled: bool):
+    if is_enabled or os.environ.get(DEBUG_ENV_VAR):
+        os.environ[DEBUG_ENV_VAR] = str(True)
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger("bentoml").setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.WARNING)
+        logging.getLogger("bentoml").setLevel(logging.WARNING)
 
 
 class BentoctlCommandGroup(cloup.Group):
@@ -24,8 +31,7 @@ class BentoctlCommandGroup(cloup.Group):
         )
         @functools.wraps(func)
         def wrapper(verbose, *args, **kwargs):
-            if verbose:
-                set_debug_mode(True)
+            set_debug_mode(verbose)
 
             return func(*args, **kwargs)
 
