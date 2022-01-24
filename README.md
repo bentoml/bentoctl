@@ -21,7 +21,14 @@ operators that can add more cloud providers, uses-cases and workflows.
 ## Quick Start
 
 ### Installing
-`pip install bentoctl`
+You can easily install the python package via pip
+
+> Currently, the bentoctl is in alpha version and you will have to pass the --pre flag to install the pre-release version
+
+```bash
+pip install --pre bentoctl
+```
+
 
 To activate tab completion for you shell, source the script in `bentoctl/completion`.
 For More info please check [click's documentation](https://click.palletsprojects.com/en/8.0.x/shell-completion/)
