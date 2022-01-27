@@ -1,6 +1,6 @@
 <div align="center">
   <h1>bentoctl</h1>
-  <i>Best way to deploy BentoML to the cloud.</i>
+  <i>Fast model deployment with BentoML on cloud platforms</i>
   <p>
     <img alt="PyPI" src="https://img.shields.io/pypi/v/bentoctl?style=flat-square">
     <img alt="GitHub branch checks state" src="https://img.shields.io/github/checks-status/bentoml/bentoctl/main?style=flat-square">
@@ -10,72 +10,67 @@
 
 <br>
 
-bentoctl is a command-line tool that uses easy and approachable YAML syntax to deploy Bento to the cloud.
-It supports multiple cloud providers, including AWS, Azure, Google Cloud, and more. It is completely extensible with
-operators that can add more cloud providers, uses-cases and workflows.
+bentoctl is a CLI tool for deploying your BentoML packaged ML models as API endpoint on popular cloud platforms. It automates Bento docker image build, interactes with cloud platform APIs, and allow users to easily manage their deployment.
+
+## Features:
+
+* Supports major cloud providers: AWS, Azure, Google Cloud, and more.
+* Easy to deploy, update and operate cloud deployments.
+* Optimized for CI/CD workflow
+* Extensible with custom operators.
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/bentoml/bentoctl/master/demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2"/>
 </div>
 
-## Quick Start
+## Supported Platforms:
 
-### Installing
-You can easily install the python package via pip
+* [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
+* [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
+* [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
+* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
+* [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
+* [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
+* [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
+* [Heroku](https://github.com/bentoml/heroku-deploy)
 
-> Currently, the bentoctl is in alpha version and you will have to pass the --pre flag to install the pre-release version
 
+## How to Install
 ```bash
 pip install --pre bentoctl
 ```
 
-
-To activate tab completion for you shell, source the script in `bentoctl/completion`.
-For More info please check [click's documentation](https://click.palletsprojects.com/en/8.0.x/shell-completion/)
+| 💡 bentoctl is in pre-release stage, use the `--pre` to install the pre-release version.
 
 
-### Add AWS EC2 operator
+## Get started with bentoctl
 
-`bentoctl operators add aws-ec2`
+1. Create an Bento service. Follow the quick start guide in BentoML or a sample project in the [BentoML Gallery]()
+2. Install bentoctl with `pip install --pre bentoctl`
+3. Add AWS Lambda operator.
+    * Prerequisite:
+        * Configured AWS CLI with AWS Cloudformation, Lambda, ECR and API Gateway permissions.
+    * Add lambda operator
+      ```bash
+      bentoctl operator add aws-lambda
+      ```
+4. Deploy your bento to AWS Lambda with interactive deployment wizard.
+    ```bash
+    bentoctl deploy --operator aws-lambda
+    ```
+
+## Community
+
+- To report a bug or suggest a feature request, use [GitHub Issues](https://github.com/bentoml/bentoctl/issues/new/choose).
+- For other discussions, use [Github Discussions](https://github.com/bentoml/BentoML/discussions) under the [BentoML repo](https://github.com/bentoml/BentoML/)
+- To receive release announcements and get support, join us on [Slack](https://join.slack.com/t/bentoml/shared_invite/enQtNjcyMTY3MjE4NTgzLTU3ZDc1MWM5MzQxMWQxMzJiNTc1MTJmMzYzMTYwMjQ0OGEwNDFmZDkzYWQxNzgxYWNhNjAxZjk4MzI4OGY1Yjg).
 
 
-### Deploy Bento to EC2
+## Contributing
 
-Use the interactive deployment helper. This will generate a deployment YAML file and will then deploy the Bento to the cloud.
-```
-$ bentoctl deploy
-```
+There are many ways to contribute to the project:
 
-`bentoctl deploy` also accepts deployment configuration file.
-
-Save the following configuration file to `deployment_config.yaml`
-```yaml
-api_version: v1
-metadata:
-  name: my-bento-deployment
-  operator: aws-ec2
-spec:
-  bento: iris_classifier:latest
-  region: us-west-1
-  instance_type: t2.micro
-  ami_id: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-  enable_gpus: False
-```
-Call deploy command
-```
-$ bentoctl deploy deployment_config.yaml
-```
-
-### Delete deployment
-```
-$ bentoctl delete deployment_config.yaml
-```
-
-## Features:
-
-* Supports multiple cloud providers: AWS, Azure, Google Cloud, and more.
-* Manages the lifecycle of the BentoML deployment.
-* Minimal configuration
-* Optimized for CI/CD workflow
-* Built with optimization and best practices
-* Extensible with operators. Extends or modifies the cloud services and workflow via operators.
+- Create and share new operators. Use [deployment operator template](https://github.com/bentoml/bentoctl-operator-template) to get started.
+- If you have any feedback on the project, share it with the community in [Github Discussions](https://github.com/bentoml/BentoML/discussions) under the [BentoML repo](https://github.com/bentoml/BentoML/).
+- Report issues you're facing and "Thumbs up" on issues and feature requests that are relevant to you.
+- Investigate bugs and reviewing other developer's pull requests.
