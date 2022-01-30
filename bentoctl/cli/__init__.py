@@ -7,6 +7,7 @@ import yaml
 from cloup import Section
 from rich.pretty import pprint
 
+from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
@@ -54,6 +55,7 @@ def save_deployment_config(
     context_settings=CONTEXT_SETTINGS,
     cls=BentoctlCommandGroup,
 )
+@cloup.version_option(version=__version__)
 def bentoctl():
     """
     Bentoctl - Manages deployment of bentos to various cloud services.
