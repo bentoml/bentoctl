@@ -3,8 +3,15 @@ import os
 import logging
 
 import cloup
+import rich
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
+
+
+def print_description(description):
+    "Print the description in JSON format"
+    if description is not None:
+        rich.print_json(data=description)
 
 
 def set_debug_mode(is_enabled: bool):

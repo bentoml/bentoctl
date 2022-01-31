@@ -5,11 +5,10 @@ import click
 import cloup
 import yaml
 from cloup import Section
-from rich.pretty import pprint
 
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
-from bentoctl.cli.utils import BentoctlCommandGroup
+from bentoctl.cli.utils import BentoctlCommandGroup, print_description
 from bentoctl.deployment import (
     delete_deployment,
     deploy_deployment,
@@ -116,8 +115,7 @@ def deploy(name, operator, bento, file):
         print("Successful deployment!")
 
         # describe the state of deployment
-        info_json = describe_deployment(file)
-        pprint(info_json)
+        print_description(describe_deployment(file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
@@ -136,9 +134,7 @@ def describe(file):
     Shows the properties of the deployment given a deployment_config.
     """
     try:
-        info_json = describe_deployment(deployment_config_path=file)
-        if info_json is not None:
-            pprint(info_json)
+        print_description(describe_deployment(deployment_config_path=file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
@@ -159,8 +155,7 @@ def update(file):
     try:
         update_deployment(deployment_config_path=file)
         # describe the state of deployment
-        info_json = describe_deployment(file)
-        pprint(info_json)
+        print_description(describe_deployment(file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
