@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bentoctl"
 version = "0.1.1"
-description = "Command line tool for deploying ML models to the cloud."
+description = "Fast model deployment with BentoML on cloud platforms."
 authors = ["bentoml.org <contact@bentoml.ai>"]
 homepage = "https://github.com/bentoml/bentoctl"
 readme = "./README.md"
@@ -26,13 +26,14 @@ bentoctl = "bentoctl.cli:bentoctl"
 [tool.poetry.dependencies]
 python = "^3.7"
 bentoml = {version="^1.0.0*", allow-prereleases=true}
-click = "^7"
+click = "^8"
 cerberus = "^1"
-rich = "^10"
+rich = "^10.9"
 cloup = "^0.12"
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
 GitPython = "3.1.24"
+importlib-metadata = { version = "~=1.0", python = "<3.8" }
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.2"
