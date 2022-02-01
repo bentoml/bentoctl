@@ -2,18 +2,18 @@
 
 This guide will walk through the steps of building a bento and deploying it to AWS Lambda. It will use the iris classifier bento with `predict` api endpoint created in the BentoML quickstart guide, and then use bentoctl to deploy to AWS lambda.
 
-### Prerequisites
+## Prerequisites
 
 1. Bentoml - BentoML version 1.0 and greater. Please follow the [Installation guide](https://docs.bentoml.org/en/latest/quickstart.html#installation).
 2. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
-Step 1: Create a bento
+### Step 1: Create a bento
 
 > Note: Skip to step 2, if you already built a bento with the BentoML 1.0 quick start guide.
 
 Follow the instructions from the [BentoML’s quickstart guide](https://docs.bentoml.org/en/latest/quickstart.html) to build a bento.
 
-Step 2: Verify bento
+### Step 2: Verify bento
 
 To verify the bento, run `bentoml list` to display the available bentos in your local bento store:
 
@@ -24,11 +24,11 @@ Tag                               Service    Path                               
 iris_classifier:foereut5zgw3ceb5  bento:svc  /home/user/bentoml/bentos/iris_classifier/foereut5zgw3ceb5  13.97 KiB  2022-01-25 10:25:51
 ```
 
-Step 3: Add aws-lambda operator
+### Step 3: Add aws-lambda operator
 
 bentoctl has operators that help deploy bentos to different cloud services. 
 
-> **Operator** is a plugin that interacts with the cloud service to perform the bentoctl commands. The operator is responsible for creating and configuring the resources for deploying to the cloud service. Learn more from the [Core Concepts] page.
+> **Operator** is a plugin that interacts with the cloud service to perform the bentoctl commands. The operator is responsible for creating and configuring the resources for deploying to the cloud service. Learn more from the [Core Concepts](./core-concepts.md#operators) page.
 
 This guide uses the official aws-lambda operator to deploy and manage deployments. Run the following command to install the operator and its dependencies to your local system
 
@@ -36,9 +36,9 @@ This guide uses the official aws-lambda operator to deploy and manage deployment
 bentoctl operator add aws-lambda
 ```
 
-Step 4: Create the deployment configuration
+### Step 4: Create the deployment configuration
 
-> **Deployment Configuration** is a YAML file that specifies properties of the deployment like which bento service to deploy, what operator to use and other configurations. Learn more from the [Core Concepts] page
+> **Deployment Configuration** is a YAML file that specifies properties of the deployment like which bento service to deploy, what operator to use and other configurations. Learn more from the [Core Concepts](./core-concepts.md#deployment-configuration) page
 
 For this deployment, create a `deployment_config.yaml` file in your current directory with the following content.
 
@@ -57,7 +57,7 @@ spec:
 
 `bentoctl generate` command provides users with an interactive environment to create a deployment configuration file with auto-completion, deployment option descriptions and examples.
 
-Step 5: Deploy to Lambda
+### Step 5: Deploy to Lambda
 
 Run deployment command with the `deployment_config.yaml` file created in the previous step.
 
@@ -67,7 +67,7 @@ bentoctl deploy -f deployment_config.yaml
 
 bentoctl sent deployment config and bento to the operator, and then the operator will deploy to the target service based on its implementations.  Visit aws-lambda operator (links) for more details
 
-Step 6: Verify the deployment
+### Step 6: Verify the deployment
 
 Run the `bentoctl describe` command to get the status and properties of the deployment as result.  For AWS lambda, the `stackstatus` shows the status of the deployment, and the `endpointurl` is the endpoint for the deployed service.
 
@@ -85,7 +85,7 @@ bentoctl describe -f deployment_config.yaml
 }
 ```
 
-step 7: Make a prediction
+### step 7: Make a prediction
 
 The `iris_classifier` uses the `/predict` endpoint for receiving requests so the full URL for the classifier will be in the form `{EndpointUrl}/predict`
 
@@ -99,7 +99,7 @@ curl -i \
   $URL
 ```
 
-Step 8: Cleanup Deployment
+### Step 8: Cleanup Deployment
 
 To delete deployment, run the `bentoctl delete` command with the deployment configuration file. 
 
