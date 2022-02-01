@@ -1,4 +1,4 @@
-# bentoctl documentation
+## Table of Contents
 
 1. [Introduction](./introduction.md)
 2. [Quickstart](./quickstart.md)
