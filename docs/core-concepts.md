@@ -11,9 +11,9 @@ Operators are plugins that interact with the cloud services to perform the bento
 3. Update - make changes to the service to reflect the latest bento service or configuration change. For some cloud providers (like AWS) this can be performed by the deploy command also.
 4. Delete - clean up all the resources created for the deployment.
 
-Official operators that support the major cloud services and you can see the list in the Operator List [link] page.
+Official operators that support the major cloud services and you can see the list in the [Operator List](./operator-list.md) page.
 
-You can also create your own operators. Use the operator template [link operator template github] as the base for your operator. Refer to the operator template documentation for more information on the internal workings of operators. Feel free to reach out via slack (channel: #cloud-deployment) in case of any assistance is required.
+You can also create your own operators. Use the [operator template](https://github.com/bentoml/bentoctl-operator-template) as the base for your operator. Refer to the operator template documentation for more information on the internal workings of operators. Feel free to reach out via slack (channel: #cloud-deployment) in case of any assistance required.
 
 ## Deployment Configuration
 
@@ -23,7 +23,7 @@ Deployments in bentoctl are defined by the deployment configuration. This YAML f
 
 Here is a sample deployment config for the EC2 operator. Let's discuss the major parts.
 
-![1 (1).png](Core%20Concepts%205d3444056e044d12a0909f121bb73235/1_(1).png)
+![sample deployment config](./imgs/deployment-config-outline.png)
 
 1 :- `api_version` specifies deployment configuration version.  
 
@@ -31,7 +31,7 @@ Here is a sample deployment config for the EC2 operator. Let's discuss the major
 
 3 :- `spec` is the specification of the deployment. The available deployment options are provided by the operator in the metadata section.
 
-![carbon (1).png](Core%20Concepts%205d3444056e044d12a0909f121bb73235/carbon_(1).png)
+![lambda deployment config](./imgs/sample-lambda-config.png)
 
   
 
