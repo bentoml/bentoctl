@@ -35,9 +35,9 @@ pip install --pre bentoctl
 
 ## What's Next?
 
-- Quickstart Guide will walk you through an example of deploying a bentoml service into AWS Lambda in under 20mins.
-- Core Concepts will give a comprehensive tour of the bentoctl components namely operators and deployment config.
-- Operator List container all the links to all the available operators and resources to get started.
+- [Quickstart Guide](./quickstart.md) will walk you through an example of deploying a bentoml service into AWS Lambda in under 20mins.
+- [Core Concepts](./core-concepts.md) will give a comprehensive tour of the bentoctl components namely operators and deployment config.
+- [Operator List](./operator-list.md) container all the links to all the available operators and resources to get started.
 
 ## Community
 
