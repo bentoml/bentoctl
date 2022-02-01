@@ -5,12 +5,11 @@ import click
 import cloup
 import yaml
 from cloup import Section
-from rich.pretty import pprint
 
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
-from bentoctl.cli.utils import BentoctlCommandGroup
+from bentoctl.cli.utils import BentoctlCommandGroup, print_description
 from bentoctl.deployment import (
     delete_deployment,
     deploy_deployment,
@@ -82,17 +81,12 @@ def bentoctl():
     help="The path to bento bundle.",
 )
 @click.option(
-    "--display-deployment-info",
-    is_flag=True,
-    help="Show deployment info",
-)
-@click.option(
     "--file",
     "-f",
     type=click.Path(exists=True),
     help="The path to the deployment config file.",
 )
-def deploy(name, operator, bento, display_deployment_info, file):
+def deploy(name, operator, bento, file):
     """
     Deploy a bento to cloud either in interactive mode or with deployment_config.
 
@@ -121,9 +115,9 @@ def deploy(name, operator, bento, display_deployment_info, file):
             file = deployment_config_path
         deploy_deployment(file)
         print("Successful deployment!")
-        if display_deployment_info:
-            info_json = describe(file)
-            pprint(info_json)
+
+        # describe the state of deployment
+        print_description(describe_deployment(file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
@@ -142,9 +136,7 @@ def describe(file):
     Shows the properties of the deployment given a deployment_config.
     """
     try:
-        info_json = describe_deployment(deployment_config_path=file)
-        if info_json is not None:
-            pprint(info_json)
+        print_description(describe_deployment(deployment_config_path=file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
@@ -158,20 +150,14 @@ def describe(file):
     help="The path to the deployment config file.",
     required=True,
 )
-@click.option(
-    "--display-deployment-info",
-    is_flag=True,
-    help="Show deployment info.",
-)
-def update(file, display_deployment_info):
+def update(file):
     """
     Update the deployment given a deployment_config.
     """
     try:
         update_deployment(deployment_config_path=file)
-        if display_deployment_info:
-            info_json = describe(file)
-            pprint(info_json)
+        # describe the state of deployment
+        print_description(describe_deployment(file))
     except BentoctlException as e:
         e.show()
         sys.exit(1)
