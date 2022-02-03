@@ -1,6 +1,7 @@
 # Introduction
 
-bentoctl is a command line tool for deploying BentoML packaged ML models as API endpoint on popular cloud platforms. It automates Bento docker image build, interacts with cloud platform APIs, and allows users easily manage deployments.
+bentoctl is a command line tool for deploying BentoML packaged ML models as API endpoint on popular cloud platforms.
+It automates Bento docker image build, interacts with cloud platform APIs, and allows users easily manage deployments.
 
 Supported platforms:
 
@@ -25,19 +26,19 @@ Supported platforms:
 
 ## How to install
 
-bentoctl can be installed as a python package via pip
+Install via pip:
 
 ```bash
 pip install --pre bentoctl
 ```
 
-> Currently, the bentoctl is in pre-release stage, hence pass the `--pre` to download that version
+> bentoctl is in pre-release stage, include the `--pre` to download the latest version
 
-## What's Next?
+## Next steps
 
-- [Quickstart Guide](./quickstart.md) will walk you through an example of deploying a bentoml service into AWS Lambda in under 20mins.
-- [Core Concepts](./core-concepts.md) will give a comprehensive tour of the bentoctl components namely operators and deployment config.
-- [Operator List](./operator-list.md) container all the links to all the available operators and resources to get started.
+- [Quickstart Guide](./quickstart.md) walks through a series of steps to deploy a bento to AWS Lambda as API server.
+- [Core Concepts](./core-concepts.md) explains the core concepts in bentoctl.
+- [Operator List](./operator-list.md) lists official operators and their current status.
 
 ## Community
 

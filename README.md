@@ -35,7 +35,7 @@ bentoctl is a CLI tool for deploying your BentoML packaged ML models as API endp
 * [Heroku](https://github.com/bentoml/heroku-deploy)
 
 
-## How to Install
+## Install bentoctl
 ```bash
 pip install --pre bentoctl
 ```
@@ -43,21 +43,11 @@ pip install --pre bentoctl
 | 💡 bentoctl is in pre-release stage, use the `--pre` to install the pre-release version.
 
 
-## Get started with bentoctl
+## Next steps
 
-1. Create an Bento service. Follow the quick start guide in BentoML or a sample project in the [BentoML Gallery]()
-2. Install bentoctl with `pip install --pre bentoctl`
-3. Add AWS Lambda operator.
-    * Prerequisite:
-        * Configured AWS CLI with AWS Cloudformation, Lambda, ECR and API Gateway permissions.
-    * Add lambda operator
-      ```bash
-      bentoctl operator add aws-lambda
-      ```
-4. Deploy your bento to AWS Lambda with interactive deployment wizard.
-    ```bash
-    bentoctl deploy --operator aws-lambda
-    ```
+- [Quickstart Guide](./quickstart.md) walks through a series of steps to deploy a bento to AWS Lambda as API server.
+- [Core Concepts](./core-concepts.md) explains the core concepts in bentoctl.
+- [Operator List](./operator-list.md) lists official operators and their current status.
 
 ## Community
 

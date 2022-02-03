@@ -1,41 +1,46 @@
 # Core Concepts
 
-Bentoctl has two responsibilities. Firstly it manages the operators in the local system that interact with the cloud services and performs the various commands. Secondly, it facilitates bento deployment to cloud services which are configured by the Deployment Config. The core concepts guide will help users to understand what are operator and deployment configurations and how they work.
+Bentoctl performs two types of operations:
+
+1. bentoctl manages the operators that interact with the cloud service.
+2. bentoctl mangages the deployment via deployment configurations.
+
+In the following sections, we will discuss the concepts of operators and deployment configurations.
 
 ## Operators
 
-Operators are plugins that interact with the cloud services to perform the bentoctl commands. It abstracts away the specifics of the cloud service and provides bentoctl with a unified interface to perform the major actions. The Operator has 4 main actions that it should perform that are directly related to the 4 major commands of the bentoctl CLI.
+Operators are plugins that interact with the external services, typcially a cloud service. It abstracts the specifics implmentation details of the external service and provides an unified interface for bentoctl. The operator provide 4 core actions that are:
 
-1. Deploy - build, push and deploy the bento to the cloud service to create the endpoint.
-2. Describe - get the properties and current status of the deployment.
-3. Update - make changes to the service to reflect the latest bento service or configuration change. For some cloud providers (like AWS) this can be performed by the deploy command also.
-4. Delete - clean up all the resources created for the deployment.
+1. Deploy - Create Deployment in the external service base on the deployment configuration provided by the user.
+2. Describe - Retrieve the latest deployment status and properties from the external service.
+3. Update - Update the deployment configuration in the external service.
+4. Delete - Remove the deployment from the external service.
 
-Official operators that support the major cloud services and you can see the list in the [Operator List](./operator-list.md) page.
+The operator also provides a set of schema that bentoctl uses to validate the deployment configuration. [Operators](./operators.md) page provides more details on supported platforms and their current status.
 
-You can also create your own operators. Use the [operator template](https://github.com/bentoml/bentoctl-operator-template) as the base for your operator. Refer to the operator template documentation for more information on the internal workings of operators. Feel free to reach out via slack (channel: #cloud-deployment) in case of any assistance required.
+The operator designed to be customizable and extensible. Users can install non-offical operators from git url or from a local file path. Users can create their own operator from the [operator template on Github](https://github.com/bentoml/bentoctl-operator-template).
 
 ## Deployment Configuration
 
-Deployments in bentoctl are defined by the deployment configuration. This YAML file specifies everything bentoctl needs to carry out the deployment and represents the configuration for the cloud service.
+bentoctl uses deployment configuration to specify the deployment properties. The deployment configuration stores in local system using yaml format
 
 ### An Anatomy of a Deployment Config file
 
-Here is a sample deployment config for the EC2 operator. Let's discuss the major parts.
+Here is a sample deployment config for the EC2 operator.
 
 ![sample deployment config](./imgs/deployment-config-outline.png)
 
-1 :- `api_version` specifies deployment configuration version.  
+1 :- `api_version` specifies deployment configuration version.
 
-2 :- `metadata` contains information about the deployment such as the deployment name and operators that it uses. 
+2 :- `metadata` contains the base information about the deployment.
 
-3 :- `spec` is the specification of the deployment. The available deployment options are provided by the operator in the metadata section.
+3 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed in the metadata section.
 
 ![lambda deployment config](./imgs/sample-lambda-config.png)
 
-  
 
-1. `metadata.name` - this is the deployment name that is used to name all the resources created in the cloud service. The deployment name and operator combination should be unique to avoid any potential problems.
-2. `metadata.operator` - the operator that is used to deploy the bento. The operator has to be available in bentoctl locally. 
-3. `spec.bento` - the bento service that is deployed to the cloud service. This is a required field for every operator.
-4. `spec.*` - other configuration options that depend on the operator used.
+
+1. `metadata.name` - Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
+2. `metadata.operator` - Operator used for the deployment. bentoctl will automatically install official operator if it is not installed.
+3. `spec.bento` - Bento used for the deployment. This field's value is expecting in a string in the format of `bento:<bento_name>:<bento_version>`.
+4. `spec.*` - Deployment options specific to the operator.

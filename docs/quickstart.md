@@ -1,6 +1,6 @@
 # Quickstart
 
-This guide will walk through the steps of building a bento and deploying it to AWS Lambda. It will use the iris classifier bento with `predict` api endpoint created in the BentoML quickstart guide, and then use bentoctl to deploy to AWS lambda.
+This guide walks through the steps of building a bento and deploying it to AWS Lambda. It will use the iris classifier bento with `predict` api endpoint created in the BentoML quickstart guide, and then use bentoctl to deploy to AWS lambda.
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ iris_classifier:foereut5zgw3ceb5  bento:svc  /home/user/bentoml/bentos/iris_clas
 
 ### Step 3: Add aws-lambda operator
 
-bentoctl has operators that help deploy bentos to different cloud services. 
+bentoctl has operators that help deploy bentos to different cloud services.
 
 > **Operator** is a plugin that interacts with the cloud service to perform the bentoctl commands. The operator is responsible for creating and configuring the resources for deploying to the cloud service. Learn more from the [Core Concepts](./core-concepts.md#operators) page.
 
@@ -101,7 +101,7 @@ curl -i \
 
 ### Step 8: Cleanup Deployment
 
-To delete deployment, run the `bentoctl delete` command with the deployment configuration file. 
+To delete deployment, run the `bentoctl delete` command with the deployment configuration file.
 
 ```bash
 bentoctl delete -f deployment_config.yaml
