@@ -36,11 +36,10 @@ Here is a sample deployment config for the EC2 operator.
 
 3 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed in the metadata section.
 
-![lambda deployment config](./imgs/sample-lambda-config.png)
+4. `metadata.name` - Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
 
+5. `metadata.operator` - Operator used for the deployment. bentoctl will automatically install official operator if it is not installed.
 
+6. `spec.bento` - Bento used for the deployment. This field's value is expecting in a string in the format of `bento:<bento_name>:<bento_version>`.
 
-1. `metadata.name` - Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
-2. `metadata.operator` - Operator used for the deployment. bentoctl will automatically install official operator if it is not installed.
-3. `spec.bento` - Bento used for the deployment. This field's value is expecting in a string in the format of `bento:<bento_name>:<bento_version>`.
-4. `spec.*` - Deployment options specific to the operator.
+7. `spec.*` - Deployment options specific to the operator.
