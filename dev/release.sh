@@ -11,21 +11,13 @@ fi
 SEMVER_REGEX="^[vV]?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(\\-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
 
 if [[ "$VERSION_STR" =~ $SEMVER_REGEX ]]; then
-  echo "Releasing bentoctl version v$VERSION_STR:"
+  echo "Releasing bentoctl version v$VERSION_STR to $REPO"
 else
   echo "Warning: version $VERSION_STR must follow semantic versioning schema, ignore this for preview releases"
 fi
 
 GIT_ROOT=$(git rev-parse --show-toplevel)
 cd "$GIT_ROOT"
-
-# with poetry, we don't need pypirc for storing credentials
-#if [ ! -f "$HOME"/.pypirc ]; then
-  ## about .pypirc file:
-  ## https://docs.python.org/3/distutils/packageindex.html#the-pypirc-file
-  #echo "Error: File \$HOME/.pypirc not found."
-  #exit 1
-#fi
 
 
 if [ -d "$GIT_ROOT"/dist ]; then
@@ -57,9 +49,16 @@ poetry build
 # Use testpypi by default, run script with: "REPO=pypi release.sh" for
 # releasing to Pypi.org
 REPO=${REPO:=testpypi}
-poetry config repositories.testpypi https://test.pypi.org/legacy/
+if [ "$REPO" = "testpypi" ]; then
+  echo "Releasing to testpypi.org..."
+  poetry config repositories.testpypi https://test.pypi.org/legacy/
+  poetry publish --repository $REPO
+elif [ "$REPO" = "pypi" ]; then
+  echo "Releasing to pypi.org..."
+  poetry publish
+else
+  echo "Unknown repo: $REPO"
+  exit 1
+fi
 
-echo "Uploading PyPI package to $REPO..."
-poetry publish --repository $REPO
-
-echo "Done releasing bentoctl version:$VERSION_STR"
+echo "published bentoctl version:$VERSION_STR to $REPO"
