@@ -45,15 +45,15 @@ pip install --pre bentoctl
 
 ## Next steps
 
-- [Quickstart Guide](./quickstart.md) walks through a series of steps to deploy a bento to AWS Lambda as API server.
-- [Core Concepts](./core-concepts.md) explains the core concepts in bentoctl.
-- [Operator List](./operator-list.md) lists official operators and their current status.
+- [Quickstart Guide](./docs/quickstart.md) walks through a series of steps to deploy a bento to AWS Lambda as API server.
+- [Core Concepts](./docs/core-concepts.md) explains the core concepts in bentoctl.
+- [Operator List](./docs/operator-list.md) lists official operators and their current status.
 
 ## Community
 
 - To report a bug or suggest a feature request, use [GitHub Issues](https://github.com/bentoml/bentoctl/issues/new/choose).
 - For other discussions, use [Github Discussions](https://github.com/bentoml/BentoML/discussions) under the [BentoML repo](https://github.com/bentoml/BentoML/)
-- To receive release announcements and get support, join us on [Slack](https://join.slack.com/t/bentoml/shared_invite/enQtNjcyMTY3MjE4NTgzLTU3ZDc1MWM5MzQxMWQxMzJiNTc1MTJmMzYzMTYwMjQ0OGEwNDFmZDkzYWQxNzgxYWNhNjAxZjk4MzI4OGY1Yjg).
+- To receive release announcements and get support, join us on [Slack](http://join.slack.bentoml.org).
 
 
 ## Contributing
