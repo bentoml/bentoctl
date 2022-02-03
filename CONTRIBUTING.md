@@ -2,7 +2,7 @@
 
 [BentoCTL](https://github.com/bentoml/bentoctl) is an open and community-driven project. Everyone is welcome to contribute.
 
-To follow development updates and discussion, join the [BentoML contributors mailing list](https://groups.google.com/forum/#!forum/bentoml) and the [BentoML Slack community](https://join.slack.com/t/bentoml/shared_invite/enQtNjcyMTY3MjE4NTgzLTU3ZDc1MWM5MzQxMWQxMzJiNTc1MTJmMzYzMTYwMjQ0OGEwNDFmZDkzYWQxNzgxYWNhNjAxZjk4MzI4OGY1Yjg).
+To follow development updates and discussion, join the [BentoML contributors mailing list](https://groups.google.com/forum/#!forum/bentoml) and the [BentoML Slack community](http://join.slack.bentoml.org).
 
 
 ## Ways to contribute
