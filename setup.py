@@ -39,7 +39,7 @@ setup(
     entry_points={"console_scripts": ["bentoctl = bentoctl.cli:bentoctl"]},
     project_urls={
         "Source": "https://github.com/bentoml/bentoctl",
-        "User Slack community": "https://bit.ly/2N5IpbB",
+        "User Slack community": "http://join.slack.bentoml.org",
         "Bug Reports": "https://github.com/bentoml/bentoctl/issues",
     },
     python_requires=">=3.6.1",
