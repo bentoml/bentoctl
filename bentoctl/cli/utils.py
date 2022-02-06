@@ -1,6 +1,6 @@
 import functools
-import os
 import logging
+import os
 
 import cloup
 import rich
