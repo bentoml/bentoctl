@@ -1,9 +1,8 @@
-from logging import exception
 import shutil
 
 from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.operator import get_local_operator_registry
 from bentoctl.exceptions import BentoctlException
+from bentoctl.operator import get_local_operator_registry
 
 local_operator_registry = get_local_operator_registry()
 
