@@ -10,14 +10,17 @@
 
 <br>
 
-bentoctl is a CLI tool for deploying your BentoML packaged ML models as API endpoint on popular cloud platforms. It automates Bento docker image build, interactes with cloud platform APIs, and allow users to easily manage their deployment.
+`bentoctl` is a CLI tool for deploying your machine-learning models to any cloud platforms and serving predictions via REST APIs. It is built on top of [BentoML: the unified model serving framework](https://github.com/bentoml/BentoML), and makes it easy to bring any BentoML packaged model to production.
+
+👉 [Pop into our Slack community!](https://join.slack.bentoml.org) We're happy to help with any issue you face or even just to meet you and hear what you're working on :)
 
 ## Features:
 
 * Supports major cloud providers: AWS, Azure, Google Cloud, and more.
-* Easy to deploy, update and operate cloud deployments.
-* Optimized for CI/CD workflow
+* Easy to deploy, update and reproduce model deployments.
+* Optimized for CI/CD workflow.
 * Extensible with custom operators.
+* High performance serving powered by [BentoML](https://github.com/bentoml/BentoML)
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/bentoml/bentoctl/master/demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2"/>
@@ -33,6 +36,9 @@ bentoctl is a CLI tool for deploying your BentoML packaged ML models as API endp
 * [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
 * [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
 * [Heroku](https://github.com/bentoml/heroku-deploy)
+* [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
+* Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
+* **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
 
 ## Install bentoctl
