@@ -44,5 +44,6 @@ pytest = "^6"
 pytest-cov = "^3"
 
 [build-system]
+# Use the latest poetry build system to enable the use of `pip install -e`. After this change is released, we can switch back to "poetry_core>=1.0.0"
 requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master"]
 build-backend = "poetry.core.masonry.api"
