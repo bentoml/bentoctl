@@ -15,6 +15,11 @@ from bentoctl.utils import console
 logger = logging.getLogger(__name__)
 
 
+DEFAULT_OPERATOR_NOTES = """\
+# Operator {} does not have specific notes.
+"""
+
+
 class Operator:
     def __init__(self, path):
         self.path = Path(path)
@@ -74,6 +79,14 @@ class Operator:
 
     def _load_operator_module(self):
         return _import_module(self.module_name, self.path)
+
+    @property
+    def notes(self):
+        if os.path.exists(os.path.join(self.path, "NOTES.md")):
+            with open(os.path.join(self.path, "NOTES.md"), "r") as f:
+                return f.read()
+        else:
+            return DEFAULT_OPERATOR_NOTES.format(self.operator_name)
 
 
 def _import_module(module_name, path):

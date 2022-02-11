@@ -1,6 +1,8 @@
 import click
 import cloup
 from rich.prompt import Confirm
+from rich.console import Console
+from rich.markdown import Markdown
 
 from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.exceptions import BentoctlException
@@ -9,6 +11,12 @@ from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.utils import print_operator_list
 
 local_operator_registry = get_local_operator_registry()
+
+
+def display_operator_notes(notes):
+    console = Console()
+    md = Markdown(notes)
+    console.print(md)
 
 
 def get_operator_management_subcommands():
@@ -82,6 +90,8 @@ def get_operator_management_subcommands():
             operator_name = local_operator_registry.add(name)
             if operator_name is not None:
                 click.echo(f"Added {operator_name}!")
+                operator = local_operator_registry.get(operator_name)
+                display_operator_notes(operator.notes)
             else:
                 click.echo(
                     f"Unable to add operator. `{name}` did not match any of the "
@@ -132,6 +142,20 @@ def get_operator_management_subcommands():
         try:
             local_operator_registry.update(name)
             click.echo(f"Operator '{name}' updated!")
+        except BentoctlException as e:
+            e.show()
+
+    @operator_management.command()
+    @click.argument("name")
+    def describe(name):  # pylint: disable=unused-variable
+        """
+        Display operator notes and details.
+
+        This will display the operator notes in the CLI.
+        """
+        try:
+            operator = local_operator_registry.get(name)
+            display_operator_notes(operator.notes)
         except BentoctlException as e:
             e.show()
 
