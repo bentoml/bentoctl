@@ -50,8 +50,6 @@ poetry install
 echo "Building pypi package..."
 poetry build
 
-exit 1
-
 if [ "$REPO" = "testpypi" ]; then
   echo "Publishing testpypi package..."
   poetry config repositories.testpypi https://test.pypi.org/legacy/
@@ -59,6 +57,7 @@ if [ "$REPO" = "testpypi" ]; then
 elif [ "$REPO" = "pypi" ]; then
   git add pyproject.toml
   git commit -m "Update version to $VERSION_STR"
+  git push origin main
 
   if git rev-parse "$tag_name" >/dev/null 2>&1; then
     echo "git tag '$tag_name' exist, using existing tag."
