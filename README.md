@@ -12,7 +12,7 @@
 
 `bentoctl` is a CLI tool for deploying your machine-learning models to any cloud platforms and serving predictions via REST APIs. It is built on top of [BentoML: the unified model serving framework](https://github.com/bentoml/BentoML), and makes it easy to bring any BentoML packaged model to production.
 
-👉 [Pop into our Slack community!](https://join.slack.bentoml.org) We're happy to help with any issue you face or even just to meet you and hear what you're working on :)
+👉 [Pop into our Slack community!](https://l.linklyhq.com/l/ktPp) We're happy to help with any issue you face or even just to meet you and hear what you're working on :)
 
 ## Features:
 
