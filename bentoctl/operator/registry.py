@@ -88,7 +88,7 @@ class OperatorRegistry:
             else:
                 operator_repo = name
             owner, repo, branch = _fetch_github_info(operator_repo)
-            git_url = f"git@github.com:{owner}/{repo}.git"
+            git_url = f"https://github.com/{owner}/{repo}.git"
             git_branch = branch
             content_path = _clone_git_repo(git_url, branch=branch)
 
