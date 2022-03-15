@@ -10,12 +10,6 @@ from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, print_description
-from bentoctl.deployment import (
-    delete_deployment,
-    deploy_deployment,
-    describe_deployment,
-    update_deployment,
-)
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
@@ -67,134 +61,11 @@ def bentoctl():
     """
 
 
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.option(
-    "--name", "-n", type=click.STRING, help="The name you want to give the deployment"
-)
-@click.option(
-    "--operator", "-o", type=click.STRING, help="The operator of choice to deploy"
-)
-@click.option(
-    "--bento",
-    "-b",
-    type=click.STRING,
-    help="The path to bento bundle.",
-)
-@click.option(
-    "--file",
-    "-f",
-    type=click.Path(exists=True),
-    help="The path to the deployment config file.",
-)
-def deploy(name, operator, bento, file):
-    """
-    Deploy a bento to cloud either in interactive mode or with deployment_config.
-
-    1. if interactive mode. call the interactive setup manager
-    2. call deploy_bento
-    3. display results from deploy_bento
-    """
-    try:
-        if file is None:
-            deployment_config = deployment_config_builder(bento, name, operator)
-            deployment_config = DeploymentConfig(deployment_config)
-            deployment_config_path = save_deployment_config(
-                deployment_config.deployment_config, Path.cwd()
-            )
-            deployment_config_path_relative = deployment_config_path.relative_to(
-                Path.cwd()
-            )
-            console.print(
-                "[green]deployment config generated to: "
-                f"{deployment_config_path_relative}[/]"
-            )
-            console.print(
-                "Deploying with generated deployment_config "
-                f"[{deployment_config_path_relative}]"
-            )
-            file = deployment_config_path
-        deploy_deployment(file)
-        print("Successful deployment!")
-
-        # describe the state of deployment
-        print_description(describe_deployment(file))
-    except BentoctlException as e:
-        e.show()
-        sys.exit(1)
-
-
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.option(
-    "--file",
-    "-f",
-    type=click.Path(exists=True),
-    help="The path to the deployment config file.",
-    required=True,
-)
-def describe(file):
-    """
-    Shows the properties of the deployment given a deployment_config.
-    """
-    try:
-        print_description(describe_deployment(deployment_config_path=file))
-    except BentoctlException as e:
-        e.show()
-        sys.exit(1)
-
-
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.option(
-    "--file",
-    "-f",
-    type=click.Path(exists=True),
-    help="The path to the deployment config file.",
-    required=True,
-)
-def update(file):
-    """
-    Update the deployment given a deployment_config.
-    """
-    try:
-        update_deployment(deployment_config_path=file)
-        # describe the state of deployment
-        print_description(describe_deployment(file))
-    except BentoctlException as e:
-        e.show()
-        sys.exit(1)
-
-
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-@click.option(
-    "--file",
-    "-f",
-    type=click.Path(exists=True),
-    help="The path to the deployment config file.",
-    required=True,
-)
-@click.option(
-    "--yes",
-    "-y",
-    "--assume-yes",
-    is_flag=True,
-    help="Skip confirmation prompt when deleting the deployment.",
-)
-def delete(file, yes):
-    """
-    Delete the deployment given a deployment_config.
-    """
-    try:
-        if yes or click.confirm("Are you sure you want to delete the deployment?"):
-            deployment_name = delete_deployment(deployment_config_path=file)
-            click.echo(f"Deleted deployment - {deployment_name}!")
-    except BentoctlException as e:
-        e.show()
-        sys.exit(1)
-
-
 @bentoctl.command(section=BentoctlSections.INTERACTIVE)
-def generate():
+def init():
     """
     Start the interactive deployment config builder file.
+    Initialize a deployment configuration file using interactive mode.
     """
     deployment_config = deployment_config_builder()
     deployment_config_filname = console.input(
@@ -209,6 +80,22 @@ def generate():
         "[green]deployment config generated to: "
         f"{config_path.relative_to(Path.cwd())}[/]"
     )
+
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
+def generate():
+    # generate terraform project, readme.md, .gitignore.
+    # operator.generate()
+    # generate_support_files()
+    pass
+
+@bentoctl.command(section=BentoctlSections.OPERATIONS)
+def containerize():
+    # operator.create_deployable()
+    # build_docker_image()
+    # push_docker_image_to_repository()
+    # generate_bentoctl_files()
+
+    pass
 
 
 # subcommands
