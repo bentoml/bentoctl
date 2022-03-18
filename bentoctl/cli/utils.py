@@ -8,12 +8,6 @@ import rich
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
 
-def print_description(description):
-    "Print the description in JSON format"
-    if description is not None:
-        rich.print_json(data=description)
-
-
 def set_debug_mode(is_enabled: bool):
     if is_enabled or os.environ.get(DEBUG_ENV_VAR):
         os.environ[DEBUG_ENV_VAR] = str(True)

@@ -37,6 +37,11 @@ metadata_schema = {
         "help_message": "The operator to use for deployment",
         "check_with": operator_exists,
     },
+    "type": {
+        "required": True,
+        "default": "terraform",
+        "help_message": "The type of deployment project to use",
+    }
 }
 
 
@@ -148,9 +153,15 @@ class DeploymentConfig:
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
         copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
-        del copied_operator_spec["bento"]
         v = cerberus.Validator()
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
         if validated_spec is None:
             raise InvalidDeploymentConfig(config_errors=v.errors)
         self.operator_spec = validated_spec
+
+    def generate(self):
+        self.operator.generate(
+            name=self.metadata.get("name"),
+            spec=self.operator_spec,
+            outuput_type=self.metadata.get("type")
+        )

@@ -9,7 +9,7 @@ from cloup import Section
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
-from bentoctl.cli.utils import BentoctlCommandGroup, print_description
+from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
@@ -62,39 +62,39 @@ def bentoctl():
 
 
 @bentoctl.command(section=BentoctlSections.INTERACTIVE)
-def init():
+@click.option('--file', '-f', help='Path to the deployment config file.')
+def init(file):
     """
     Start the interactive deployment config builder file.
     Initialize a deployment configuration file using interactive mode.
     """
-    deployment_config = deployment_config_builder()
-    deployment_config_filname = console.input(
-        "filename for deployment_config [[b]deployment_config.yaml[/]]: ",
-    )
-    if deployment_config_filname == "":
-        deployment_config_filname = "deployment_config.yaml"
-    config_path = save_deployment_config(
-        deployment_config, Path.cwd(), deployment_config_filname
-    )
-    console.print(
-        "[green]deployment config generated to: "
-        f"{config_path.relative_to(Path.cwd())}[/]"
-    )
+    try:
+        if file is None:
+            deployment_config = deployment_config_builder()
+            deployment_config_filname = console.input(
+                "filename for deployment_config [[b]deployment_config.yaml[/]]: ",
+            )
+            if deployment_config_filname == "":
+                deployment_config_filname = "deployment_config.yaml"
+            config_path = save_deployment_config(
+                deployment_config, Path.cwd(), deployment_config_filname
+            )
+            console.print(
+                "[green]deployment config generated to: "
+                f"{config_path.relative_to(Path.cwd())}[/]"
+            )
+        deployment_config = DeploymentConfig(file)
+        deployment_config.generate()
+    except BentoctlException as e:
+        console.print(f"[red]{e}[/]")
+        sys.exit(1)
 
 @bentoctl.command(section=BentoctlSections.OPERATIONS)
-def generate():
-    # generate terraform project, readme.md, .gitignore.
-    # operator.generate()
-    # generate_support_files()
-    pass
-
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-def containerize():
+def build():
     # operator.create_deployable()
     # build_docker_image()
     # push_docker_image_to_repository()
     # generate_bentoctl_files()
-
     pass
 
 
