@@ -12,25 +12,6 @@ from bentoctl.operator.operator import _import_module
 from .conftest import TESTOP_PATH
 
 
-def mock_bentoml_get(name):
-    if "testservice" not in name:
-        raise bentoml.exceptions.BentoMLException("not found!")
-    else:
-        return bentoml.Bento
-
-
-def test_get_bento_path(tmpdir, monkeypatch):
-    tmp_bento_path = os.path.join(tmpdir, "testbento")
-
-    monkeypatch.setattr(bentoml, "get", mock_bentoml_get)
-    with pytest.raises(InvalidDeploymentConfig):
-        dconf.get_bento_path(tmp_bento_path)
-
-    Path(tmp_bento_path).mkdir()
-    Path(tmp_bento_path, "bento.yaml").touch()
-    assert dconf.get_bento_path(tmp_bento_path) == tmp_bento_path
-
-
 def assert_no_help_message_in_schema(schema):
     for _, rules in schema.items():
         assert "help_message" not in rules
@@ -95,7 +76,6 @@ metadata:
     name: test
     operator: testop
 spec:
-    bento: {bento_path}
     project_id: testproject
     instances:
         min: 1
@@ -110,7 +90,6 @@ metadata:
     name: test
     operator: testop
 spec:
-    bento: {bento_path}
     project_id: testproject
 """
 
@@ -144,7 +123,7 @@ def test_deployment_config_from_file(
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig.from_file(tmp_path / "deployment_config.yaml")
 
-    create_yaml_file(VALID_YAML.format(bento_path=tmp_bento_path), tmp_path)
+    create_yaml_file(VALID_YAML, tmp_path)
     assert dconf.DeploymentConfig.from_file(tmp_path / "deployment_config.yaml")
 
 
@@ -153,9 +132,9 @@ def test_validate_operator_config(
 ):  # pylint: disable=W0613
     import yaml
 
-    dconf.DeploymentConfig(yaml.safe_load(VALID_YAML.format(bento_path=tmp_bento_path)))
+    dconf.DeploymentConfig(yaml.safe_load(VALID_YAML))
 
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig(
-            yaml.safe_load(VALID_YAML_INVALID_SCHEMA.format(bento_path=tmp_bento_path))
+            yaml.safe_load(VALID_YAML_INVALID_SCHEMA)
         )

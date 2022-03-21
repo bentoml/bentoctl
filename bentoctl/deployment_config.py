@@ -37,10 +37,10 @@ metadata_schema = {
         "help_message": "The operator to use for deployment",
         "check_with": operator_exists,
     },
-    "type": {
+    "template_type": {
         "required": True,
         "default": "terraform",
-        "help_message": "The type of deployment project to use",
+        "help_message": "The template type for generated deployment",
     }
 }
 
@@ -59,6 +59,9 @@ def get_bento_path(bento_name_or_path: str):
 
 
 def remove_help_message(schema):
+    """
+    Remove the help_messages in the validation dict.
+    """
     for field, rules in schema.items():
         if "help_message" in rules:
             del rules["help_message"]
@@ -85,7 +88,6 @@ class DeploymentConfig:
 
         self._set_name()
         self._set_operator()
-        self._set_bento()
         self._set_operator_spec()
 
     @classmethod
@@ -142,13 +144,6 @@ class DeploymentConfig:
                 local_operator_registry.add(self.operator_name)
                 self.operator = local_operator_registry.get(self.operator_name)
 
-    def _set_bento(self):
-        self.bento = self.deployment_config["spec"].get("bento")
-        if self.bento is not None:
-            self.bento_path = get_bento_path(self.bento)
-        else:
-            raise InvalidDeploymentConfig("'bento' not provided in deployment_config")
-
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
@@ -163,5 +158,5 @@ class DeploymentConfig:
         self.operator.generate(
             name=self.metadata.get("name"),
             spec=self.operator_spec,
-            outuput_type=self.metadata.get("type")
+            outuput_type=self.metadata.get("template_type")
         )
