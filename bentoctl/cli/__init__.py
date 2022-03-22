@@ -2,9 +2,7 @@ import sys
 from pathlib import Path
 
 import click
-import cloup
 import yaml
-from cloup import Section
 
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
@@ -43,12 +41,11 @@ def save_deployment_config(
     return config_path
 
 
-@cloup.group(
-    show_subcommand_aliases=True,
+@click.group(
     context_settings=CONTEXT_SETTINGS,
     cls=BentoctlCommandGroup,
 )
-@cloup.version_option(version=__version__)
+@click.version_option(version=__version__)
 def bentoctl():
     """
     Bentoctl - Manages deployment of bentos to various cloud services.
@@ -61,8 +58,8 @@ def bentoctl():
     """
 
 
-@bentoctl.command(section=BentoctlSections.INTERACTIVE)
-@click.option('--file', '-f', help='Path to the deployment config file.')
+@bentoctl.command()
+@click.option("--file", "-f", help="Path to the deployment config file.")
 def init(file):
     """
     Start the interactive deployment config builder file.

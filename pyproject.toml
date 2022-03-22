@@ -29,7 +29,6 @@ bentoml = {version="^1.0.0*", allow-prereleases=true}
 click = "^8"
 cerberus = "^1"
 rich = "^10.9"
-cloup = "^0.12"
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
 GitPython = "3.1.24"
