@@ -1,4 +1,6 @@
 import sys
+import shutil
+import os
 from pathlib import Path
 
 import click
@@ -13,12 +15,6 @@ from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
-
-
-class BentoctlSections:
-    OPERATIONS = Section("Deployment Operations")
-    OPERATORS = Section("Operator Management")
-    INTERACTIVE = Section("Interactive Mode")
 
 
 def save_deployment_config(
@@ -91,6 +87,15 @@ def build():
     # operator.create_deployable()
     # build_docker_image()
     # push_docker_image_to_repository()
+@bentoctl.command()
+@click.option("--deployment_config_file", "-f", help="path to deployment_config file")
+def generate(deployment_config_file):
+    """
+    Generate the files for the deployment based on the template type provided.
+    """
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    deployment_config.generate(destination_dir=os.curdir)
+
     # generate_bentoctl_files()
     pass
 
