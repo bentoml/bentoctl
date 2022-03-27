@@ -44,6 +44,10 @@ class Operator:
         operator = self._load_operator_module()
         return operator.create_deployable(*args, **kwargs)
 
+    def get_default_registry_creds(self, *args, **kwargs):
+        operator = self._load_operator_module()
+        return operator.get_default_registry_creds(*args, **kwargs)
+
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")
         if not os.path.exists(requirement_txt_filepath):

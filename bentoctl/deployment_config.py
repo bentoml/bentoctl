@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+import shutil
 import typing as t
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import cerberus
 import click
 import yaml
 
+import bentoml
 from bentoctl.exceptions import (
     DeploymentConfigNotFound,
     InvalidDeploymentConfig,
@@ -41,7 +43,10 @@ metadata_schema = {
         "required": True,
         "default": "terraform",
         "help_message": "The template type for generated deployment",
-    }
+    },
+    "registry_url": {
+        "help_message": "Optional registry URL",
+    },
 }
 
 
@@ -154,9 +159,52 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig(config_errors=v.errors)
         self.operator_spec = validated_spec
 
-    def generate(self):
+    def set_bento(self, bento_tag: str):
+        try:
+            self.bento = bentoml.get(bento_tag)
+        except bentoml.exceptions.NotFound:
+            print("bento not found")
+        except bentoml.exceptions.BentoMLException:
+            print("an exception in bentoml")
+
+    def generate(self, destination_dir=os.curdir):
         self.operator.generate(
-            name=self.metadata.get("name"),
+            name=self.deployment_name,
             spec=self.operator_spec,
-            outuput_type=self.metadata.get("template_type")
+            template_type=self.metadata.get("template_type"),
+            destination_dir=destination_dir,  # TODO: verify is curdir is the best place
         )
+
+    def create_deployable(self, overwrite_deployable, destination_dir=os.curdir):
+        (
+            dockerfile_path,
+            docker_context_path,
+            build_args,
+        ) = self.operator.create_deployable(
+            self.bento.path, destination_dir, overwrite_deployable
+        )
+
+        return dockerfile_path, docker_context_path, build_args
+
+    def authenticate_registry(self, registry_username, registry_password):
+        self.registry_url = self.metadata.get("registry_url")
+
+        if self.registry_url is None:
+            # if no registry info provided
+            (
+                self.registry_url,
+                username,
+                password,
+            ) = self.operator.get_default_registry_creds(
+                self.bento.tag.name, self.operator_spec
+            )
+
+        elif registry_username is None or registry_password is None:
+            # TODO raise issue or logic for custom registry
+            pass
+
+        # NOTE: replace might be too specific
+        image_tag = f"{self.registry_url.replace('https://', '')}/{self.bento.tag.name}:{self.bento.tag.version}"
+        self.operator_spec["repository_name"] = self.bento.tag.name
+        self.operator_spec["image_tag"] = self.bento.tag.version
+        return self.registry_url, username, password, image_tag

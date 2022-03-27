@@ -1,4 +1,6 @@
+import os
 import docker
+
 
 def build_docker_image(
     context_path,
@@ -8,13 +10,17 @@ def build_docker_image(
 ):
     docker_client = docker.from_env()
     context_path = str(context_path)
+    # make dockerfile relative to context_path
+    dockerfile = os.path.relpath(dockerfile, context_path)
     try:
-        docker_client.images.build(
+        print("building...")
+        img, logs = docker_client.images.build(
             path=context_path,
             tag=image_tag,
             dockerfile=dockerfile,
             buildargs=additional_build_args,
         )
+        print(img)
     except (docker.errors.APIError, docker.errors.BuildError) as error:
         raise Exception(f"Failed to build docker image {image_tag}: {error}")
 
@@ -27,6 +33,8 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        docker_client.images.push(**docker_push_kwags)
+        print("pushing...")
+        out = docker_client.images.push(**docker_push_kwags)
+        print(out)
     except docker.errors.APIError as error:
         raise Exception(f"Failed to push docker image {image_tag}: {error}")

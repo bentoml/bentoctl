@@ -1,5 +1,4 @@
 import sys
-import shutil
 import os
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import console
+from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -82,11 +82,7 @@ def init(file):
         console.print(f"[red]{e}[/]")
         sys.exit(1)
 
-@bentoctl.command(section=BentoctlSections.OPERATIONS)
-def build():
-    # operator.create_deployable()
-    # build_docker_image()
-    # push_docker_image_to_repository()
+
 @bentoctl.command()
 @click.option("--deployment_config_file", "-f", help="path to deployment_config file")
 def generate(deployment_config_file):
@@ -96,11 +92,53 @@ def generate(deployment_config_file):
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.generate(destination_dir=os.curdir)
 
-    # generate_bentoctl_files()
-    pass
+
+@bentoctl.command()
+@click.argument("bento_tag")
+@click.option("--deployment_config_file", "-f", help="path to deployment_config file")
+@click.option("--push", is_flag=True, default=False)
+@click.option("--overwrite-deployable/--no-overwrite-deployable", default=True)
+@click.option("--registry-password")
+@click.option("--registry-username")
+def build(
+    bento_tag,
+    deployment_config_file,
+    push,
+    overwrite_deployable,
+    registry_username,
+    registry_password,
+):
+    """
+    Build the Docker image to deploy to the cloud. Pass the `--push` flag to push it
+    into the default registry.
+    """
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    deployment_config.set_bento(bento_tag)
+    (
+        dockerfile_path,
+        dockercontext_path,
+        build_args,
+    ) = deployment_config.create_deployable(
+        destination_dir=os.curdir,
+        overwrite_deployable=overwrite_deployable,
+    )
+    registry_url, username, password, image_tag = deployment_config.authenticate_registry(
+        registry_username, registry_password
+    )
+
+    print(registry_url, username, password, image_tag)
+    build_docker_image(
+        image_tag=image_tag,
+        context_path=dockercontext_path,
+        dockerfile=dockerfile_path,
+        additional_build_args=build_args,
+    )
+
+    push_docker_image_to_repository(
+        repository=image_tag, username=username, password=password
+    )
+    deployment_config.generate(destination_dir=os.curdir)
 
 
 # subcommands
-bentoctl.add_command(
-    get_operator_management_subcommands(), section=BentoctlSections.OPERATORS
-)
+bentoctl.add_command(get_operator_management_subcommands())
