@@ -69,14 +69,14 @@ def init(file):
             )
             if deployment_config_filname == "":
                 deployment_config_filname = "deployment_config.yaml"
-            config_path = save_deployment_config(
+            file = save_deployment_config(
                 deployment_config, Path.cwd(), deployment_config_filname
             )
             console.print(
                 "[green]deployment config generated to: "
-                f"{config_path.relative_to(Path.cwd())}[/]"
+                f"{file.relative_to(Path.cwd())}[/]"
             )
-        deployment_config = DeploymentConfig(file)
+        deployment_config = DeploymentConfig.from_file(file)
         deployment_config.generate()
     except BentoctlException as e:
         console.print(f"[red]{e}[/]")
@@ -90,7 +90,7 @@ def generate(deployment_config_file):
     Generate the files for the deployment based on the template type provided.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
-    deployment_config.generate(destination_dir=os.curdir)
+    deployment_config.generate()
 
 
 @bentoctl.command()
@@ -122,11 +122,13 @@ def build(
         destination_dir=os.curdir,
         overwrite_deployable=overwrite_deployable,
     )
-    registry_url, username, password, image_tag = deployment_config.authenticate_registry(
-        registry_username, registry_password
-    )
+    (
+        registry_url,
+        username,
+        password,
+        image_tag,
+    ) = deployment_config.authenticate_registry(registry_username, registry_password)
 
-    print(registry_url, username, password, image_tag)
     build_docker_image(
         image_tag=image_tag,
         context_path=dockercontext_path,
@@ -137,7 +139,37 @@ def build(
     push_docker_image_to_repository(
         repository=image_tag, username=username, password=password
     )
-    deployment_config.generate(destination_dir=os.curdir)
+    deployment_config.generate()
+
+
+@bentoctl.command()
+@click.argument("bento_tag", required=True)
+@click.option(
+    "--deployment_config_file",
+    "-f",
+    help="path to deployment_config file",
+    required=True,
+)
+@click.option("--push/--no-push", default=True)
+@click.option("--overwrite-deployable/--no-overwrite-deployable", default=True)
+@click.option("--registry-password")
+@click.option("--registry-username")
+def package(
+    bento_tag,
+    deployment_config_file,
+    push,
+    overwrite_deployable,
+    registry_username,
+    registry_password,
+):
+    build(
+        bento_tag,
+        deployment_config_file,
+        push,
+        overwrite_deployable,
+        registry_username,
+        registry_password,
+    )
 
 
 # subcommands

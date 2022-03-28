@@ -240,7 +240,9 @@ def generate_spec(schema):
     return spec
 
 
-def deployment_config_builder(name=None, operator=None):
+def deployment_config_builder(
+    name=None, operator=None
+):  # TODO: always metadata values for console
     """
     Interactively build the deployment config.
     """
@@ -263,6 +265,12 @@ def deployment_config_builder(name=None, operator=None):
         operator = select_operator(available_operators)
         deployment_config["metadata"]["operator"] = operator
     intended_print(f"operator: {operator}", indent_level=1)
+
+    template_type = prompt_input_value(
+        "template_type", metadata_schema.get("template_type")
+    )
+    deployment_config["metadata"]["template_type"] = template_type
+    intended_print(f"template_type: {template_type}", indent_level=1)
 
     console.print("[bold]spec: [/]")
     operator = local_operator_registry.get(deployment_config["metadata"]["operator"])

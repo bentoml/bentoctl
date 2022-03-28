@@ -11,6 +11,7 @@ import click
 import yaml
 
 import bentoml
+from bentoctl.console import console
 from bentoctl.exceptions import (
     DeploymentConfigNotFound,
     InvalidDeploymentConfig,
@@ -174,6 +175,7 @@ class DeploymentConfig:
             template_type=self.metadata.get("template_type"),
             destination_dir=destination_dir,  # TODO: verify is curdir is the best place
         )
+        console.print(":sparkles: generated template files.")
 
     def create_deployable(self, overwrite_deployable, destination_dir=os.curdir):
         (
