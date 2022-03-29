@@ -169,6 +169,9 @@ class DeploymentConfig:
             print("an exception in bentoml")
 
     def generate(self, destination_dir=os.curdir):
+        """
+        Generate the template and params file in destination_dir.
+        """
         generated_files = self.operator.generate(
             name=self.deployment_name,
             spec=self.operator_spec,
@@ -180,7 +183,11 @@ class DeploymentConfig:
         for file in generated_files:
             console.print(f"  - {os.path.join(destination_dir, file)}")
 
-    def create_deployable(self, overwrite_deployable, destination_dir=os.curdir):
+    def create_deployable(self, overwrite_deployable=True, destination_dir=os.curdir):
+        """
+        Creates the deployable in the destination_dir and returns the docker args 
+        for building
+        """
         (
             dockerfile_path,
             docker_context_path,
@@ -191,7 +198,13 @@ class DeploymentConfig:
 
         return dockerfile_path, docker_context_path, build_args
 
-    def configure_registry(self, registry_username, registry_password):
+    def configure_registry(self, registry_username=None, registry_password=None):
+        """
+        Configure and authenticate the registry.
+
+        if username and password is provided we authenticate the docker client with
+        that or use the default registry config from the operator.
+        """
         self.registry_url = self.metadata.get("registry_url")
 
         if self.registry_url is None:
