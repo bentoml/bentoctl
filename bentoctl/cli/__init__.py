@@ -127,7 +127,7 @@ def build(
         username,
         password,
         image_tag,
-    ) = deployment_config.authenticate_registry(registry_username, registry_password)
+    ) = deployment_config.configure_registry(registry_username, registry_password)
 
     build_docker_image(
         image_tag=image_tag,

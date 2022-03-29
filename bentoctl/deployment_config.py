@@ -169,13 +169,16 @@ class DeploymentConfig:
             print("an exception in bentoml")
 
     def generate(self, destination_dir=os.curdir):
-        self.operator.generate(
+        generated_files = self.operator.generate(
             name=self.deployment_name,
             spec=self.operator_spec,
             template_type=self.metadata.get("template_type"),
             destination_dir=destination_dir,  # TODO: verify is curdir is the best place
         )
+
         console.print(":sparkles: generated template files.")
+        for file in generated_files:
+            console.print(f"  - {os.path.join(destination_dir, file)}")
 
     def create_deployable(self, overwrite_deployable, destination_dir=os.curdir):
         (
@@ -188,7 +191,7 @@ class DeploymentConfig:
 
         return dockerfile_path, docker_context_path, build_args
 
-    def authenticate_registry(self, registry_username, registry_password):
+    def configure_registry(self, registry_username, registry_password):
         self.registry_url = self.metadata.get("registry_url")
 
         if self.registry_url is None:
@@ -202,7 +205,7 @@ class DeploymentConfig:
             )
 
         elif registry_username is None or registry_password is None:
-            # TODO raise issue or logic for custom registry
+            # TODO raise issue or add logic for custom registry
             pass
 
         # NOTE: replace might be too specific
