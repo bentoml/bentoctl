@@ -2,6 +2,7 @@ import copy
 import logging
 import os
 import shutil
+import fs
 import typing as t
 from pathlib import Path
 
@@ -79,6 +80,17 @@ def remove_help_message(schema):
             ]
         schema[field] = rules
     return schema
+
+
+def get_bento_metadata(bento_path:str)-> dict:
+    metadata = {}
+    bento = bentoml.Bento.from_fs(fs.open_fs(bento_path))
+    metadata["tag"] = bento.tag
+    metadata["version"] = bento.info.bentoml_version
+    with open(os.path.join(bento_path, "env/python/version.txt"), "r", encoding="utf-8") as f:
+        python_version = f.read().strip()
+    metadata["python_version"] = python_version
+    return metadata
 
 
 class DeploymentConfig:
@@ -168,7 +180,7 @@ class DeploymentConfig:
         except bentoml.exceptions.BentoMLException:
             print("an exception in bentoml")
 
-    def generate(self, destination_dir=os.curdir):
+    def generate(self, destination_dir=os.curdir, values_only=False):
         """
         Generate the template and params file in destination_dir.
         """
@@ -177,6 +189,7 @@ class DeploymentConfig:
             spec=self.operator_spec,
             template_type=self.metadata.get("template_type"),
             destination_dir=destination_dir,  # TODO: verify is curdir is the best place
+            values_only=values_only,
         )
 
         console.print(":sparkles: generated template files.")
@@ -185,44 +198,35 @@ class DeploymentConfig:
 
     def create_deployable(self, overwrite_deployable=True, destination_dir=os.curdir):
         """
-        Creates the deployable in the destination_dir and returns the docker args 
+        Creates the deployable in the destination_dir and returns the docker args
         for building
         """
+        bento_metadata = get_bento_metadata(self.bento_path)
         (
             dockerfile_path,
             docker_context_path,
             build_args,
         ) = self.operator.create_deployable(
-            self.bento.path, destination_dir, overwrite_deployable
+            bento_path=self.bento.path,
+            destination_dir=destination_dir,
+            bento_metadata=bento_metadata,
+            overwrite_deployable=overwrite_deployable
         )
 
         return dockerfile_path, docker_context_path, build_args
 
-    def configure_registry(self, registry_username=None, registry_password=None):
-        """
-        Configure and authenticate the registry.
-
-        if username and password is provided we authenticate the docker client with
-        that or use the default registry config from the operator.
-        """
-        self.registry_url = self.metadata.get("registry_url")
-
-        if self.registry_url is None:
-            # if no registry info provided
-            (
-                self.registry_url,
-                username,
-                password,
-            ) = self.operator.get_default_registry_creds(
-                self.bento.tag.name, self.operator_spec
-            )
-
-        elif registry_username is None or registry_password is None:
-            # TODO raise issue or add logic for custom registry
-            pass
-
-        # NOTE: replace might be too specific
-        image_tag = f"{self.registry_url.replace('https://', '')}/{self.bento.tag.name}:{self.bento.tag.version}"
+    def get_registry_info(self):
+        (
+            registry_url,
+            username,
+            password,
+        ) = self.operator.get_default_registry_creds(
+            self.bento.tag.name, self.operator_spec
+        )
         self.operator_spec["repository_name"] = self.bento.tag.name
-        self.operator_spec["image_tag"] = self.bento.tag.version
-        return self.registry_url, username, password, image_tag
+        return registry_url, username, password
+
+    def generate_docker_image_url(self, registry_url:str)->str:
+        image_tag = f"{registry_url.replace('https://', '')}/{self.bento.tag.name}:{self.bento.tag.version}"
+        self.operator_spec["image_tag"] = image_tag
+        return image_tag

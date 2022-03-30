@@ -55,8 +55,10 @@ def bentoctl():
 
 
 @bentoctl.command()
-@click.option("--file", "-f", help="Path to the deployment config file.")
-def init(file):
+@click.option("--file", "-f", type=click.File(), help="Path to the deployment config file.")
+@click.option("--generate/--not-generate", default=True, help="Generate a deployment config.")
+@click.option("--save-path", help="Path to save the deployment config file.", default=".")
+def init(file, save_path, generate):
     """
     Start the interactive deployment config builder file.
     Initialize a deployment configuration file using interactive mode.
@@ -77,36 +79,34 @@ def init(file):
                 f"{file.relative_to(Path.cwd())}[/]"
             )
         deployment_config = DeploymentConfig.from_file(file)
-        deployment_config.generate()
+        if generate:
+            deployment_config.generate()
     except BentoctlException as e:
         console.print(f"[red]{e}[/]")
         sys.exit(1)
 
 
 @bentoctl.command()
-@click.option("--deployment_config_file", "-f", help="path to deployment_config file")
-def generate(deployment_config_file):
+@click.option("--deployment-config-file", "-f", default="deployment_config.yaml", help="path to deployment config file")
+@click.option("--values-only", is_flag=True, help="only update values")
+def generate(deployment_config_file, values_only):
     """
     Generate the files for the deployment based on the template type provided.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
-    deployment_config.generate()
+    deployment_config.generate(values_only)
 
 
 @bentoctl.command()
 @click.argument("bento_tag")
 @click.option("--deployment_config_file", "-f", help="path to deployment_config file")
 @click.option("--push", is_flag=True, default=False)
-@click.option("--overwrite-deployable/--no-overwrite-deployable", default=True)
-@click.option("--registry-password")
-@click.option("--registry-username")
+@click.option("--debug", is_flag=True, default=False)
 def build(
     bento_tag,
     deployment_config_file,
     push,
-    overwrite_deployable,
-    registry_username,
-    registry_password,
+    debug,
 ):
     """
     Build the Docker image to deploy to the cloud. Pass the `--push` flag to push it
@@ -120,14 +120,11 @@ def build(
         build_args,
     ) = deployment_config.create_deployable(
         destination_dir=os.curdir,
-        overwrite_deployable=overwrite_deployable,
+        overwrite_deployable=debug,
     )
-    (
-        registry_url,
-        username,
-        password,
-        image_tag,
-    ) = deployment_config.configure_registry(registry_username, registry_password)
+    (registry_url, registry_username, registry_password) = deployment_config.get_registry_info()
+
+    image_tag = deployment_config.generate_docker_image_tag(registry_url)
 
     build_docker_image(
         image_tag=image_tag,
@@ -136,41 +133,11 @@ def build(
         additional_build_args=build_args,
     )
 
-    push_docker_image_to_repository(
-        repository=image_tag, username=username, password=password
-    )
+    if push:
+        push_docker_image_to_repository(
+            repository=image_tag, username=registry_username, password=registry_password
+        )
     deployment_config.generate()
-
-
-@bentoctl.command()
-@click.argument("bento_tag", required=True)
-@click.option(
-    "--deployment_config_file",
-    "-f",
-    help="path to deployment_config file",
-    required=True,
-)
-@click.option("--push/--no-push", default=True)
-@click.option("--overwrite-deployable/--no-overwrite-deployable", default=True)
-@click.option("--registry-password")
-@click.option("--registry-username")
-def package(
-    bento_tag,
-    deployment_config_file,
-    push,
-    overwrite_deployable,
-    registry_username,
-    registry_password,
-):
-    build(
-        bento_tag,
-        deployment_config_file,
-        push,
-        overwrite_deployable,
-        registry_username,
-        registry_password,
-    )
-
 
 # subcommands
 bentoctl.add_command(get_operator_management_subcommands())
