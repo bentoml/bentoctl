@@ -220,8 +220,10 @@ class DeploymentConfig:
             registry_url,
             username,
             password,
-        ) = self.operator.get_default_registry_creds(
-            self.bento.tag.name, self.operator_spec
+        ) = self.operator.get_registry_info(
+            deployment_name=self.deployment_name,
+            bento_name=self.bento.tag.name,
+            spec=self.operator_spec,
         )
         self.operator_spec["repository_name"] = self.bento.tag.name
         return registry_url, username, password
