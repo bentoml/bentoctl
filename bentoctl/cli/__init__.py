@@ -11,7 +11,7 @@ from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlException
-from bentoctl.utils import console
+from bentoctl.utils import TempDirectory, console
 from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -98,8 +98,8 @@ def generate(deployment_config_file, values_only):
 
 
 @bentoctl.command()
-@click.argument("bento_tag")
-@click.option("--deployment_config_file", "-f", help="path to deployment_config file")
+@click.option("--bento-tag", "-b", help="Bento tag to use for deployment.", required=True)
+@click.option("--deployment_config_file", "-f", help="path to deployment_config file", required=True)
 @click.option("--push", is_flag=True, default=False)
 @click.option("--debug", is_flag=True, default=False)
 def build(
@@ -114,24 +114,25 @@ def build(
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
-    (
-        dockerfile_path,
-        dockercontext_path,
-        build_args,
-    ) = deployment_config.create_deployable(
-        destination_dir=os.curdir,
-        overwrite_deployable=debug,
-    )
-    (registry_url, registry_username, registry_password) = deployment_config.get_registry_info()
+    with TempDirectory() as dist_dir:
+        (
+            dockerfile_path,
+            dockercontext_path,
+            build_args,
+        ) = deployment_config.create_deployable(
+            destination_dir=dist_dir,
+            overwrite_deployable=debug,
+        )
+        (registry_url, registry_username, registry_password) = deployment_config.get_registry_info()
 
-    image_tag = deployment_config.generate_docker_image_tag(registry_url)
+        image_tag = deployment_config.generate_docker_image_tag(registry_url)
 
-    build_docker_image(
-        image_tag=image_tag,
-        context_path=dockercontext_path,
-        dockerfile=dockerfile_path,
-        additional_build_args=build_args,
-    )
+        build_docker_image(
+            image_tag=image_tag,
+            context_path=dockercontext_path,
+            dockerfile=dockerfile_path,
+            additional_build_args=build_args,
+        )
 
     if push:
         push_docker_image_to_repository(
