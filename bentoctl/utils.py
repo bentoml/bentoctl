@@ -1,6 +1,6 @@
 import os
-import shutil
 import os.path
+import shutil
 import tempfile
 
 from rich.table import Table
@@ -30,6 +30,7 @@ def print_operator_list(operator_list):
             table.add_row(name, location_str)
 
     console.print(table)
+
 
 class TempDirectory(object):
     """

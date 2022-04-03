@@ -1,19 +1,16 @@
 import os
 import sys
-from pathlib import Path
 
 import click
 import yaml
 
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
-from bentoctl.cli.operator_management import \
-    get_operator_management_subcommands
+from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
 from bentoctl.console import print_generated_files_list
 from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.docker_utils import (build_docker_image,
-                                   push_docker_image_to_repository)
+from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import TempDirectory, console
 
@@ -108,7 +105,10 @@ def init(save_path, generate):
     default=os.curdir,
 )
 @click.option(
-    "--values-only", is_flag=True, help="create/update the values file only.", default=False
+    "--values-only",
+    is_flag=True,
+    help="create/update the values file only.",
+    default=False,
 )
 def generate(deployment_config_file, values_only, save_path):
     """

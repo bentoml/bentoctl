@@ -1,19 +1,16 @@
 import copy
 import logging
 import os
-import shutil
-import fs
 import typing as t
 from pathlib import Path
 
 import bentoml
 import cerberus
 import click
+import fs
 import yaml
-
-import bentoml
 from bentoml.bentos import Bento
-from bentoctl.console import console
+
 from bentoctl.exceptions import (
     DeploymentConfigNotFound,
     InvalidDeploymentConfig,
@@ -214,24 +211,20 @@ class DeploymentConfig:
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=bento_metadata,
-            overwrite_deployable=overwrite_deployable
+            overwrite_deployable=overwrite_deployable,
         )
 
         return dockerfile_path, docker_context_path, build_args
 
     def get_registry_info(self):
         self.repository_name = self.deployment_name
-        (
-            registry_url,
-            username,
-            password,
-        ) = self.operator.get_registry_info(
+        (registry_url, username, password,) = self.operator.get_registry_info(
             deployment_name=self.deployment_name,
             operator_spec=self.operator_spec,
         )
         return registry_url, username, password
 
-    def generate_docker_image_tag(self, registry_url:str)->str:
+    def generate_docker_image_tag(self, registry_url: str) -> str:
         image_tag = f"{registry_url.replace('https://', '')}/{self.repository_name}:{self.bento.tag.version}"
         self.operator_spec["image_tag"] = image_tag
         return image_tag
