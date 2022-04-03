@@ -5,6 +5,7 @@ import docker
 from rich.live import Live
 
 from bentoctl.console import console
+from bentoctl.exceptions import BentoctlBuildException, BentoctlPushException
 
 
 class DockerPushProgressBar:
@@ -55,7 +56,6 @@ def build_docker_image(
     # make dockerfile relative to context_path
     dockerfile = os.path.relpath(dockerfile, context_path)
     try:
-        # TODO: proper error handling
         output_stream = docker_client.images.client.api.build(
             path=context_path,
             tag=image_tag,
@@ -65,9 +65,15 @@ def build_docker_image(
         )
         for line in output_stream:
             print(line.get("stream", ""), end="")
+            if "errorDetail" in line:  # incase error while building.
+                raise BentoctlBuildException(
+                    f"Failed to build docker image {image_tag}: {line['error']}"
+                )
         console.print(":hammer: Image build!")
     except (docker.errors.APIError, docker.errors.BuildError) as error:
-        raise Exception(f"Failed to build docker image {image_tag}: {error}")
+        raise BentoctlBuildException(
+            f"Failed to build docker image {image_tag}: {error}"
+        )
 
 
 def push_docker_image_to_repository(
@@ -78,7 +84,6 @@ def push_docker_image_to_repository(
     if username is not None and password is not None:
         docker_push_kwags["auth_config"] = {"username": username, "password": password}
     try:
-        # TODO: proper error handling
         progress_bar = DockerPushProgressBar()
         with Live(progress_bar) as live:
             for line in docker_client.images.push(
@@ -89,6 +94,8 @@ def push_docker_image_to_repository(
                     live.update(progress_bar)
                 elif "status" in line:
                     print(line.get("status"))
+                elif "errorDetail" in line:
+                    raise BentoctlPushException(f"Failed to push docker image. {line['error']}")
         console.print(":rocket: Image pushed!")
     except docker.errors.APIError as error:
-        raise Exception(f"Failed to push docker image {image_tag}: {error}")
+        raise BentoctlPushException(f"Failed to push docker image {image_tag}: {error}")

@@ -120,3 +120,15 @@ class BentoNotFound(BentoctlException):
     """
     Raised when bento is not found.
     """
+
+
+class BentoctlBuildException(BentoctlException):
+    """
+    Raised when docker build failed
+    """
+
+
+class BentoctlPushException(BentoctlException):
+    """
+    Raised when docker push failed
+    """
