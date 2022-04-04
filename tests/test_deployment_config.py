@@ -135,6 +135,4 @@ def test_validate_operator_config(
     dconf.DeploymentConfig(yaml.safe_load(VALID_YAML))
 
     with pytest.raises(InvalidDeploymentConfig):
-        dconf.DeploymentConfig(
-            yaml.safe_load(VALID_YAML_INVALID_SCHEMA)
-        )
+        dconf.DeploymentConfig(yaml.safe_load(VALID_YAML_INVALID_SCHEMA))

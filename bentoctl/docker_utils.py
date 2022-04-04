@@ -95,7 +95,9 @@ def push_docker_image_to_repository(
                 elif "status" in line:
                     print(line.get("status"))
                 elif "errorDetail" in line:
-                    raise BentoctlPushException(f"Failed to push docker image. {line['error']}")
+                    raise BentoctlPushException(
+                        f"Failed to push docker image. {line['error']}"
+                    )
         console.print(":rocket: Image pushed!")
     except docker.errors.APIError as error:
         raise BentoctlPushException(f"Failed to push docker image {image_tag}: {error}")
