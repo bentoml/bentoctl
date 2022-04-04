@@ -36,21 +36,17 @@ class Operator:
     def name(self):
         return self.operator_name
 
-    def deploy(self, *args, **kwargs):
+    def generate(self, *args, **kwargs):
         operator = self._load_operator_module()
-        return operator.deploy(*args, **kwargs)
+        return operator.generate(*args, **kwargs)
 
-    def update(self, *args, **kwargs):
+    def create_deployable(self, *args, **kwargs):
         operator = self._load_operator_module()
-        return operator.update(*args, **kwargs)
+        return operator.create_deployable(*args, **kwargs)
 
-    def describe(self, *args, **kwargs):
+    def get_registry_info(self, *args, **kwargs):
         operator = self._load_operator_module()
-        return operator.describe(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        operator = self._load_operator_module()
-        return operator.delete(*args, **kwargs)
+        return operator.get_registry_info(*args, **kwargs)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")

@@ -34,33 +34,33 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name", required=False)
-    def add(name=None):  # pylint: disable=unused-variable
+    def install(name=None):  # pylint: disable=unused-variable
         """
-        Add operators.
+        install operators.
 
-        There are 5 ways to add an operator into bentoctl and they are -
+        There are 5 ways to install an operator into bentoctl and they are -
 
         1. Interactive Mode: lists all official operators for user to choose from. Just
-           type `bentoctl add` to enter this mode.
+           type `bentoctl install` to enter this mode.
 
         2. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you. You can see the list of official
            operators <link to list off operators>.
-           eg. `bentoctl add aws-lambda`
+           eg. `bentoctl install aws-lambda`
 
         3. Path: If you have the operator locally, either because you are building
            our own operator or if cloning the operator from some other
            remote repository (other than github) then you can just pass the path
-           after the add command and it will register the local operator for you.
+           after the install command and it will register the local operator for you.
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
 
         4. Github Repo: this should be in the format
            `repo_owner/repo_name[:repo_branch]`.
-           eg: `bentoctl add bentoml/aws-lambda-repo`
+           eg: `bentoctl install bentoml/aws-lambda-repo`
 
         5. Git Url: of the form https://[\\w]+.git.
-           eg: `bentoctl add https://github.com/bentoml/aws-lambda-deploy.git`
+           eg: `bentoctl install https://github.com/bentoml/aws-lambda-deploy.git`
 
         """
         if not name:
@@ -81,11 +81,11 @@ def get_operator_management_subcommands():
         try:
             operator_name = local_operator_registry.add(name)
             if operator_name is not None:
-                click.echo(f"Added {operator_name}!")
+                click.echo(f"Installed {operator_name}!")
             else:
                 click.echo(
-                    f"Unable to add operator. `{name}` did not match any of the "
-                    "operator addition options. Check `bentoctl operator add --help`"
+                    f"Unable to install operator. `{name}` did not match any of the "
+                    "operator addition options. Check `bentoctl operator install --help`"
                     "for mode details on how you can call this command."
                 )
         except BentoctlException as e:

@@ -7,7 +7,9 @@ from pathlib import Path
 import bentoml
 import cerberus
 import click
+import fs
 import yaml
+from bentoml.bentos import Bento
 
 from bentoctl.exceptions import (
     DeploymentConfigNotFound,
@@ -37,6 +39,14 @@ metadata_schema = {
         "help_message": "The operator to use for deployment",
         "check_with": operator_exists,
     },
+    "template_type": {
+        "required": True,
+        "default": "terraform",
+        "help_message": "The template type for generated deployment",
+    },
+    "registry_url": {
+        "help_message": "Optional registry URL",
+    },
 }
 
 
@@ -54,6 +64,9 @@ def get_bento_path(bento_name_or_path: str):
 
 
 def remove_help_message(schema):
+    """
+    Remove the help_messages in the validation dict.
+    """
     for field, rules in schema.items():
         if "help_message" in rules:
             del rules["help_message"]
@@ -65,6 +78,22 @@ def remove_help_message(schema):
             ]
         schema[field] = rules
     return schema
+
+
+def get_bento_metadata(bento_path: str) -> dict:
+    metadata = {}
+
+    bento = Bento.from_fs(fs.open_fs(bento_path))
+    metadata["tag"] = bento.tag
+    metadata["bentoml_version"] = ".".join(bento.info.bentoml_version.split(".")[:3])
+
+    python_version_txt_path = "env/python/version.txt"
+    python_version_txt_path = os.path.join(bento_path, python_version_txt_path)
+    with open(python_version_txt_path, "r") as f:
+        python_version = f.read()
+    metadata["python_version"] = ".".join(python_version.split(".")[:2])
+
+    return metadata
 
 
 class DeploymentConfig:
@@ -80,7 +109,6 @@ class DeploymentConfig:
 
         self._set_name()
         self._set_operator()
-        self._set_bento()
         self._set_operator_spec()
 
     @classmethod
@@ -137,20 +165,66 @@ class DeploymentConfig:
                 local_operator_registry.add(self.operator_name)
                 self.operator = local_operator_registry.get(self.operator_name)
 
-    def _set_bento(self):
-        self.bento = self.deployment_config["spec"].get("bento")
-        if self.bento is not None:
-            self.bento_path = get_bento_path(self.bento)
-        else:
-            raise InvalidDeploymentConfig("'bento' not provided in deployment_config")
-
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.operator_schema)
         copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
-        del copied_operator_spec["bento"]
         v = cerberus.Validator()
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
         if validated_spec is None:
             raise InvalidDeploymentConfig(config_errors=v.errors)
         self.operator_spec = validated_spec
+
+    def set_bento(self, bento_tag: str):
+        try:
+            self.bento = bentoml.get(bento_tag)
+        except bentoml.exceptions.NotFound:
+            print("bento not found")
+        except bentoml.exceptions.BentoMLException:
+            print("an exception in bentoml")
+
+    def generate(self, destination_dir=os.curdir, values_only=False):
+        """
+        Generate the template and params file in destination_dir.
+        """
+        generated_files = self.operator.generate(
+            name=self.deployment_name,
+            spec=self.operator_spec,
+            template_type=self.metadata.get("template_type"),
+            destination_dir=destination_dir,
+            values_only=values_only,
+        )
+
+        return generated_files
+
+    def create_deployable(self, overwrite_deployable=True, destination_dir=os.curdir):
+        """
+        Creates the deployable in the destination_dir and returns the docker args
+        for building
+        """
+        bento_metadata = get_bento_metadata(self.bento.path)
+        (
+            dockerfile_path,
+            docker_context_path,
+            build_args,
+        ) = self.operator.create_deployable(
+            bento_path=self.bento.path,
+            destination_dir=destination_dir,
+            bento_metadata=bento_metadata,
+            overwrite_deployable=overwrite_deployable,
+        )
+
+        return dockerfile_path, docker_context_path, build_args
+
+    def get_registry_info(self):
+        self.repository_name = self.deployment_name
+        (registry_url, username, password,) = self.operator.get_registry_info(
+            deployment_name=self.deployment_name,
+            operator_spec=self.operator_spec,
+        )
+        return registry_url, username, password
+
+    def generate_docker_image_tag(self, registry_url: str) -> str:
+        image_tag = f"{registry_url.replace('https://', '')}/{self.repository_name}:{self.bento.tag.version}"
+        self.operator_spec["image_tag"] = image_tag
+        return image_tag

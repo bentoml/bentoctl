@@ -229,43 +229,8 @@ def intended_print(message, indent_level=0):
     console.print(message)
 
 
-def parse_bento(bento):
-    if os.path.isdir(bento) and os.path.isfile(os.path.join(bento, "bento.yml")):
-        return bento
-    else:
-        try:
-            bento = bentoml.get(bento)
-            return str(bento.tag)
-        except bentoml.exceptions.BentoMLException as e:
-            raise BentoNotFound(e)
-
-
-def prompt_and_validate_bento(bento=None):
-    help_message = "Provide either a path to the bento or the bento tag"
-    input_message = "bento: "
-    validation_error_message = None
-    if bento is None:
-        with display_console_message(PromptMsg(help_message)):
-            bento = console.input(input_message)
-            clear_console(1)
-    while True:
-        try:
-            return parse_bento(bento)
-        except BentoNotFound:
-            validation_error_message = (
-                f"{bento} not found. Please provide a valid "
-                f"bento tag or a path to the bento directory"
-            )
-            with display_console_message(
-                PromptMsg(help_message, validation_error_message)
-            ):
-                bento = console.input(input_message)
-                clear_console(1)
-
-
-def generate_spec(bento, schema):
-    spec = OrderedDict({"bento": prompt_and_validate_bento(bento)})
-    intended_print(f"bento: {spec['bento']}", 1)
+def generate_spec(schema):
+    spec = OrderedDict()
 
     for field, rule in schema.items():
         val = prompt_input(field, rule)
@@ -275,7 +240,9 @@ def generate_spec(bento, schema):
     return spec
 
 
-def deployment_config_builder(bento=None, name=None, operator=None):
+def deployment_config_builder(
+    name=None, operator=None
+):  # TODO: always metadata values for console
     """
     Interactively build the deployment config.
     """
@@ -299,9 +266,15 @@ def deployment_config_builder(bento=None, name=None, operator=None):
         deployment_config["metadata"]["operator"] = operator
     intended_print(f"operator: {operator}", indent_level=1)
 
+    template_type = prompt_input_value(
+        "template_type", metadata_schema.get("template_type")
+    )
+    deployment_config["metadata"]["template_type"] = template_type
+    intended_print(f"template_type: {template_type}", indent_level=1)
+
     console.print("[bold]spec: [/]")
     operator = local_operator_registry.get(deployment_config["metadata"]["operator"])
-    spec = generate_spec(bento, operator.operator_schema)
+    spec = generate_spec(operator.operator_schema)
     deployment_config["spec"] = dict(spec)
 
     return deployment_config

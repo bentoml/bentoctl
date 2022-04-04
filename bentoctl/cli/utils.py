@@ -2,16 +2,10 @@ import functools
 import logging
 import os
 
-import cloup
+import click
 import rich
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
-
-
-def print_description(description):
-    "Print the description in JSON format"
-    if description is not None:
-        rich.print_json(data=description)
 
 
 def set_debug_mode(is_enabled: bool):
@@ -24,12 +18,12 @@ def set_debug_mode(is_enabled: bool):
         logging.getLogger("bentoml").setLevel(logging.WARNING)
 
 
-class BentoctlCommandGroup(cloup.Group):
+class BentoctlCommandGroup(click.Group):
     NUMBER_OF_COMMON_PARAMS = 1
 
     @staticmethod
     def bentoctl_common_params(func):
-        @cloup.option(
+        @click.option(
             "--verbose",
             "--debug",
             is_flag=True,
