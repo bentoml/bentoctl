@@ -165,7 +165,6 @@ def build(
         ) = deployment_config.get_registry_info()
 
         image_tag = deployment_config.generate_docker_image_tag(registry_url)
-        breakpoint()
 
         build_docker_image(
             image_tag=image_tag,
