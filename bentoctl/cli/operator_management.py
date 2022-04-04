@@ -1,5 +1,4 @@
 import click
-import cloup
 from rich.prompt import Confirm
 
 from bentoctl.cli.utils import BentoctlCommandGroup
@@ -12,7 +11,7 @@ local_operator_registry = get_local_operator_registry()
 
 
 def get_operator_management_subcommands():
-    @cloup.group(name="operator", aliases=["operators"], cls=BentoctlCommandGroup)
+    @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
         Sub-commands to add, list, remove and update operators.
