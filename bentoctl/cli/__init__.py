@@ -17,30 +17,6 @@ from bentoctl.utils import TempDirectory, console
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-def save_deployment_config(
-    deployment_config, save_path, filename="deployment_config.yaml"
-):
-    if filename == "":
-        filename = "deployment_config.yaml"
-    config_path = os.path.join(save_path, filename)
-
-    if os.path.exists(config_path):
-        override = click.confirm(
-            "deployment config file exists! Should I override?", default=True
-        )
-        if override:
-            os.remove(config_path)
-        else:
-            return
-
-    with open(config_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(deployment_config, f, default_flow_style=False, sort_keys=False)
-    console.print(
-        "[green]deployment config generated to: "
-        f"{os.path.relpath(config_path, save_path)}[/]"
-    )
-
-
 @click.group(
     context_settings=CONTEXT_SETTINGS,
     cls=BentoctlCommandGroup,
@@ -81,7 +57,23 @@ def init(save_path, generate):
         deployment_config_filname = console.input(
             "filename for deployment_config [[b]deployment_config.yaml[/]]: ",
         )
-        save_deployment_config(deployment_config, save_path, deployment_config_filname)
+        config_path = os.path.join(save_path, deployment_config_filname)
+
+        if os.path.exists(config_path):
+            override = click.confirm(
+                "deployment config file exists! Should I override?", default=True
+            )
+            if override:
+                os.remove(config_path)
+            else:
+                return
+
+        with open(config_path, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(deployment_config, f, default_flow_style=False, sort_keys=False)
+        console.print(
+            "[green]deployment config generated to: "
+            f"{os.path.relpath(config_path, save_path)}[/]"
+        )
 
         if generate:
             generated_files = deployment_config.generate()

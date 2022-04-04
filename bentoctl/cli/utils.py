@@ -3,7 +3,6 @@ import logging
 import os
 
 import click
-import rich
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
