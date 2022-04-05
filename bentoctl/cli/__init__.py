@@ -8,7 +8,7 @@ from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup
-from bentoctl.console import print_generated_files_list
+from bentoctl.console import print_generated_files_list, prompt_user_for_filename
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
 from bentoctl.exceptions import BentoctlException
@@ -54,29 +54,25 @@ def init(save_path, generate):
     """
     try:
         deployment_config = deployment_config_builder()
-        deployment_config_filname = console.input(
-            "filename for deployment_config [[b]deployment_config.yaml[/]]: ",
-        )
-        config_path = os.path.join(save_path, deployment_config_filname)
+        deployment_config_filname = prompt_user_for_filename()
 
+        config_path = os.path.join(save_path, deployment_config_filname)
         if os.path.exists(config_path):
-            override = click.confirm(
+            if click.confirm(
                 "deployment config file exists! Should I override?", default=True
-            )
-            if override:
+            ):
                 os.remove(config_path)
             else:
                 return
 
-        with open(config_path, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(deployment_config, f, default_flow_style=False, sort_keys=False)
+        deployment_config.save(save_path=save_path, filename=deployment_config_filname)
         console.print(
             "[green]deployment config generated to: "
             f"{os.path.relpath(config_path, save_path)}[/]"
         )
 
         if generate:
-            generated_files = deployment_config.generate()
+            generated_files = DeploymentConfig(deployment_config).generate()
             print_generated_files_list(generated_files)
     except BentoctlException as e:
         console.print(f"[red]{e}[/]")
