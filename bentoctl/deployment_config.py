@@ -12,6 +12,7 @@ import yaml
 from bentoml.bentos import Bento
 
 from bentoctl.exceptions import (
+    BentoNotFound,
     DeploymentConfigNotFound,
     InvalidDeploymentConfig,
     OperatorNotFound,
@@ -171,9 +172,7 @@ class DeploymentConfig:
         try:
             self.bento = bentoml.get(bento_tag)
         except bentoml.exceptions.NotFound:
-            print("bento not found")
-        except bentoml.exceptions.BentoMLException:
-            print("an exception in bentoml")
+            raise BentoNotFound(bento_tag)
 
     def generate(self, destination_dir=os.curdir, values_only=False):
         """

@@ -7,7 +7,7 @@ import yaml
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
-from bentoctl.cli.utils import BentoctlCommandGroup
+from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
 from bentoctl.console import print_generated_files_list, prompt_user_for_filename
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
@@ -46,37 +46,34 @@ def bentoctl():
     type=click.Path(exists=True, file_okay=False),
     default=os.curdir,
 )
+@handle_bentoctl_exceptions
 def init(save_path, generate):
     """
     Start the interactive deployment config builder file.
 
     Initialize a deployment configuration file using interactive mode.
     """
-    try:
-        deployment_config = deployment_config_builder()
-        deployment_config_filname = prompt_user_for_filename()
+    deployment_config = deployment_config_builder()
+    deployment_config_filname = prompt_user_for_filename()
 
-        config_path = os.path.join(save_path, deployment_config_filname)
-        if os.path.exists(config_path):
-            if click.confirm(
-                "deployment config file exists! Should I override?", default=True
-            ):
-                os.remove(config_path)
-            else:
-                return
+    config_path = os.path.join(save_path, deployment_config_filname)
+    if os.path.exists(config_path):
+        if click.confirm(
+            "deployment config file exists! Should I override?", default=True
+        ):
+            os.remove(config_path)
+        else:
+            return
 
-        deployment_config.save(save_path=save_path, filename=deployment_config_filname)
-        console.print(
-            "[green]deployment config generated to: "
-            f"{os.path.relpath(config_path, save_path)}[/]"
-        )
+    deployment_config.save(save_path=save_path, filename=deployment_config_filname)
+    console.print(
+        "[green]deployment config generated to: "
+        f"{os.path.relpath(config_path, save_path)}[/]"
+    )
 
-        if generate:
-            generated_files = DeploymentConfig(deployment_config).generate()
-            print_generated_files_list(generated_files)
-    except BentoctlException as e:
-        console.print(f"[red]{e}[/]")
-        sys.exit(1)
+    if generate:
+        generated_files = deployment_config.generate()
+        print_generated_files_list(generated_files)
 
 
 @bentoctl.command()
@@ -98,6 +95,7 @@ def init(save_path, generate):
     help="create/update the values file only.",
     default=False,
 )
+@handle_bentoctl_exceptions
 def generate(deployment_config_file, values_only, save_path):
     """
     Generate template files for deployment.
@@ -121,6 +119,7 @@ def generate(deployment_config_file, values_only, save_path):
     required=True,
 )
 @click.option("--push/--no-push", default=False)
+@handle_bentoctl_exceptions
 def build(
     bento_tag,
     operator,
@@ -163,7 +162,9 @@ def build(
 
     if push:
         push_docker_image_to_repository(
-            repository=image_tag, username=registry_username, password=registry_password
+            repository=image_tag,
+            username=registry_username,
+            password=registry_password,
         )
     generated_files = deployment_config.generate(values_only=True)
     print_generated_files_list(generated_files)

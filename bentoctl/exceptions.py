@@ -121,6 +121,10 @@ class BentoNotFound(BentoctlException):
     Raised when bento is not found.
     """
 
+    def __init__(self, bento_tag: str):
+        self.msg = f"Bento with tag <{bento_tag}> not found in Bento Store."
+        super(BentoNotFound, self).__init__(self.msg)
+
 
 class BentoctlBuildException(BentoctlException):
     """
@@ -132,3 +136,26 @@ class BentoctlPushException(BentoctlException):
     """
     Raised when docker push failed
     """
+
+
+class TemplateExists(BentoctlException):
+    """
+    Raised when a Template file exists.
+    """
+
+    def __init__(self, template_file_path):
+        self.msg = f"Generating Template files failed since <{template_file_path}> already exists. Please call with --values-only to create only the values file or remove the main template file in order to create a new one."
+        super(TemplateExists, self).__init__(self.msg)
+
+
+class TemplateTypeNotDefined(BentoctlException):
+    """
+    When the Template type provied in the deployment config is not supported by the
+    operator.
+    """
+
+    def __init__(self, template_type: str):
+        self.msg = (
+            f"Template type <{template_type} not supported by the operator provided."
+        )
+        super(TemplateTypeNotDefined, self).__init__(self.msg)

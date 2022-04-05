@@ -1,10 +1,25 @@
 import functools
 import logging
 import os
+import sys
 
 import click
 
+from bentoctl.exceptions import BentoctlException
+
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
+
+
+def handle_bentoctl_exceptions(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except BentoctlException as error:
+            error.show()
+            sys.exit(0)
+
+    return wrapper
 
 
 def set_debug_mode(is_enabled: bool):
