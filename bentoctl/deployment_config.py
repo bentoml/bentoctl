@@ -127,20 +127,12 @@ class DeploymentConfig:
         return cls(config_dict)
 
     def save(self, save_path, filename="deployment_config.yaml"):
-        overwrite = False
-        config_path = Path(save_path, filename)
-
-        if config_path.exists():
-            overwrite = click.confirm(
-                "deployment config file exists! Should I overwrite it?"
-            )
-        if overwrite:
-            config_path.unlink()
-        else:
-            return config_path
+        config_path = os.path.join(save_path, filename)
 
         with open(config_path, "w", encoding="utf-8") as f:
-            yaml.dump(self.deployment_config, f)
+            yaml.safe_dump(
+                self.deployment_config, f, default_flow_style=False, sort_keys=False
+            )
 
         return config_path
 

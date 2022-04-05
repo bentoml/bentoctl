@@ -43,6 +43,9 @@ isort = "^5"
 pytest = "^6"
 pytest-cov = "^3"
 
+[tool.isort]
+profile = "black"
+
 [build-system]
 # Use the latest poetry build system to enable the use of `pip install -e`. After this change is released, we can switch back to "poetry_core>=1.0.0"
 requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master"]
