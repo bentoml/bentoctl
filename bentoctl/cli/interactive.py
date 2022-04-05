@@ -4,7 +4,7 @@ from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 
-from bentoctl.deployment_config import metadata_schema, DeploymentConfig
+from bentoctl.deployment_config import DeploymentConfig, metadata_schema
 from bentoctl.exceptions import BentoNotFound
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
