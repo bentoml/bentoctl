@@ -111,31 +111,21 @@ def generate(deployment_config_file, values_only, save_path):
 @click.option(
     "--bento-tag", "-b", help="Bento tag to use for deployment.", required=True
 )
-@click.option("--operator", "-op", help="The operator used to build the Image")
 @click.option(
     "--deployment_config_file",
     "-f",
     help="path to deployment_config file",
     required=True,
 )
-@click.option("--push/--no-push", default=False)
 @handle_bentoctl_exceptions
-def build(
+def publish(
     bento_tag,
-    operator,
     deployment_config_file,
-    push,
 ):
     """
-    Build the Docker image to deploy to the cloud.
-
-    Pass the `--push` flag to push it into the default registry.
+    publish the Docker image.
     """
-    if deployment_config_file is not None:
-        deployment_config = DeploymentConfig.from_file(deployment_config_file)
-    elif operator is not None:
-        deployment_config = DeploymentConfig()
-
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
     with TempDirectory() as dist_dir:
         (
@@ -160,12 +150,11 @@ def build(
             additional_build_args=build_args,
         )
 
-    if push:
-        push_docker_image_to_repository(
-            repository=image_tag,
-            username=registry_username,
-            password=registry_password,
-        )
+    push_docker_image_to_repository(
+        repository=image_tag,
+        username=registry_username,
+        password=registry_password,
+    )
     generated_files = deployment_config.generate(values_only=True)
     print_generated_files_list(generated_files)
 
