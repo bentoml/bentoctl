@@ -56,11 +56,11 @@ class Operator:
         )
 
     def create_deployable(
-        self, bento_path, destination_dir, bentoml_metadata, overwrite_deployable
+        self, bento_path, destination_dir, bento_metadata, overwrite_deployable
     ):
         operator = self._load_operator_module()
         return operator.create_deployable(
-            bento_path, destination_dir, bentoml_metadata, overwrite_deployable
+            bento_path, destination_dir, bento_metadata, overwrite_deployable
         )
 
     def get_registry_info(self, deployment_name, operator_spec):
