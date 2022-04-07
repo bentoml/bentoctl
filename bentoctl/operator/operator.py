@@ -49,17 +49,23 @@ class Operator:
         else:
             return DEFAULT_TEMPLATE_TYPES
 
-    def generate(self, *args, **kwargs):
+    def generate(self, name, spec, template_type, destination_dir, values_only=True):
         operator = self._load_operator_module()
-        return operator.generate(*args, **kwargs)
+        return operator.generate(
+            name, spec, template_type, destination_dir, values_only
+        )
 
-    def create_deployable(self, *args, **kwargs):
+    def create_deployable(
+        self, bento_path, destination_dir, bentoml_metadata, overwrite_deployable
+    ):
         operator = self._load_operator_module()
-        return operator.create_deployable(*args, **kwargs)
+        return operator.create_deployable(
+            bento_path, destination_dir, bentoml_metadata, overwrite_deployable
+        )
 
-    def get_registry_info(self, *args, **kwargs):
+    def get_registry_info(self, deployment_name, operator_spec):
         operator = self._load_operator_module()
-        return operator.get_registry_info(*args, **kwargs)
+        return operator.get_registry_info(deployment_name, operator_spec)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")
