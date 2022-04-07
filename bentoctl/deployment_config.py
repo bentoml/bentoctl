@@ -6,7 +6,6 @@ from pathlib import Path
 
 import bentoml
 import cerberus
-import click
 import fs
 import yaml
 from bentoml.bentos import Bento
@@ -33,7 +32,7 @@ def operator_exists(field, operator_name, error):
         )
 
 
-metadata_schema = {
+deployment_config_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
     "operator": {
         "required": True,
@@ -45,8 +44,8 @@ metadata_schema = {
         "default": "terraform",
         "help_message": "The template type for generated deployment",
     },
-    "registry_url": {
-        "help_message": "Optional registry URL",
+    "spec": {
+        "required": True,
     },
 }
 
@@ -104,13 +103,56 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig("api_version should be 'v1'.")
 
         self.deployment_config = deployment_config
-        self.metadata = copy.deepcopy(deployment_config.get("metadata"))
-        if self.metadata is None:
-            raise InvalidDeploymentConfig("'metadata' not found in deployment_config")
-
         self._set_name()
         self._set_operator()
+        self._set_template_type()
         self._set_operator_spec()
+
+    def _set_name(self):
+        self.deployment_name = self.deployment_config.get("name")
+        if self.deployment_name is None:
+            raise InvalidDeploymentConfig("name not found")
+
+    def _set_operator(self):
+        self.operator_name = self.deployment_config.get("operator")
+        if self.operator_name is None:
+            raise InvalidDeploymentConfig("operator is a required field")
+        try:
+            self.operator = local_operator_registry.get(self.operator_name)
+        except OperatorNotFound:
+            if not _is_official_operator(self.operator_name):
+                raise InvalidDeploymentConfig(
+                    f"operator {self.operator_name} not found in local registry"
+                )
+            else:
+                logger.warning("Install operator %s from bentoml", self.operator_name)
+                local_operator_registry.add(self.operator_name)
+                self.operator = local_operator_registry.get(self.operator_name)
+
+    def _set_template_type(self):
+        self.template_type = self.deployment_config.get("template_type")
+        if self.template_type is None:
+            raise InvalidDeploymentConfig("template_type is a required field")
+        elif self.template_type not in self.operator.available_template_types:
+            raise InvalidDeploymentConfig(
+                f"template_type '{self.template_type}' not supported by operator {self.operator_name}. Available template types are {self.operator.available_template_types}."
+            )
+
+    def _set_operator_spec(self):
+        # cleanup operator_schema by removing 'help_message' field
+        operator_schema = remove_help_message(schema=self.operator.operator_schema)
+        copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
+        v = cerberus.Validator()
+        validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
+        if validated_spec is None:
+            raise InvalidDeploymentConfig(config_errors=v.errors)
+        self.operator_spec = validated_spec
+
+    def set_bento(self, bento_tag: str):
+        try:
+            self.bento = bentoml.get(bento_tag)
+        except bentoml.exceptions.NotFound:
+            raise BentoNotFound(bento_tag)
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
@@ -137,43 +179,6 @@ class DeploymentConfig:
 
         return config_path
 
-    def _set_name(self):
-        self.deployment_name = self.metadata.get("name")
-        if self.deployment_name is None:
-            raise InvalidDeploymentConfig("name not found")
-
-    def _set_operator(self):
-        self.operator_name = self.metadata.get("operator")
-        if self.operator_name is None:
-            raise InvalidDeploymentConfig("operator is a required field")
-        try:
-            self.operator = local_operator_registry.get(self.operator_name)
-        except OperatorNotFound:
-            if not _is_official_operator(self.operator_name):
-                raise InvalidDeploymentConfig(
-                    f"operator {self.operator_name} not found in local registry"
-                )
-            else:
-                logger.warning("Install operator %s from bentoml", self.operator_name)
-                local_operator_registry.add(self.operator_name)
-                self.operator = local_operator_registry.get(self.operator_name)
-
-    def _set_operator_spec(self):
-        # cleanup operator_schema by removing 'help_message' field
-        operator_schema = remove_help_message(schema=self.operator.operator_schema)
-        copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
-        v = cerberus.Validator()
-        validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
-        if validated_spec is None:
-            raise InvalidDeploymentConfig(config_errors=v.errors)
-        self.operator_spec = validated_spec
-
-    def set_bento(self, bento_tag: str):
-        try:
-            self.bento = bentoml.get(bento_tag)
-        except bentoml.exceptions.NotFound:
-            raise BentoNotFound(bento_tag)
-
     def generate(self, destination_dir=os.curdir, values_only=False):
         """
         Generate the template and params file in destination_dir.
@@ -181,7 +186,7 @@ class DeploymentConfig:
         generated_files = self.operator.generate(
             name=self.deployment_name,
             spec=self.operator_spec,
-            template_type=self.metadata.get("template_type"),
+            template_type=self.deployment_config.get("template_type"),
             destination_dir=destination_dir,
             values_only=values_only,
         )

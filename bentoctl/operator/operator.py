@@ -14,6 +14,8 @@ from bentoctl.utils import console
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TEMPLATE_TYPES = ["terraform"]
+
 
 class Operator:
     def __init__(self, path):
@@ -23,18 +25,29 @@ class Operator:
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
 
-        operator_config = _import_module("operator_config", self.path)
-
-        self.operator_name = operator_config.OPERATOR_NAME
-        if hasattr(operator_config, "OPERATOR_MODULE"):
-            self.module_name = operator_config.OPERATOR_MODULE
-        else:
-            self.module_name = self.operator_name
-        self.operator_schema = operator_config.OPERATOR_SCHEMA
+        self.operator_config = _import_module("operator_config", self.path)
 
     @property
     def name(self):
-        return self.operator_name
+        return self.operator_config.OPERATOR_NAME
+
+    @property
+    def module_name(self):
+        if hasattr(self.operator_config, "OPERATOR_MODULE"):
+            return self.operator_config.OPERATOR_MODULE
+        else:
+            self.self.operator_name
+
+    @property
+    def operator_schema(self):
+        return self.operator_config.OPERATOR_SCHEMA
+
+    @property
+    def available_template_types(self):
+        if hasattr(self.operator_config, "AVAILABLE_TEMPLATE_TYPES"):
+            return self.operator_config.AVAILABLE_TEMPLATE_TYPES
+        else:
+            return DEFAULT_TEMPLATE_TYPES
 
     def generate(self, *args, **kwargs):
         operator = self._load_operator_module()
