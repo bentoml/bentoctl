@@ -1,8 +1,6 @@
 import os
-import sys
 
 import click
-import yaml
 
 from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
@@ -10,7 +8,7 @@ from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
 from bentoctl.console import print_generated_files_list, prompt_user_for_filename
 from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository
+from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository, tag_docker_image
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import TempDirectory, console
 
@@ -36,8 +34,9 @@ def bentoctl():
 
 @bentoctl.command()
 @click.option(
-    "--generate/--no-generate",
-    default=True,
+    "--do-not-generate",
+    is_flag=True,
+    default=False,
     help="Generate template files based on the provided operator.",
 )
 @click.option(
@@ -47,7 +46,7 @@ def bentoctl():
     default=os.curdir,
 )
 @handle_bentoctl_exceptions
-def init(save_path, generate):
+def init(save_path, do_not_generate):
     """
     Start the interactive deployment config builder file.
 
@@ -71,7 +70,7 @@ def init(save_path, generate):
         f"{os.path.relpath(config_path, save_path)}[/]"
     )
 
-    if generate:
+    if not do_not_generate:
         generated_files = deployment_config.generate()
         print_generated_files_list(generated_files)
 
@@ -117,16 +116,19 @@ def generate(deployment_config_file, values_only, save_path):
     help="path to deployment_config file",
     required=True,
 )
+@click.option('--dry-run', is_flag=True, help='Dry run', default=False)
 @handle_bentoctl_exceptions
-def publish(
+def build(
     bento_tag,
     deployment_config_file,
+    dry_run,
 ):
     """
-    publish the Docker image.
+    Build the Docker image for the given deployment config file and bento.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
+    local_docker_tag = deployment_config.get_local_docker_tag()
     with TempDirectory() as dist_dir:
         (
             dockerfile_path,
@@ -135,29 +137,29 @@ def publish(
         ) = deployment_config.create_deployable(
             destination_dir=dist_dir,
         )
+        build_docker_image(
+            image_tag=local_docker_tag,
+            context_path=dockercontext_path,
+            dockerfile=dockerfile_path,
+            additional_build_args=build_args,
+        )
+    if not dry_run:
         (
             registry_url,
             registry_username,
             registry_password,
         ) = deployment_config.get_registry_info()
-
-        image_tag = deployment_config.generate_docker_image_tag(registry_url)
-
-        build_docker_image(
-            image_tag=image_tag,
-            context_path=dockercontext_path,
-            dockerfile=dockerfile_path,
-            additional_build_args=build_args,
+        repository_image_tag = deployment_config.generate_docker_image_tag(registry_url)
+        tag_docker_image(local_docker_tag, repository_image_tag)
+        push_docker_image_to_repository(
+            repository=repository_image_tag,
+            username=registry_username,
+            password=registry_password,
         )
-
-    push_docker_image_to_repository(
-        repository=image_tag,
-        username=registry_username,
-        password=registry_password,
-    )
-    generated_files = deployment_config.generate(values_only=True)
-    print_generated_files_list(generated_files)
-
+        generated_files = deployment_config.generate(values_only=True)
+        print_generated_files_list(generated_files)
+    else:
+        console.print(f"[green]Create docker image: {local_docker_tag}[/]")
 
 # subcommands
 bentoctl.add_command(get_operator_management_subcommands())
