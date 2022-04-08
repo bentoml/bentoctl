@@ -5,7 +5,7 @@ import docker
 from rich.live import Live
 
 from bentoctl.console import console
-from bentoctl.exceptions import BentoctlBuildException, BentoctlPushException
+from bentoctl.exceptions import BentoctlDockerException
 
 
 class DockerPushProgressBar:
@@ -66,14 +66,22 @@ def build_docker_image(
         for line in output_stream:
             print(line.get("stream", ""), end="")
             if "errorDetail" in line:  # incase error while building.
-                raise BentoctlBuildException(
+                raise BentoctlDockerException(
                     f"Failed to build docker image {image_tag}: {line['error']}"
                 )
         console.print(":hammer: Image build!")
     except (docker.errors.APIError, docker.errors.BuildError) as error:
-        raise BentoctlBuildException(
+        raise BentoctlDockerException(
             f"Failed to build docker image {image_tag}: {error}"
         )
+
+
+def tag_docker_image(image_name, image_tag):
+    docker_client = docker.from_env()
+    try:
+        docker_client.images.tag(image_name, image_tag)
+    except docker.errors.APIError as error:
+        raise BentoctlDockerException(f"Failed to tag docker image {image_tag}: {error}")
 
 
 def push_docker_image_to_repository(
@@ -95,9 +103,9 @@ def push_docker_image_to_repository(
                 elif "status" in line:
                     print(line.get("status"))
                 elif "errorDetail" in line:
-                    raise BentoctlPushException(
+                    raise BentoctlDockerException(
                         f"Failed to push docker image. {line['error']}"
                     )
         console.print(":rocket: Image pushed!")
     except docker.errors.APIError as error:
-        raise BentoctlPushException(f"Failed to push docker image {image_tag}: {error}")
+        raise BentoctlDockerException(f"Failed to push docker image {image_tag}: {error}")

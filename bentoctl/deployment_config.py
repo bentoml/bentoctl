@@ -219,3 +219,7 @@ class DeploymentConfig:
         image_tag = f"{registry_url.replace('https://', '')}/{self.repository_name}:{self.bento.tag.version}"
         self.operator_spec["image_tag"] = image_tag
         return image_tag
+
+    def generate_local_image_tag(self) -> str:
+        image_tag = f"{self.operator_name}-{self.bento.tag.name}:{self.bento.tag.version}"
+        return image_tag

@@ -126,15 +126,9 @@ class BentoNotFound(BentoctlException):
         super(BentoNotFound, self).__init__(self.msg)
 
 
-class BentoctlBuildException(BentoctlException):
+class BentoctlDockerException(BentoctlException):
     """
-    Raised when docker build failed
-    """
-
-
-class BentoctlPushException(BentoctlException):
-    """
-    Raised when docker push failed
+    Raised when docker command fails
     """
 
 
