@@ -1,11 +1,12 @@
 # Quickstart
 
-This guide walks through the steps of building a bento and deploying it to AWS Lambda. It will use the iris classifier bento with `predict` api endpoint created in the BentoML quickstart guide, and then use bentoctl to deploy to AWS lambda.
+This guide walks through the steps of building a bento and deploying it to AWS Lambda. It will use the iris classifier bento with `classify` api endpoint created in the BentoML quickstart guide, and then use bentoctl to deploy to AWS lambda.
 
 ## Prerequisites
 
 1. Bentoml - BentoML version 1.0 and greater. Please follow the [Installation guide](https://docs.bentoml.org/en/latest/quickstart.html#installation).
-2. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+2. Terraform - [Terraform](https://www.terraform.io/) is a tool for building, configuring, and managing infrastructure.
+3. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
 ### Step 1: Create a bento
 
@@ -36,8 +37,9 @@ This guide uses the official aws-lambda operator to deploy and manage deployment
 bentoctl operator add aws-lambda
 ```
 
-### Step 4: Create the deployment configuration
+### Step 4: Prepare deployment
 
+A. Create a deployment configuration file
 > **Deployment Configuration** is a YAML file that specifies properties of the deployment like which bento service to deploy, what operator to use and other configurations. Learn more from the [Core Concepts](./core-concepts.md#deployment-configuration) page
 
 For this deployment, create a `deployment_config.yaml` file in your current directory with the following content.
@@ -46,43 +48,48 @@ For this deployment, create a `deployment_config.yaml` file in your current dire
 # deployment_config.yaml
 api_version: v1
 metadata:
-    name: irisclassifier
-    operator: aws-lambda
+  name: demo
+  operator: aws-lambda
+  template_type: terraform
 spec:
-    bento: iris_classifier:latest
-    region: us-west-1
-    timeout: 10
-    memory_size: 512
+  region: us-west-1
+  timeout: 10
+  memory_size: 512
 ```
 
-`bentoctl generate` command provides users with an interactive environment to create a deployment configuration file with auto-completion, deployment option descriptions and examples.
+`bentoctl init` command provides users with an interactive environment to create a deployment configuration file with auto-completion, deployment option descriptions and examples.
 
-### Step 5: Deploy to Lambda
+B. Generate Terraform project
 
-Run deployment command with the `deployment_config.yaml` file created in the previous step.
-
-```yaml
-bentoctl deploy -f deployment_config.yaml
-```
-
-bentoctl sent deployment config and bento to the operator, and then the operator will deploy to the target service based on its implementations.  Visit aws-lambda operator (links) for more details
-
-### Step 6: Verify the deployment
-
-Run the `bentoctl describe` command to get the status and properties of the deployment as result.  For AWS lambda, the `stackstatus` shows the status of the deployment, and the `endpointurl` is the endpoint for the deployed service.
+Use the `bentoctl generate` command to generate a Terraform project.
 
 ```bash
-bentoctl describe -f deployment_config.yaml
+bentoctl generate -f deployment.yaml
+```
 
-# Sample output
-{
-  "StackId": "arn:aws:cloudformation:us-west-1:192023623294:stack/my-lambda-deployment-stack/29c15040-db7a-11eb-a721-028d528946df",
-  "StackName": "my-lambda-deployment-stack",
-  "StackStatus": "CREATE_COMPLETE",
-  "CreationTime": "07/02/2021, 21:12:09",
-  "LastUpdatedTime": "07/02/2021, 21:12:20",
-  "EndpointUrl": "https://j2gm5zn7z9.execute-api.us-west-1.amazonaws.com/Prod"
-}
+The `-f` flag specifies the deployment configuration file.
+
+
+### Step 5: Build image for deployment
+
+```bash
+bentoctl build -b iris_classifier:foereut5zgw3ceb5 -f deployment.yaml
+```
+
+
+### Step 6: Deploy to Lambda
+
+
+Initialize Terraform project
+
+```bash
+terraform init
+```
+
+Apply Terraform changes
+
+```bash
+terraform apply -var-file=bentoctl.tfvars --auto-approve
 ```
 
 ### step 7: Make a prediction
@@ -101,8 +108,8 @@ curl -i \
 
 ### Step 8: Cleanup Deployment
 
-To delete deployment, run the `bentoctl delete` command with the deployment configuration file.
+To delete deployment, run the `terraform destroy` command
 
 ```bash
-bentoctl delete -f deployment_config.yaml
+terraform destroy -var-file=bentoctl.tfvars --auto-approve
 ```
