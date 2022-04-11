@@ -81,7 +81,9 @@ def tag_docker_image(image_name, image_tag):
     try:
         docker_client.images.tag(image_name, image_tag)
     except docker.errors.APIError as error:
-        raise BentoctlDockerException(f"Failed to tag docker image {image_tag}: {error}")
+        raise BentoctlDockerException(
+            f"Failed to tag docker image {image_tag}: {error}"
+        )
 
 
 def push_docker_image_to_repository(
@@ -108,4 +110,6 @@ def push_docker_image_to_repository(
                     )
         console.print(":rocket: Image pushed!")
     except docker.errors.APIError as error:
-        raise BentoctlDockerException(f"Failed to push docker image {image_tag}: {error}")
+        raise BentoctlDockerException(
+            f"Failed to push docker image {image_tag}: {error}"
+        )
