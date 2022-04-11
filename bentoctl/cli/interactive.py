@@ -4,7 +4,7 @@ from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 
-from bentoctl.deployment_config import DeploymentConfig, metadata_schema
+from bentoctl.deployment_config import DeploymentConfig, deployment_config_schema
 from bentoctl.exceptions import BentoNotFound
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.utils import console
@@ -21,25 +21,6 @@ deployment. Fill out the appropriate values for the fields.
 
 [dim](deployment config will be saved to: ./deployment_config.yaml)[/]
 """
-
-
-def select_operator(available_operators):
-    """
-    interactive menu to select operator
-    """
-    # automatically select the first operator if there is only one
-    if len(available_operators) == 1:
-        return available_operators[0]
-
-    try:
-        from simple_term_menu import TerminalMenu
-
-        tmenu = TerminalMenu(available_operators, title="Choose an operator")
-        choice = tmenu.show()
-        return available_operators[choice]
-    except ImportError:
-        operator = prompt_input_value("operator", metadata_schema.get("operator"))
-        return operator
 
 
 class PromptMsg:
@@ -238,40 +219,78 @@ def generate_spec(schema):
     return spec
 
 
-def deployment_config_builder(
-    name=None, operator=None
-):  # TODO: always metadata values for console
+def select_operator():
+    """
+    interactive menu to select operator
+    """
+    available_operators = list(local_operator_registry.list())
+    # automatically select the first operator if there is only one
+    if len(available_operators) == 1:
+        return available_operators[0]
+
+    try:
+        from simple_term_menu import TerminalMenu
+
+        tmenu = TerminalMenu(available_operators, title="Choose an operator")
+        choice = tmenu.show()
+        return available_operators[choice]
+    except ImportError:
+        operator = prompt_input_value(
+            "operator", deployment_config_schema.get("operator")
+        )
+
+        return operator
+
+
+def select_template_type(operator_name):
+    available_template_types = local_operator_registry.get(
+        operator_name
+    ).available_template_types
+
+    if len(available_template_types) == 1:
+        return available_template_types[0]
+
+    try:
+        from simple_term_menu import TerminalMenu
+
+        tmenu = TerminalMenu(available_template_types, title="Choose a Template Type")
+        choice = tmenu.show()
+        return available_template_types[choice]
+    except ImportError:
+        template_type = prompt_input_value(
+            "template_type", deployment_config_schema.get("template_type")
+        )
+        return template_type
+
+
+def deployment_config_builder():
     """
     Interactively build the deployment config.
     """
     deployment_config = {
         "api_version": "v1",
-        "metadata": {"name": name, "operator": operator},
-        "spec": {},
     }
 
     console.print(INTERACTIVE_MODE_TITLE)
     console.print(WELCOME_MESSAGE)
     console.print("[b]api_version:[/] v1")
-    console.print("[bold]metadata: [/]")
-    if name is None:
-        name = prompt_input_value("name", metadata_schema.get("name"))
-        deployment_config["metadata"]["name"] = name
-    intended_print(f"name: {name}", indent_level=1)
-    if operator is None:
-        available_operators = list(local_operator_registry.list())
-        operator = select_operator(available_operators)
-        deployment_config["metadata"]["operator"] = operator
-    intended_print(f"operator: {operator}", indent_level=1)
 
-    template_type = prompt_input_value(
-        "template_type", metadata_schema.get("template_type")
-    )
-    deployment_config["metadata"]["template_type"] = template_type
-    intended_print(f"template_type: {template_type}", indent_level=1)
+    # get deployment name
+    name = prompt_input_value("name", deployment_config_schema.get("name"))
+    deployment_config["name"] = name
+    console.print(f"[b]name:[/] {name}")
+
+    # get operators
+    operator = select_operator()
+    deployment_config["operator"] = operator
+    console.print(f"[b]operator:[/] {operator}")
+
+    # get template_type
+    deployment_config["template_type"] = select_template_type(operator)
+    console.print(f"[b]template_type:[/] {deployment_config['template_type']}")
 
     console.print("[bold]spec: [/]")
-    operator = local_operator_registry.get(deployment_config["metadata"]["operator"])
+    operator = local_operator_registry.get(deployment_config["operator"])
     spec = generate_spec(operator.operator_schema)
     deployment_config["spec"] = dict(spec)
 

@@ -14,6 +14,8 @@ from bentoctl.utils import console
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TEMPLATE_TYPES = ["terraform"]
+
 
 class Operator:
     def __init__(self, path):
@@ -23,30 +25,47 @@ class Operator:
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
 
-        operator_config = _import_module("operator_config", self.path)
-
-        self.operator_name = operator_config.OPERATOR_NAME
-        if hasattr(operator_config, "OPERATOR_MODULE"):
-            self.module_name = operator_config.OPERATOR_MODULE
-        else:
-            self.module_name = self.operator_name
-        self.operator_schema = operator_config.OPERATOR_SCHEMA
+        self.operator_config = _import_module("operator_config", self.path)
 
     @property
     def name(self):
-        return self.operator_name
+        return self.operator_config.OPERATOR_NAME
 
-    def generate(self, *args, **kwargs):
-        operator = self._load_operator_module()
-        return operator.generate(*args, **kwargs)
+    @property
+    def module_name(self):
+        if hasattr(self.operator_config, "OPERATOR_MODULE"):
+            return self.operator_config.OPERATOR_MODULE
+        else:
+            self.self.operator_name
 
-    def create_deployable(self, *args, **kwargs):
-        operator = self._load_operator_module()
-        return operator.create_deployable(*args, **kwargs)
+    @property
+    def operator_schema(self):
+        return self.operator_config.OPERATOR_SCHEMA
 
-    def get_registry_info(self, *args, **kwargs):
+    @property
+    def available_template_types(self):
+        if hasattr(self.operator_config, "AVAILABLE_TEMPLATE_TYPES"):
+            return self.operator_config.AVAILABLE_TEMPLATE_TYPES
+        else:
+            return DEFAULT_TEMPLATE_TYPES
+
+    def generate(self, name, spec, template_type, destination_dir, values_only=True):
         operator = self._load_operator_module()
-        return operator.get_registry_info(*args, **kwargs)
+        return operator.generate(
+            name, spec, template_type, destination_dir, values_only
+        )
+
+    def create_deployable(
+        self, bento_path, destination_dir, bento_metadata, overwrite_deployable
+    ):
+        operator = self._load_operator_module()
+        return operator.create_deployable(
+            bento_path, destination_dir, bento_metadata, overwrite_deployable
+        )
+
+    def get_registry_info(self, deployment_name, operator_spec):
+        operator = self._load_operator_module()
+        return operator.get_registry_info(deployment_name, operator_spec)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")
