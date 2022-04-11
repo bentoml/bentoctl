@@ -8,7 +8,11 @@ from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
 from bentoctl.console import print_generated_files_list, prompt_user_for_filename
 from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.docker_utils import build_docker_image, push_docker_image_to_repository, tag_docker_image
+from bentoctl.docker_utils import (
+    build_docker_image,
+    push_docker_image_to_repository,
+    tag_docker_image,
+)
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import TempDirectory, console
 
@@ -160,6 +164,7 @@ def build(
         print_generated_files_list(generated_files)
     else:
         console.print(f"[green]Create docker image: {local_docker_tag}[/]")
+
 
 # subcommands
 bentoctl.add_command(get_operator_management_subcommands())

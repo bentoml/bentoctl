@@ -242,20 +242,13 @@ def select_operator():
         return operator
 
 
-def select_template_type(operator_name):
-    available_template_types = local_operator_registry.get(
-        operator_name
-    ).available_template_types
-
-    if len(available_template_types) == 1:
-        return available_template_types[0]
-
+def select_template_type(available_templates):
     try:
         from simple_term_menu import TerminalMenu
 
-        tmenu = TerminalMenu(available_template_types, title="Choose a Template Type")
+        tmenu = TerminalMenu(available_templates, title="Choose a Template Type")
         choice = tmenu.show()
-        return available_template_types[choice]
+        return available_templates[choice]
     except ImportError:
         template_type = prompt_input_value(
             "template_type", deployment_config_schema.get("template_type")
@@ -281,17 +274,26 @@ def deployment_config_builder():
     console.print(f"[b]name:[/] {name}")
 
     # get operators
-    operator = select_operator()
-    deployment_config["operator"] = operator
-    console.print(f"[b]operator:[/] {operator}")
+    available_operators = list(local_operator_registry.list())
+    # automatically select the first operator if there is only one
+    operator_name = (
+        available_operators[0] if len(available_operators) == 1 else select_operator()
+    )
+    deployment_config["operator"] = operator_name
+    console.print(f"[b]operator:[/] {operator_name}")
+    operator = local_operator_registry.get(operator_name)
 
     # get template_type
-    deployment_config["template_type"] = select_template_type(operator)
-    console.print(f"[b]template_type:[/] {deployment_config['template_type']}")
+    template_name = (
+        operator.default_template
+        if len(operator.available_templates) == 1
+        else select_template_type(operator.available_templates)
+    )
+    deployment_config["template"] = template_name
+    console.print(f"[b]template:[/] {template_name}")
 
     console.print("[bold]spec: [/]")
-    operator = local_operator_registry.get(deployment_config["operator"])
-    spec = generate_spec(operator.operator_schema)
+    spec = generate_spec(operator.schema)
     deployment_config["spec"] = dict(spec)
 
     return DeploymentConfig(deployment_config)

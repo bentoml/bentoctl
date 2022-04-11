@@ -130,17 +130,17 @@ class DeploymentConfig:
                 self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_template_type(self):
-        self.template_type = self.deployment_config.get("template_type")
+        self.template_type = self.deployment_config.get("template")
         if self.template_type is None:
-            raise InvalidDeploymentConfig("template_type is a required field")
-        elif self.template_type not in self.operator.available_template_types:
+            raise InvalidDeploymentConfig("template is a required field")
+        elif self.template_type not in self.operator.available_templates:
             raise InvalidDeploymentConfig(
-                f"template_type '{self.template_type}' not supported by operator {self.operator_name}. Available template types are {self.operator.available_template_types}."
+                f"template '{self.template_type}' not supported by operator {self.operator_name}. Available template types are {self.operator.available_templates}."
             )
 
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
-        operator_schema = remove_help_message(schema=self.operator.operator_schema)
+        operator_schema = remove_help_message(schema=self.operator.schema)
         copied_operator_spec = copy.deepcopy(self.deployment_config["spec"])
         v = cerberus.Validator()
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
@@ -186,7 +186,7 @@ class DeploymentConfig:
         generated_files = self.operator.generate(
             name=self.deployment_name,
             spec=self.operator_spec,
-            template_type=self.deployment_config.get("template_type"),
+            template_type=self.template_type,
             destination_dir=destination_dir,
             values_only=values_only,
         )
@@ -226,5 +226,7 @@ class DeploymentConfig:
         return image_tag
 
     def generate_local_image_tag(self) -> str:
-        image_tag = f"{self.operator_name}-{self.bento.tag.name}:{self.bento.tag.version}"
+        image_tag = (
+            f"{self.operator_name}-{self.bento.tag.name}:{self.bento.tag.version}"
+        )
         return image_tag
