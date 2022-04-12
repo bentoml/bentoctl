@@ -26,13 +26,12 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.version_option(version=__version__)
 def bentoctl():
     """
-    Bentoctl - Manages deployment of bentos to various cloud services.
+    Bentoctl - Fast model deployment on any cloud platform
 
-    This tool helps you deploy your bentos to any cloud service you want. To start off
-    you have to install some operators that you need to deploy to the cloud
-    service of your choice, check out `bentoctl operator --help` for more details.
-    You can run `bentoctl generate` to start the interactive deployment config builder
-    or check out the <link to deployment_config doc> on how to write one yourself.
+    bentoctl is a CLI tool for deploying your machine-learning models to any cloud
+    platforms and serving predictions via REST APIs. It is built on top of
+    BentoML: the unified model serving framework, and makes it easy to bring any BentoML
+    packaged model to production.
     """
 
 
@@ -53,8 +52,6 @@ def bentoctl():
 def init(save_path, do_not_generate):
     """
     Start the interactive deployment config builder file.
-
-    Initialize a deployment configuration file using interactive mode.
     """
     deployment_config = deployment_config_builder()
     deployment_config_filname = prompt_user_for_filename()
@@ -120,7 +117,7 @@ def generate(deployment_config_file, values_only, save_path):
     help="path to deployment_config file",
     required=True,
 )
-@click.option('--dry-run', is_flag=True, help='Dry run', default=False)
+@click.option("--dry-run", is_flag=True, help="Dry run", default=False)
 @handle_bentoctl_exceptions
 def build(
     bento_tag,
