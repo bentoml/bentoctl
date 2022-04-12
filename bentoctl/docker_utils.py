@@ -79,10 +79,20 @@ def build_docker_image(
 def tag_docker_image(image_name, image_tag):
     docker_client = docker.from_env()
     try:
-        docker_client.images.tag(image_name, image_tag)
+        img = docker_client.images.get(image_name)
+        was_tagged = img.tag("image_tag")
+        if not was_tagged:
+            raise BentoctlDockerException(
+                f"Failed to tag docker image! Function returned False"
+            )
     except docker.errors.APIError as error:
         raise BentoctlDockerException(
             f"Failed to tag docker image {image_tag}: {error}"
+        )
+
+    except docker.errors.ImageNotFound as error:
+        raise BentoctlDockerException(
+            f"Failed to tag Docker image, {image_name} not found."
         )
 
 
