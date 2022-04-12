@@ -129,7 +129,7 @@ def build(
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
-    local_docker_tag = deployment_config.get_local_docker_tag()
+    local_docker_tag = deployment_config.generate_local_image_tag()
     with TempDirectory() as dist_dir:
         (
             dockerfile_path,
