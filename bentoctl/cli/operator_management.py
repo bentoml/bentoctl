@@ -14,7 +14,7 @@ def get_operator_management_subcommands():
     @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
-        Sub-commands to add, list, remove and update operators.
+        Sub-commands to install, list, remove and update operators.
 
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
@@ -75,7 +75,7 @@ def get_operator_management_subcommands():
                 name = available_operators[choice]
             except ImportError:
                 raise BentoctlException(
-                    "Please specify the name of the operator to add."
+                    "Please specify the name of the operator to install."
                 )
         try:
             operator_name = local_operator_registry.add(name)
@@ -84,8 +84,8 @@ def get_operator_management_subcommands():
             else:
                 click.echo(
                     f"Unable to install operator. `{name}` did not match any of the "
-                    "operator addition options. Check `bentoctl operator install --help`"
-                    "for mode details on how you can call this command."
+                    "operator installation options. Check `bentoctl operator install "
+                    "--help` for mode details on how you can call this command."
                 )
         except BentoctlException as e:
             e.show()
