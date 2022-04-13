@@ -193,7 +193,7 @@ class DeploymentConfig:
 
         return generated_files
 
-    def create_deployable(self, overwrite_deployable=True, destination_dir=os.curdir):
+    def create_deployable(self, destination_dir=os.curdir):
         """
         Creates the deployable in the destination_dir and returns the docker args
         for building
@@ -207,7 +207,6 @@ class DeploymentConfig:
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=bento_metadata,
-            overwrite_deployable=overwrite_deployable,
         )
 
         return dockerfile_path, docker_context_path, build_args
