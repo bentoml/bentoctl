@@ -18,4 +18,10 @@ def prompt_user_for_filename():
     if deployment_config_filname == "":
         deployment_config_filname = "deployment_config.yaml"
 
+    if not (
+        deployment_config_filname.endswith(".yaml")
+        or deployment_config_filname.endswith(".yml")
+    ):
+        deployment_config_filname += ".yaml"
+
     return deployment_config_filname
