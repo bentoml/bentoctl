@@ -8,7 +8,7 @@ console = Console(highlight=False)
 def print_generated_files_list(generated_files: list):
     console.print(":sparkles: generated template files.")
     for file in generated_files:
-        console.print(f"  - {os.path.join(os.curdir, file)}")
+        console.print(f"  - {file}")
 
 
 def prompt_user_for_filename():
