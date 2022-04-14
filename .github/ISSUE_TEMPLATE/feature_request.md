@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature for BentoML
+about: Suggest a new feature for bentoctl
 title: ''
 labels: 'new feature'
 assignees: ''

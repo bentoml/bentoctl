@@ -27,12 +27,12 @@ Steps to reproduce the issue:
 <!--- 
 If applicable, add screenshots, logs or error outputs to help explain your problem.
 
-To give us more information for diagnosing the issue, make sure to enable debug logging:
+To give us more information for diagnosing the issue, make sure to enable debug logging for both bentoctl and BentoML:
 
 Enable via environment variable, e.g.:
 ```
 $ git clone git@github.com:bentoml/BentoML.git && cd bentoml
-$ BENTOML_DEBUG=TRUE python guides/quick-start/main.py
+$ BENTOCTL_DEBUG=True BENTOML_DEBUG=TRUE python guides/quick-start/main.py
 ```
 
 Or set debug logging in your Python code:
@@ -41,9 +41,9 @@ from bentoml.configuration import set_debug_mode
 set_debug_mode(True)
 ```
 
-For BentoML CLI commands, simply add the `--verbose` flag, e.g.:
+For bentoctl CLI commands, simply add the `--verbose` flag, e.g.:
 ```bash
-bentoml get IrisClassifier --verbose
+bentoctl init --verbose
 ```
 
 -->
@@ -53,6 +53,7 @@ bentoml get IrisClassifier --verbose
  - OS: [e.g. MacOS 10.14.3]
  - Python Version [e.g. Python 3.7.1]
  - BentoML Version [e.g. BentoML-0.8.6]
+ - Bentoctl Version [e.g. bentoctl-0.1]
 
 
 **Additional context**
