@@ -3,6 +3,7 @@ import logging
 import os
 import typing as t
 from pathlib import Path
+from bentoctl.utils import get_debug_mode
 
 import bentoml
 import cerberus
@@ -199,6 +200,9 @@ class DeploymentConfig:
         for building
         """
         bento_metadata = get_bento_metadata(self.bento.path)
+        # In the case of debug mode, we want to keep the deployable for debugging purpose.
+        # So by setting overwrite_deployable to false, we don't delete the deployable after the build.
+        overwrite_deployable = not get_debug_mode()
         (
             dockerfile_path,
             docker_context_path,
@@ -207,6 +211,7 @@ class DeploymentConfig:
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=bento_metadata,
+            overwrite_deployable=overwrite_deployable,
         )
 
         return dockerfile_path, docker_context_path, build_args

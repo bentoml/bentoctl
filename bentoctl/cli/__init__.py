@@ -151,6 +151,7 @@ def build(
             registry_password,
         ) = deployment_config.get_registry_info()
         repository_image_tag = deployment_config.generate_docker_image_tag(registry_url)
+        console.log(repository_image_tag)
         tag_docker_image(local_docker_tag, repository_image_tag)
         push_docker_image_to_repository(
             repository=repository_image_tag,

@@ -1,7 +1,7 @@
 import os
-import os.path
 import shutil
 import tempfile
+import logging
 
 from rich.table import Table
 
@@ -9,12 +9,27 @@ from bentoctl.console import console
 from bentoctl.operator.utils import fetch_git_info
 
 
-def is_debug_mode():
-    return bool(os.environ.get("BENTOCTL_DEBUG"))
+DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
+
+
+def set_debug_mode(is_enabled: bool):
+    if is_enabled or os.environ.get(DEBUG_ENV_VAR):
+        os.environ[DEBUG_ENV_VAR] = str(True)
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger("bentoml").setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.WARNING)
+        logging.getLogger("bentoml").setLevel(logging.WARNING)
+
+
+def get_debug_mode():
+    if DEBUG_ENV_VAR in os.environ:
+        return os.environ[DEBUG_ENV_VAR].lower() == "true"
+    return False
 
 
 def print_operator_list(operator_list):
-    if is_debug_mode():
+    if get_debug_mode():
         console.print(operator_list)
     table = Table("Name", "Location", box=None)
 

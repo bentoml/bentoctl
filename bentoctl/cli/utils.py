@@ -1,11 +1,10 @@
 import functools
-import logging
-import os
 import sys
 
 import click
 
 from bentoctl.exceptions import BentoctlException
+from bentoctl.utils import set_debug_mode
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
@@ -20,16 +19,6 @@ def handle_bentoctl_exceptions(func):
             sys.exit(0)
 
     return wrapper
-
-
-def set_debug_mode(is_enabled: bool):
-    if is_enabled or os.environ.get(DEBUG_ENV_VAR):
-        os.environ[DEBUG_ENV_VAR] = str(True)
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.getLogger("bentoml").setLevel(logging.DEBUG)
-    else:
-        logging.getLogger().setLevel(logging.WARNING)
-        logging.getLogger("bentoml").setLevel(logging.WARNING)
 
 
 class BentoctlCommandGroup(click.Group):

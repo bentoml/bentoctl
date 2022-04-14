@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
+from bentoctl.cli.utils import get_debug_mode
 
 from bentoctl.exceptions import (
     OperatorConfigNotFound,
@@ -90,7 +91,11 @@ class Operator:
         )
 
     def create_deployable(
-        self, bento_path: str, destination_dir: str, bento_metadata: dict
+        self,
+        bento_path: str,
+        destination_dir: str,
+        bento_metadata: dict,
+        overwrite_deployable: bool = True,
     ) -> Tuple[str, str, dict]:
         """
         The deployable is the bento along with all the modifications (if any)
@@ -116,7 +121,9 @@ class Operator:
             docker build command
         """
         operator = self._load_operator_module()
-        return operator.create_deployable(bento_path, destination_dir, bento_metadata)
+        return operator.create_deployable(
+            bento_path, destination_dir, bento_metadata, overwrite_deployable
+        )
 
     def get_registry_info(
         self, deployment_name: str, operator_spec: str
