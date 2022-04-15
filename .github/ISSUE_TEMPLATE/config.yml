@@ -1,0 +1,10 @@
+contact_links:
+  - name: Bentoctl Discussions
+    url: https://github.com/bentoml/bentoctl/discussions
+    about: Please ask general questions here.
+  - name: BentoML/bentoctl Slack Community
+    url: https://join.slack.bentoml.org
+    about: For connecting with others in the community
+  - name: BentoML/bentoctl Enterprise Support
+    url: contact@bentoml.ai
+    about: Contact the BentoML team and learn more

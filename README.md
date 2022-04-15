@@ -23,10 +23,6 @@
 * Extensible with custom operators.
 * High performance serving powered by [BentoML](https://github.com/bentoml/BentoML)
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/bentoml/bentoctl/master/demo.gif"/ alt="demo of bentoctl deploying to AWS-EC2"/>
-</div>
-
 ## Supported Platforms:
 
 * [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
