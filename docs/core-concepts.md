@@ -36,6 +36,6 @@ Here is a sample deployment config for the EC2 operator.
 
 4 :- `template` The template for the deployment. It determines what the generated terraform project will look like.
 
-3 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed.
+5 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed.
 
-7 :- `spec.*` - Deployment options specific to the operator.
+6 :- `spec.*` - Deployment options specific to the operator.
