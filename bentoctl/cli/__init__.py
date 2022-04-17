@@ -13,8 +13,7 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.exceptions import BentoctlException
-from bentoctl.utils import TempDirectory, console
+from bentoctl.utils import TempDirectory, console, get_debug_mode
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -130,7 +129,8 @@ def build(
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
     local_docker_tag = deployment_config.generate_local_image_tag()
-    with TempDirectory() as dist_dir:
+    debug_mode = get_debug_mode()
+    with TempDirectory(cleanup=debug_mode) as dist_dir:
         (
             dockerfile_path,
             dockercontext_path,
@@ -151,7 +151,6 @@ def build(
             registry_password,
         ) = deployment_config.get_registry_info()
         repository_image_tag = deployment_config.generate_docker_image_tag(registry_url)
-        console.log(repository_image_tag)
         tag_docker_image(local_docker_tag, repository_image_tag)
         push_docker_image_to_repository(
             repository=repository_image_tag,
