@@ -3,7 +3,6 @@ import logging
 import os
 import typing as t
 from pathlib import Path
-from bentoctl.utils import get_debug_mode
 
 import bentoml
 import cerberus
@@ -19,6 +18,7 @@ from bentoctl.exceptions import (
 )
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.utils import _is_official_operator
+from bentoctl.utils import get_debug_mode
 
 logger = logging.getLogger(__name__)
 local_operator_registry = get_local_operator_registry()
@@ -90,7 +90,7 @@ def get_bento_metadata(bento_path: str) -> dict:
 
     python_version_txt_path = "env/python/version.txt"
     python_version_txt_path = os.path.join(bento_path, python_version_txt_path)
-    with open(python_version_txt_path, "r") as f:
+    with open(python_version_txt_path, "r", encoding="utf-8") as f:
         python_version = f.read()
     metadata["python_version"] = ".".join(python_version.split(".")[:2])
 
@@ -99,6 +99,9 @@ def get_bento_metadata(bento_path: str) -> dict:
 
 class DeploymentConfig:
     def __init__(self, deployment_config: t.Dict[str, t.Any]):
+        self.bento = None
+        self.repository_name = None
+
         # currently there is only 1 version for config
         if not deployment_config.get("api_version") == "v1":
             raise InvalidDeploymentConfig("api_version should be 'v1'.")
@@ -136,7 +139,11 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig("template is a required field")
         elif self.template_type not in self.operator.available_templates:
             raise InvalidDeploymentConfig(
-                f"template '{self.template_type}' not supported by operator {self.operator_name}. Available template types are {self.operator.available_templates}."
+                (
+                    f"template '{self.template_type}' not supported by operator "
+                    "{self.operator_name}. Available template types are "
+                    "{self.operator.available_templates}."
+                )
             )
 
     def _set_operator_spec(self):
@@ -196,12 +203,13 @@ class DeploymentConfig:
 
     def create_deployable(self, destination_dir=os.curdir):
         """
-        Creates the deployable in the destination_dir and returns the docker args
-        for building
+        Creates the deployable in the destination_dir and returns
+        the docker args for building
         """
         bento_metadata = get_bento_metadata(self.bento.path)
-        # In the case of debug mode, we want to keep the deployable for debugging purpose.
-        # So by setting overwrite_deployable to false, we don't delete the deployable after the build.
+        # In the case of debug mode, we want to keep the deployable
+        # for debugging purpose. So by setting overwrite_deployable
+        # to false, we don't delete the deployable after the build.
         overwrite_deployable = not get_debug_mode()
         (
             dockerfile_path,
@@ -225,7 +233,10 @@ class DeploymentConfig:
         return registry_url, username, password
 
     def generate_docker_image_tag(self, registry_url: str) -> str:
-        image_tag = f"{registry_url.replace('https://', '')}/{self.repository_name}:{self.bento.tag.version}"
+        image_tag = (
+            f"{registry_url.replace('https://', '')}/"
+            "{self.repository_name}:{self.bento.tag.version}"
+        )
         self.operator_spec["image_tag"] = image_tag
         return image_tag
 

@@ -1,5 +1,8 @@
 OPERATOR_NAME = "testop"
 
+OPERATOR_DEFAULT_TEMPLATE = "terraform"
+OPERATOR_AVAILABLE_TEMPLATES = ["terraform"]
+
 max_instances = 10
 
 OPERATOR_SCHEMA = {

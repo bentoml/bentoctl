@@ -2,10 +2,8 @@
 import os
 
 import pytest
-from click.testing import CliRunner
 
 from bentoctl import deployment_config
-from bentoctl.cli import bentoctl
 from bentoctl.operator import get_local_operator_registry
 
 from .conftest import TESTOP_PATH

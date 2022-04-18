@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
-from bentoctl.utils import get_debug_mode
 
 from bentoctl.exceptions import (
     OperatorConfigNotFound,
@@ -36,7 +35,7 @@ class Operator:
         if hasattr(self.operator_config, "OPERATOR_MODULE"):
             return self.operator_config.OPERATOR_MODULE
         else:
-            self.self.operator_name
+            return self.name
 
     @property
     def schema(self):

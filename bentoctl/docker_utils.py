@@ -83,16 +83,15 @@ def tag_docker_image(image_name, image_tag):
         was_tagged = img.tag(image_tag)
         if not was_tagged:
             raise BentoctlDockerException(
-                f"Failed to tag docker image! tag function returned False"
+                "Failed to tag docker image! tag function returned False"
             )
+    except docker.errors.ImageNotFound:
+        raise BentoctlDockerException(
+            f"Failed to tag Docker image, {image_name} not found."
+        )
     except docker.errors.APIError as error:
         raise BentoctlDockerException(
             f"Failed to tag docker image {image_tag}: {error}"
-        )
-
-    except docker.errors.ImageNotFound as error:
-        raise BentoctlDockerException(
-            f"Failed to tag Docker image, {image_name} not found."
         )
 
 
