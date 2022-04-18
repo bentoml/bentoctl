@@ -5,3 +5,4 @@ testop_spec.yaml
 .DS_Store
 .coverage
 dist/*
+unit.xml
