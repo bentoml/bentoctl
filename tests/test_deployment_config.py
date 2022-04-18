@@ -1,8 +1,6 @@
 # pylint: disable=W0621
-import os
 from pathlib import Path
 
-import bentoml
 import pytest
 
 from bentoctl import deployment_config as dconf
@@ -39,7 +37,7 @@ def test_deployment_config_init(op_reg, monkeypatch, tmpdir):
 
     # deployment_config with no deployment name
     with pytest.raises(InvalidDeploymentConfig):
-        dconf.DeploymentConfig({"api_version": "v1", "metadata": {}, "spec": {}})
+        dconf.DeploymentConfig({"api_version": "v1", "spec": {}})
 
     # deployment_config with operator that is not installed
     monkeypatch.setattr(dconf, "local_operator_registry", op_reg)
@@ -47,34 +45,19 @@ def test_deployment_config_init(op_reg, monkeypatch, tmpdir):
         dconf.DeploymentConfig(
             {
                 "api_version": "v1",
-                "metadata": {"name": "test", "operator": "testop"},
+                "name": "test",
+                "template": "terraform",
+                "operator": "testop",
                 "spec": {},
             }
         )
 
-    # valid bento
-    op_reg.add(TESTOP_PATH)
-    Path(tmpdir, "bento.yaml").touch()
-    dconfigobj = dconf.DeploymentConfig(
-        {
-            "api_version": "v1",
-            "metadata": {"name": "test", "operator": "testop"},
-            "spec": {
-                "bento": tmpdir,
-                "instances": {"min": 1, "max": 2},
-                "project_id": "test",
-            },
-        }
-    )
-    assert dconfigobj.bento == tmpdir
-    assert dconfigobj.bento_path == tmpdir
-
 
 VALID_YAML = """
 api_version: v1
-metadata:
-    name: test
-    operator: testop
+name: test
+operator: testop
+template: terraform
 spec:
     project_id: testproject
     instances:
@@ -86,9 +69,9 @@ api_version: tst: something: something
 """
 VALID_YAML_INVALID_SCHEMA = """
 api_version: v1
-metadata:
-    name: test
-    operator: testop
+name: test
+operator: testop
+template: terraform
 spec:
     project_id: testproject
 """
