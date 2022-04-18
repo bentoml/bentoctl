@@ -36,7 +36,7 @@ class Operator:
         if hasattr(self.operator_config, "OPERATOR_MODULE"):
             return self.operator_config.OPERATOR_MODULE
         else:
-            self.self.operator_name
+            return self.name
 
     @property
     def schema(self):
