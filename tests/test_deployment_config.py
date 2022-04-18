@@ -26,7 +26,7 @@ def test_remove_help_message():
     assert_no_help_message_in_schema(schema_without_help_msg)
 
 
-def test_deployment_config_init(op_reg, monkeypatch, tmpdir):
+def test_deployment_config_init(op_reg, monkeypatch):
     # empty deployment_config
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig({})

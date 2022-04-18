@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
-from bentoctl.utils import get_debug_mode
 
 from bentoctl.exceptions import (
     OperatorConfigNotFound,

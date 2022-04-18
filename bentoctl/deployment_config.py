@@ -3,7 +3,6 @@ import logging
 import os
 import typing as t
 from pathlib import Path
-from bentoctl.utils import get_debug_mode
 
 import bentoml
 import cerberus
@@ -19,6 +18,7 @@ from bentoctl.exceptions import (
 )
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.utils import _is_official_operator
+from bentoctl.utils import get_debug_mode
 
 logger = logging.getLogger(__name__)
 local_operator_registry = get_local_operator_registry()
@@ -90,7 +90,7 @@ def get_bento_metadata(bento_path: str) -> dict:
 
     python_version_txt_path = "env/python/version.txt"
     python_version_txt_path = os.path.join(bento_path, python_version_txt_path)
-    with open(python_version_txt_path, "r") as f:
+    with open(python_version_txt_path, "r", encoding="utf-8") as f:
         python_version = f.read()
     metadata["python_version"] = ".".join(python_version.split(".")[:2])
 
@@ -99,6 +99,9 @@ def get_bento_metadata(bento_path: str) -> dict:
 
 class DeploymentConfig:
     def __init__(self, deployment_config: t.Dict[str, t.Any]):
+        self.bento = None
+        self.repository_name = None
+
         # currently there is only 1 version for config
         if not deployment_config.get("api_version") == "v1":
             raise InvalidDeploymentConfig("api_version should be 'v1'.")
