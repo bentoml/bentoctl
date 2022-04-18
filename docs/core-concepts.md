@@ -2,19 +2,17 @@
 
 Bentoctl performs two types of operations:
 
-1. bentoctl manages the operators that interact with the cloud service.
-2. bentoctl mangages the deployment via deployment configurations.
+1. bentoctl builds deployable images or artifacts based on the cloud services' requirements.
+2. bentoctl managages cloud service deployment with Terraform
 
 In the following sections, we will discuss the concepts of operators and deployment configurations.
 
 ## Operators
 
-Operators are plugins that interact with the external services, typcially a cloud service. It abstracts the specifics implmentation details of the external service and provides an unified interface for bentoctl. The operator provide 4 core actions that are:
+Operators are plugins that interact with the external services, typcially a cloud service. It abstracts the specifics implmentation details of the external service and provides an unified interface for bentoctl. The operator provide 2 core actions that are:
 
-1. Deploy - Create Deployment in the external service base on the deployment configuration provided by the user.
-2. Describe - Retrieve the latest deployment status and properties from the external service.
-3. Update - Update the deployment configuration in the external service.
-4. Delete - Remove the deployment from the external service.
+1. Create deployable image or artifact base on the cloud service's requirements.
+2. Generate Terraform projects based on the deployment configuration.
 
 The operator also provides a set of schema that bentoctl uses to validate the deployment configuration. [Operators](./operators.md) page provides more details on supported platforms and their current status.
 
@@ -28,18 +26,16 @@ bentoctl uses deployment configuration to specify the deployment properties. The
 
 Here is a sample deployment config for the EC2 operator.
 
-![sample deployment config](./imgs/deployment-config-outline.png)
+![sample deployment config](./imgs/deployment-config-concept.png)
 
 1 :- `api_version` specifies deployment configuration version.
 
-2 :- `metadata` contains the base information about the deployment.
+2 :- `name` Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
 
-3 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed in the metadata section.
+3 :- `operator` Operator used for the deployment. bentoctl will automatically install official operator if it is not installed.
 
-4 :- `metadata.name` - Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
+4 :- `template` The template for the deployment. It determines what the generated terraform project will look like.
 
-5 :- `metadata.operator` - Operator used for the deployment. bentoctl will automatically install official operator if it is not installed.
+5 :- `spec` specifics the deployment details. The deployment detail options are provided by the operator listed.
 
-6 :- `spec.bento` - Bento used for the deployment. This field's value is expecting in a string in the format of `bento:<bento_name>:<bento_version>`.
-
-7 :- `spec.*` - Deployment options specific to the operator.
+6 :- `spec.*` - Deployment options specific to the operator.

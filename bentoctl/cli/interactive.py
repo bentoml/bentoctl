@@ -5,9 +5,8 @@ from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 
 from bentoctl.deployment_config import DeploymentConfig, deployment_config_schema
-from bentoctl.exceptions import BentoNotFound
 from bentoctl.operator import get_local_operator_registry
-from bentoctl.utils import console
+from bentoctl.console import console
 
 local_operator_registry = get_local_operator_registry()
 

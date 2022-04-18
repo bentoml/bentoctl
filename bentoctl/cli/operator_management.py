@@ -1,11 +1,16 @@
+import os
+
 import click
 from rich.prompt import Confirm
+from rich.table import Table
 
 from bentoctl.cli.utils import BentoctlCommandGroup
+from bentoctl.console import console
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.utils import print_operator_list
+from bentoctl.operator.utils import fetch_git_info
+from bentoctl.utils import get_debug_mode
 
 local_operator_registry = get_local_operator_registry()
 
@@ -135,3 +140,22 @@ def get_operator_management_subcommands():
             e.show()
 
     return operator_management
+
+
+def print_operator_list(operator_list):
+    if get_debug_mode():
+        console.print(operator_list)
+    table = Table("Name", "Location", box=None)
+
+    for name, info in operator_list.items():
+        if info.get("git_url") is not None:
+            owner, repo = fetch_git_info(info["git_url"])
+            location_str = f"{owner}/{repo} ({info['git_branch']})"
+            table.add_row(name, location_str)
+        else:
+            location_str = os.path.join(
+                "$HOME", os.path.relpath(info["path"], os.path.expanduser("~"))
+            )
+            table.add_row(name, location_str)
+
+    console.print(table)

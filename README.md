@@ -10,7 +10,7 @@
 
 <br>
 
-`bentoctl` is a CLI tool for deploying your machine-learning models to any cloud platforms and serving predictions via REST APIs. It is built on top of [BentoML: the unified model serving framework](https://github.com/bentoml/BentoML), and makes it easy to bring any BentoML packaged model to production.
+`bentoctl` is a CLI tool for deploying your machine-learning models to any cloud platforms. It built on top of [BentoML: the unified model serving framework](https://github.com/bentoml/BentoML), and makes it easy to bring any BentoML packaged model to production.
 
 👉 [Pop into our Slack community!](https://l.linklyhq.com/l/ktPp) We're happy to help with any issue you face or even just to meet you and hear what you're working on :)
 
@@ -18,6 +18,7 @@
 
 * Supports major cloud providers: AWS, Azure, Google Cloud, and more.
 * Easy to deploy, update and reproduce model deployments.
+* First class integration with Terraform.
 * Optimized for CI/CD workflow.
 * Extensible with custom operators.
 * High performance serving powered by [BentoML](https://github.com/bentoml/BentoML)
@@ -29,13 +30,13 @@
 * Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
 * **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
-Upcoming:
+**Upcoming:**
 * [AWS EC2](https://github.com/bentoml/aws-ec2-deploy) (BentoML 1.0 migration in progress)
 * [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy) (BentoML 1.0 migration in progress)
-* [Heroku](https://github.com/bentoml/heroku-deploy) (BentoML 1.0 migration in progress)
 * [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy) (BentoML 1.0 migration in progress)
 * [Azure Functions](https://github.com/bentoml/azure-functions-deploy) (BentoML 1.0 migration in progress)
 * [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy) (BentoML 1.0 migration in progress)
+* [Heroku](https://github.com/bentoml/heroku-deploy) (BentoML 1.0 migration in progress)
 * [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
 
 

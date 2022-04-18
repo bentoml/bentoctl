@@ -6,7 +6,7 @@ from pathlib import Path
 from git import Repo
 
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.utils import console
+from bentoctl.console import console
 
 
 def _get_bentoctl_home():

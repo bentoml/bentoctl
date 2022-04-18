@@ -1,13 +1,13 @@
 # Introduction
 
 bentoctl is a command line tool for deploying BentoML packaged ML models as API endpoint on popular cloud platforms.
-It automates Bento docker image build, interacts with cloud platform APIs, and allows users easily manage deployments.
+It automates Bento docker image build, generate terraform project, and easily manage deployments.
 
 Supported platforms:
 
-- [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
 - [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
 - [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
+- [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
 - [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
 - [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
 - [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
@@ -19,10 +19,9 @@ Supported platforms:
 ## Why bentoctl?
 
 - Supports multiple cloud providers: AWS, Azure, Google Cloud, and more.
-- Minimal configuration
+- First class integration with Terraform.
 - Optimized for CI/CD workflow
-- Extensible with operators. Extends or modifies the cloud services and workflow via operators.
-- Built with optimization and best practices
+- Easy customization.
 
 ## How to install
 
