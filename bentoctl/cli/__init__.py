@@ -13,7 +13,8 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.utils import TempDirectory, console, get_debug_mode
+from bentoctl.utils import TempDirectory, get_debug_mode
+from bentoctl.console import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 

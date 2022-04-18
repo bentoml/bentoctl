@@ -5,14 +5,14 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
-from bentoctl.cli.utils import get_debug_mode
+from bentoctl.utils import get_debug_mode
 
 from bentoctl.exceptions import (
     OperatorConfigNotFound,
     OperatorLoadException,
     PipInstallException,
 )
-from bentoctl.utils import console
+from bentoctl.console import console
 
 logger = logging.getLogger(__name__)
 
