@@ -138,7 +138,12 @@ class TemplateExists(BentoctlException):
     """
 
     def __init__(self, template_file_path):
-        self.msg = f"Generating Template files failed since <{template_file_path}> already exists. Please call with --values-only to create only the values file or remove the main template file in order to create a new one."
+        self.msg = (
+            f"Generating Template files failed since <{template_file_path}> "
+            "already exists. Please call with --values-only to create only "
+            "the values file or remove the main template file in order to "
+            "create a new one."
+        )
         super(TemplateExists, self).__init__(self.msg)
 
 

@@ -139,7 +139,11 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig("template is a required field")
         elif self.template_type not in self.operator.available_templates:
             raise InvalidDeploymentConfig(
-                f"template '{self.template_type}' not supported by operator {self.operator_name}. Available template types are {self.operator.available_templates}."
+                (
+                    f"template '{self.template_type}' not supported by operator "
+                    "{self.operator_name}. Available template types are "
+                    "{self.operator.available_templates}."
+                )
             )
 
     def _set_operator_spec(self):
@@ -199,12 +203,13 @@ class DeploymentConfig:
 
     def create_deployable(self, destination_dir=os.curdir):
         """
-        Creates the deployable in the destination_dir and returns the docker args
-        for building
+        Creates the deployable in the destination_dir and returns
+        the docker args for building
         """
         bento_metadata = get_bento_metadata(self.bento.path)
-        # In the case of debug mode, we want to keep the deployable for debugging purpose.
-        # So by setting overwrite_deployable to false, we don't delete the deployable after the build.
+        # In the case of debug mode, we want to keep the deployable
+        # for debugging purpose. So by setting overwrite_deployable
+        # to false, we don't delete the deployable after the build.
         overwrite_deployable = not get_debug_mode()
         (
             dockerfile_path,
@@ -228,7 +233,10 @@ class DeploymentConfig:
         return registry_url, username, password
 
     def generate_docker_image_tag(self, registry_url: str) -> str:
-        image_tag = f"{registry_url.replace('https://', '')}/{self.repository_name}:{self.bento.tag.version}"
+        image_tag = (
+            f"{registry_url.replace('https://', '')}/"
+            "{self.repository_name}:{self.bento.tag.version}"
+        )
         self.operator_spec["image_tag"] = image_tag
         return image_tag
 
