@@ -25,7 +25,7 @@ def test_remove_help_message():
     assert_no_help_message_in_schema(schema_without_help_msg)
 
 
-def test_deployment_config_init(op_reg, monkeypatch):
+def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
     # empty deployment_config
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig({})
@@ -39,7 +39,7 @@ def test_deployment_config_init(op_reg, monkeypatch):
         dconf.DeploymentConfig({"api_version": "v1", "spec": {}})
 
     # deployment_config with operator that is not installed
-    monkeypatch.setattr(dconf, "local_operator_registry", op_reg)
+    monkeypatch.setattr(dconf, "local_operator_registry", get_mock_operator_registry)
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig(
             {
@@ -94,11 +94,11 @@ def create_yaml_file(yml_str, path):
 
 
 @pytest.fixture
-def op_reg_with_testop(op_reg, monkeypatch):
-    monkeypatch.setattr(dconf, "local_operator_registry", op_reg)
-    op_reg.add(TESTOP_PATH)
+def op_reg_with_testop(get_mock_operator_registry, monkeypatch):
+    monkeypatch.setattr(dconf, "local_operator_registry", get_mock_operator_registry)
+    get_mock_operator_registry.add(TESTOP_PATH)
 
-    yield op_reg
+    yield get_mock_operator_registry
 
 
 def test_deployment_config_from_file(

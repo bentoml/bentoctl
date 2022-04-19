@@ -4,9 +4,9 @@ from cerberus import Validator
 from rich.control import Control
 from rich.segment import ControlType, SegmentLines
 
+from bentoctl.console import console
 from bentoctl.deployment_config import DeploymentConfig, deployment_config_schema
 from bentoctl.operator import get_local_operator_registry
-from bentoctl.console import console
 
 local_operator_registry = get_local_operator_registry()
 
@@ -242,6 +242,9 @@ def select_operator():
 
 
 def select_template_type(available_templates):
+    if len(available_templates) == 1:
+        return available_templates[0]
+
     try:
         from simple_term_menu import TerminalMenu
 
@@ -250,7 +253,7 @@ def select_template_type(available_templates):
         return available_templates[choice]
     except ImportError:
         template_type = prompt_input_value(
-            "template_type", deployment_config_schema.get("template_type")
+            "template", deployment_config_schema.get("template_type")
         )
         return template_type
 
@@ -273,21 +276,13 @@ def deployment_config_builder():
     console.print(f"[b]name:[/] {name}")
 
     # get operators
-    available_operators = list(local_operator_registry.list())
-    # automatically select the first operator if there is only one
-    operator_name = (
-        available_operators[0] if len(available_operators) == 1 else select_operator()
-    )
+    operator_name = select_operator()
     deployment_config["operator"] = operator_name
     console.print(f"[b]operator:[/] {operator_name}")
     operator = local_operator_registry.get(operator_name)
 
     # get template_type
-    template_name = (
-        operator.default_template
-        if len(operator.available_templates) == 1
-        else select_template_type(operator.available_templates)
-    )
+    template_name = select_template_type(operator.available_templates)
     deployment_config["template"] = template_name
     console.print(f"[b]template:[/] {template_name}")
 
