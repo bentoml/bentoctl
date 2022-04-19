@@ -52,6 +52,18 @@ def test_deployment_config_init(op_reg, monkeypatch):
             }
         )
 
+    # deployment_config with no template
+    with pytest.raises(InvalidDeploymentConfig):
+        dconf.DeploymentConfig(
+            {
+                "api_version": "v1",
+                "name": "test",
+                "template": "",
+                "operator": "testop",
+                "spec": {},
+            }
+        )
+
 
 VALID_YAML = """
 api_version: v1
