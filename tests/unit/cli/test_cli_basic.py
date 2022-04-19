@@ -6,7 +6,7 @@ import pytest
 from bentoctl import deployment_config
 from bentoctl.operator import get_local_operator_registry
 
-from .conftest import TESTOP_PATH
+from tests.conftest import TESTOP_PATH
 
 TEST_DEPLOYMENT_CONFIG_PATH = os.path.join(
     os.path.dirname(__file__), "test_deployment_config.yaml"

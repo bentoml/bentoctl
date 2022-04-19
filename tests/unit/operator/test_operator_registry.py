@@ -10,7 +10,7 @@ from bentoctl.exceptions import OperatorExists, OperatorNotFound
 from bentoctl.operator import registry, utils
 from bentoctl.operator.operator import Operator
 
-from .conftest import TESTOP_PATH
+from tests.conftest import TESTOP_PATH
 
 TEST_OPERATOR = Operator(TESTOP_PATH)
 

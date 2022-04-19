@@ -7,7 +7,7 @@ from bentoctl.exceptions import OperatorConfigNotFound, OperatorLoadException
 from bentoctl.operator import operator as op
 from bentoctl.operator.operator import Operator, _import_module
 
-from .conftest import TESTOP_PATH
+from tests.conftest import TESTOP_PATH
 
 
 def test_import_module():

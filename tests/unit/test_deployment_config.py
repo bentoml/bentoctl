@@ -7,7 +7,7 @@ from bentoctl import deployment_config as dconf
 from bentoctl.exceptions import DeploymentConfigNotFound, InvalidDeploymentConfig
 from bentoctl.operator.operator import _import_module
 
-from .conftest import TESTOP_PATH
+from tests.conftest import TESTOP_PATH
 
 
 def assert_no_help_message_in_schema(schema):
