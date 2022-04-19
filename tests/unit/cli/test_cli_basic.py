@@ -106,7 +106,6 @@ def test_cli_init(monkeypatch, tmp_path):
         catch_exceptions=False,
     )
     assert result.exit_code == 0
-    assert str(tmp_path) in result.output
 
 
 def test_cli_generate(monkeypatch):
