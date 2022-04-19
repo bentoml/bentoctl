@@ -1,5 +1,6 @@
 # pylint: disable=W0621
 import os
+from pathlib import Path
 
 import pytest
 
@@ -16,3 +17,9 @@ def op_reg(tmp_path):
     yield op_reg
 
     del os.environ["BENTOCTL_HOME"]
+
+
+@pytest.fixture
+def tmp_bento_path(tmpdir):
+    Path(tmpdir, "bento.yaml").touch()
+    return tmpdir

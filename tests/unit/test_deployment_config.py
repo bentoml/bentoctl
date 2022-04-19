@@ -6,7 +6,6 @@ import pytest
 from bentoctl import deployment_config as dconf
 from bentoctl.exceptions import DeploymentConfigNotFound, InvalidDeploymentConfig
 from bentoctl.operator.operator import _import_module
-
 from tests.conftest import TESTOP_PATH
 
 
@@ -100,12 +99,6 @@ def op_reg_with_testop(op_reg, monkeypatch):
     op_reg.add(TESTOP_PATH)
 
     yield op_reg
-
-
-@pytest.fixture
-def tmp_bento_path(tmpdir):
-    Path(tmpdir, "bento.yaml").touch()
-    return tmpdir
 
 
 def test_deployment_config_from_file(
