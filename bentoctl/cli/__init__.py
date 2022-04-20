@@ -69,10 +69,11 @@ def init(save_path, do_not_generate):
             return
 
     deployment_config.save(save_path=save_path, filename=deployment_config_filname)
-    console.print(
-        "[green]deployment config generated to: "
-        f"{os.path.relpath(config_path, os.curdir)}[/]"
-    )
+    try:
+        relative_path = os.path.relpath(config_path, os.curdir)
+    except ValueError:
+        relative_path = config_path
+    console.print("[green]deployment config generated to: " f"{relative_path}[/]")
 
     if not do_not_generate:
         generated_files = deployment_config.generate(destination_dir=save_path)
