@@ -136,7 +136,7 @@ def test_cli_build(monkeypatch):
             "build",
             "--bento-tag",
             "testbento:latest",
-            "--deployment_config_file",
+            "--deployment-config-file",
             "deployment_config.yaml",
         ],
         catch_exceptions=False,
@@ -153,7 +153,7 @@ def test_cli_build(monkeypatch):
             "build",
             "--bento-tag",
             "testbento:latest",
-            "--deployment_config_file",
+            "--deployment-config-file",
             "deployment_config.yaml",
             "--dry-run"
         ],

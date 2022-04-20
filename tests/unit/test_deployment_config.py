@@ -124,3 +124,7 @@ def test_validate_operator_config(
 
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig(yaml.safe_load(VALID_YAML_INVALID_SCHEMA))
+
+
+def test_get_bento_path(monkeypatch):
+    pass
