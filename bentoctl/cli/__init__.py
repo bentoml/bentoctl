@@ -17,6 +17,7 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
+from bentoctl.cli.helper_scripts import terraform_destroy
 from bentoctl.utils import TempDirectory, get_debug_mode
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -165,6 +166,24 @@ def build(
         print_generated_files_list(generated_files)
     else:
         console.print(f"[green]Create docker image: {local_docker_tag}[/]")
+
+
+@bentoctl.command()
+@click.option(
+    "--deployment-config-file",
+    "-f",
+    help="path to deployment_config file",
+    default="deployment_config.yaml",
+)
+@handle_bentoctl_exceptions
+def destroy(deployment_config_file):
+    """
+    Destroy all the resources created and remove the registry.
+    """
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    if deployment_config.template_type.startswith("terraform"):
+        terraform_destroy()
+        deployment_config.destroy_registry()
 
 
 # subcommands
