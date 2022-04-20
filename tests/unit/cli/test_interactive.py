@@ -70,3 +70,73 @@ def test_deployment_config_builder(
         "bentoctl.deployment_config.local_operator_registry", get_mock_operator_registry
     )
     interactive_cli.deployment_config_builder()
+
+
+list_of_strings = {
+    "rule": {"type": "list", "schema": {"type": "string"}},
+    "user_input": "y\nhai\ny\nhai\nn\n",
+    "expected_output": ["hai", "hai"],
+}
+
+list_of_strings_required = {
+    "rule": {"type": "list", "required": True, "schema": {"type": "string"}},
+    "user_input": "hai\ny\nhai\nn\n",
+    "expected_output": ["hai", "hai"],
+}
+
+list_of_strings_required_with_nested_dict = {
+    "rule": {
+        "type": "list",
+        "required": True,
+        "schema": {"type": "dict", "schema": {"string": {"type": "string"}}},
+    },
+    "user_input": "name\ny\nname\nn\n",
+    "expected_output": [{"string": "name"}, {"string": "name"}],
+}
+
+nested_dict = {
+    "rule": {
+        "type": "dict",
+        "schema": {
+            "name": {"type": "string"},
+            "list": {"type": "list", "schema": {"type": "string"}},
+            "dict": {"type": "dict", "schema": {"name": {"type": "string"}}},
+        },
+    },
+    "user_input": "name\ny\nitem1\ny\nitem2\nn\ndict_name\n",
+    "expected_output": {
+        "name": "name",
+        "list": ["item1", "item2"],
+        "dict": {"name": "dict_name"},
+    },
+}
+
+all_values = {
+    "rule": {
+        "type": "dict",
+        "schema": {
+            "int": {"type": "integer", "coerce": int},
+            "float": {"type": "float", "coerce": float},
+            "bool": {"type": "boolean", "coerce": bool},
+        },
+    },
+    "user_input": "120\n120.23\nTrue",
+    "expected_output": {"int": 120, "float": 120.23, "bool": True},
+}
+
+
+@pytest.mark.parametrize(
+    "test_case",
+    [
+        list_of_strings,
+        list_of_strings_required,
+        list_of_strings_required_with_nested_dict,
+        nested_dict,
+        all_values,
+    ],
+)
+def test_prompt_input(monkeypatch, test_case):
+    stdin = StringIO(test_case["user_input"])
+    monkeypatch.setattr("sys.stdin", stdin)
+    output = interactive_cli.prompt_input("test", test_case["rule"])
+    assert output == test_case["expected_output"]
