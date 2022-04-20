@@ -9,7 +9,7 @@ TERRAFORM_INIT_FOLDER = ".terraform"
 
 def terraform_run(cmd: list):
     try:
-        subprocess.run(["terraform", *cmd])
+        subprocess.run(["terraform", *cmd], check=False)
     except FileNotFoundError:
         raise BentoctlException(
             "terraform not available. Please make "

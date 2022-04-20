@@ -205,6 +205,5 @@ def apply(deployment_config_file):
         terraform_apply()
 
 
-
 # subcommands
 bentoctl.add_command(get_operator_management_subcommands())
