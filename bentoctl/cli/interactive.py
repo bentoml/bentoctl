@@ -222,11 +222,6 @@ def select_operator():
     """
     interactive menu to select operator
     """
-    available_operators = list(local_operator_registry.list())
-    # automatically select the first operator if there is only one
-    if len(available_operators) == 1:
-        return available_operators[0]
-
     try:
         from simple_term_menu import TerminalMenu
 
@@ -276,13 +271,23 @@ def deployment_config_builder():
     console.print(f"[b]name:[/] {name}")
 
     # get operators
-    operator_name = select_operator()
+    available_operators = list(local_operator_registry.list())
+    # automatically select the first operator if there is only one
+    operator_name = (
+        available_operators[0]
+        if len(available_operators) == 1
+        else select_operator(available_operators)
+    )
     deployment_config["operator"] = operator_name
     console.print(f"[b]operator:[/] {operator_name}")
     operator = local_operator_registry.get(operator_name)
 
     # get template_type
-    template_name = select_template_type(operator.available_templates)
+    template_name = (
+        operator.available_templates[0]
+        if len(operator.available_templates) == 1
+        else select_template_type(operator.available_templates)
+    )
     deployment_config["template"] = template_name
     console.print(f"[b]template:[/] {template_name}")
 
