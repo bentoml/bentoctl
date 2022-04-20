@@ -6,7 +6,11 @@ from bentoctl import __version__
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
-from bentoctl.console import print_generated_files_list, prompt_user_for_filename
+from bentoctl.console import (
+    console,
+    print_generated_files_list,
+    prompt_user_for_filename,
+)
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.docker_utils import (
     build_docker_image,
@@ -14,7 +18,6 @@ from bentoctl.docker_utils import (
     tag_docker_image,
 )
 from bentoctl.utils import TempDirectory, get_debug_mode
-from bentoctl.console import console
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -112,10 +115,10 @@ def generate(deployment_config_file, values_only, save_path):
     "--bento-tag", "-b", help="Bento tag to use for deployment.", required=True
 )
 @click.option(
-    "--deployment_config_file",
+    "--deployment-config-file",
     "-f",
     help="path to deployment_config file",
-    required=True,
+    default="deployment_config.yaml",
 )
 @click.option("--dry-run", is_flag=True, help="Dry run", default=False)
 @handle_bentoctl_exceptions
