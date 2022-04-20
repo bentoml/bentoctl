@@ -63,6 +63,18 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
             }
         )
 
+    # deployment_config with invalid template
+    with pytest.raises(InvalidDeploymentConfig):
+        dconf.DeploymentConfig(
+            {
+                "api_version": "v1",
+                "name": "test",
+                "template": "not-valid-template",
+                "operator": "testop",
+                "spec": {},
+            }
+        )
+
 
 VALID_YAML = """
 api_version: v1
@@ -124,7 +136,3 @@ def test_validate_operator_config(
 
     with pytest.raises(InvalidDeploymentConfig):
         dconf.DeploymentConfig(yaml.safe_load(VALID_YAML_INVALID_SCHEMA))
-
-
-def test_get_bento_path(monkeypatch):
-    pass

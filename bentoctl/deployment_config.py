@@ -51,19 +51,6 @@ deployment_config_schema = {
 }
 
 
-def get_bento_path(bento_name_or_path: str):
-    if os.path.isdir(bento_name_or_path) and os.path.isfile(
-        os.path.join(bento_name_or_path, "bento.yaml")
-    ):
-        return os.path.abspath(bento_name_or_path)
-    else:
-        try:
-            bento = bentoml.get(bento_name_or_path)
-            return bento.path
-        except bentoml.exceptions.BentoMLException:
-            raise InvalidDeploymentConfig(f"Bento {bento_name_or_path} not found!")
-
-
 def remove_help_message(schema):
     """
     Remove the help_messages in the validation dict.

@@ -1,6 +1,6 @@
 # pylint: disable=W0621
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
@@ -47,12 +47,12 @@ def mock_operator():
         available_templates: list = "terraform"
 
         def __post_init__(self):
-            if self.module_name == None:
+            if self.module_name is None:
                 self.module_name = self.name
             if self.default_template is None:
                 self.default_template = self.available_templates[0]
 
-        def generate():
+        def generate(self):
             pass
 
     def factory(**kwargs):

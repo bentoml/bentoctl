@@ -4,7 +4,6 @@ from io import StringIO
 
 import pytest
 
-import bentoctl
 import bentoctl.cli.interactive as interactive_cli
 
 
