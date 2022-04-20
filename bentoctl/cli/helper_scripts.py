@@ -4,6 +4,7 @@ import subprocess
 from bentoctl.exceptions import BentoctlException
 
 TERRAFORM_VALUES_FILE = "bentoctl.tfvars"
+TERRAFORM_INIT_FOLDER = ".terraform"
 
 
 def terraform_run(cmd: list):
@@ -24,3 +25,12 @@ def terraform_destroy():
     terraform_run(["destroy", "-var-file", TERRAFORM_VALUES_FILE])
 
 
+def is_terraform_initialised():
+    return os.path.exists(os.path.join(os.curdir, TERRAFORM_INIT_FOLDER))
+
+
+def terraform_apply():
+    if not is_terraform_initialised():
+        terraform_run(["init"])
+
+    terraform_run(["apply", "-var-file", TERRAFORM_VALUES_FILE])

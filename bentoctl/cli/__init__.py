@@ -3,7 +3,7 @@ import os
 import click
 
 from bentoctl import __version__
-from bentoctl.cli.helper_scripts import terraform_destroy
+from bentoctl.cli.helper_scripts import terraform_apply, terraform_destroy
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -200,7 +200,10 @@ def apply(deployment_config_file):
     """
     [Experimental] Apply the generated template file to create/update the deployment.
     """
-    pass
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    if deployment_config.template_type.startswith("terraform"):
+        terraform_apply()
+
 
 
 # subcommands
