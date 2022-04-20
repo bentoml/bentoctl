@@ -235,7 +235,7 @@ class DeploymentConfig:
     def generate_docker_image_tag(self, registry_url: str) -> str:
         image_tag = (
             f"{registry_url.replace('https://', '')}/"
-            "{self.repository_name}:{self.bento.tag.version}"
+            f"{self.repository_name}:{self.bento.tag.version}"
         )
         self.operator_spec["image_tag"] = image_tag
         return image_tag
