@@ -6,12 +6,12 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+from bentoctl.console import console
 from bentoctl.exceptions import (
     OperatorConfigNotFound,
     OperatorLoadException,
     PipInstallException,
 )
-from bentoctl.console import console
 
 logger = logging.getLogger(__name__)
 
@@ -124,11 +124,11 @@ class Operator:
             bento_path, destination_dir, bento_metadata, overwrite_deployable
         )
 
-    def get_registry_info(
-        self, deployment_name: str, operator_spec: str
+    def create_repository(
+        self, repository_name: str, operator_spec: str
     ) -> Tuple[str, str, str]:
         """
-        Get registry information from operator.
+        Create the registy is needed and return the registry information.
 
         Parameters
         ----------
@@ -146,7 +146,20 @@ class Operator:
             Password for docker push authentication
         """
         operator = self._load_operator_module()
-        return operator.get_registry_info(deployment_name, operator_spec)
+        return operator.create_repository(repository_name, operator_spec)
+
+    def delete_repository(self, repository_name: str, operator_spec: str):
+        """
+        Destroy registry if created.
+
+        Parameters
+        ----------
+        deployment_name: str
+        operator_spec: str
+            Operator specifications
+        """
+        operator = self._load_operator_module()
+        return operator.delete_repository(repository_name, operator_spec)
 
     def install_dependencies(self):
         requirement_txt_filepath = os.path.join(self.path, "requirements.txt")

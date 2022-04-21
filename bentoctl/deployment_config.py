@@ -114,6 +114,7 @@ class DeploymentConfig:
 
     def _set_name(self):
         self.deployment_name = self.deployment_config.get("name")
+        self.repository_name = self.deployment_name
         if self.deployment_name is None:
             raise InvalidDeploymentConfig("name not found")
 
@@ -224,13 +225,15 @@ class DeploymentConfig:
 
         return dockerfile_path, docker_context_path, build_args
 
-    def get_registry_info(self):
-        self.repository_name = self.deployment_name
-        (registry_url, username, password,) = self.operator.get_registry_info(
-            deployment_name=self.deployment_name,
+    def create_repository(self):
+        (registry_url, username, password,) = self.operator.create_repository(
+            repository_name=self.repository_name,
             operator_spec=self.operator_spec,
         )
         return registry_url, username, password
+
+    def delete_repository(self):
+        return self.operator.delete_repository(self.repository_name, self.operator_spec)
 
     def generate_docker_image_tag(self, registry_url: str) -> str:
         image_tag = (

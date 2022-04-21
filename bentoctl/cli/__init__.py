@@ -3,6 +3,7 @@ import os
 import click
 
 from bentoctl import __version__
+from bentoctl.cli.helper_scripts import terraform_apply, terraform_destroy
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -153,7 +154,8 @@ def build(
             registry_url,
             registry_username,
             registry_password,
-        ) = deployment_config.get_registry_info()
+        ) = deployment_config.create_repository()
+        console.print(f"Created the repository {deployment_config.repository_name}")
         repository_image_tag = deployment_config.generate_docker_image_tag(registry_url)
         tag_docker_image(local_docker_tag, repository_image_tag)
         push_docker_image_to_repository(
@@ -165,6 +167,42 @@ def build(
         print_generated_files_list(generated_files)
     else:
         console.print(f"[green]Create docker image: {local_docker_tag}[/]")
+
+
+@bentoctl.command()
+@click.option(
+    "--deployment-config-file",
+    "-f",
+    help="path to deployment_config file",
+    default="deployment_config.yaml",
+)
+@handle_bentoctl_exceptions
+def destroy(deployment_config_file):
+    """
+    Destroy all the resources created and remove the registry.
+    """
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    if deployment_config.template_type.startswith("terraform"):
+        terraform_destroy()
+        deployment_config.delete_repository()
+        console.print(f"Deleted the repository {deployment_config.repository_name}")
+
+
+@bentoctl.command()
+@click.option(
+    "--deployment-config-file",
+    "-f",
+    help="path to deployment_config file",
+    default="deployment_config.yaml",
+)
+@handle_bentoctl_exceptions
+def apply(deployment_config_file):
+    """
+    [Experimental] Apply the generated template file to create/update the deployment.
+    """
+    deployment_config = DeploymentConfig.from_file(deployment_config_file)
+    if deployment_config.template_type.startswith("terraform"):
+        terraform_apply()
 
 
 # subcommands
