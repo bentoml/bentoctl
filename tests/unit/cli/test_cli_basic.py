@@ -1,4 +1,5 @@
 # pylint: disable=W0621
+from dataclasses import dataclass
 import os
 
 import pytest
@@ -40,7 +41,10 @@ def test_bentoctl_version():
     assert __version__ in result.output
 
 
+@dataclass
 class DeploymentConfigMock:
+    repository_name: str = None
+
     @classmethod
     def from_file(cls, file):
         return cls()
@@ -63,8 +67,11 @@ class DeploymentConfigMock:
     def create_deployable(self, destination_dir=None):
         return "dockerfile_path", "docker_context_path", "build_args"
 
-    def get_registry_info(self):
+    def create_repository(self):
         return "registry_url", "registry_username", "registry_pass"
+
+    def delete_repository(self):
+        return
 
     def generate_docker_image_tag(self, registry_url):
         return "repository_image_tag"
