@@ -125,9 +125,7 @@ def test_cli_build(monkeypatch):
     monkeypatch.setattr(
         bentoctl.cli, "push_docker_image_to_repository", lambda **kwargs: print(kwargs)
     )
-    monkeypatch.setattr(
-        bentoctl.cli, "tag_docker_image", lambda *args: print(args)
-    )
+    monkeypatch.setattr(bentoctl.cli, "tag_docker_image", lambda *args: print(args))
 
     runner = CliRunner()
     result = runner.invoke(
@@ -155,7 +153,7 @@ def test_cli_build(monkeypatch):
             "testbento:latest",
             "--deployment-config-file",
             "deployment_config.yaml",
-            "--dry-run"
+            "--dry-run",
         ],
         catch_exceptions=False,
     )
