@@ -242,9 +242,6 @@ def select_operator():
 
 
 def select_template_type(available_templates):
-    if len(available_templates) == 1:
-        return available_templates[0]
-
     try:
         from simple_term_menu import TerminalMenu
 
@@ -282,7 +279,11 @@ def deployment_config_builder():
     operator = local_operator_registry.get(operator_name)
 
     # get template_type
-    template_name = select_template_type(operator.available_templates)
+    template_name = (
+        operator.default_template
+        if len(operator.available_templates) == 1
+        else select_template_type(operator.available_templates)
+    )
     deployment_config["template"] = template_name
     console.print(f"[b]template:[/] {template_name}")
 
