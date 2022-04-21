@@ -40,7 +40,7 @@ deployment_config_schema = {
         "help_message": "The operator to use for deployment",
         "check_with": operator_exists,
     },
-    "template_type": {
+    "template": {
         "required": True,
         "default": "terraform",
         "help_message": "The template type for generated deployment",
@@ -128,8 +128,8 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig(
                 (
                     f"template '{self.template_type}' not supported by operator "
-                    "{self.operator_name}. Available template types are "
-                    "{self.operator.available_templates}."
+                    f"{self.operator_name}. Available template types are "
+                    f"{self.operator.available_templates}."
                 )
             )
 

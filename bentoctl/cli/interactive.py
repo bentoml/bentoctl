@@ -218,41 +218,20 @@ def generate_spec(schema):
     return spec
 
 
-def select_operator():
+def dropdown_select(field: str, options: list):
     """
     interactive menu to select operator
     """
-    available_operators = list(local_operator_registry.list())
-    # automatically select the first operator if there is only one
-    if len(available_operators) == 1:
-        return available_operators[0]
-
     try:
         from simple_term_menu import TerminalMenu
 
-        tmenu = TerminalMenu(available_operators, title="Choose an operator")
+        tmenu = TerminalMenu(options, title="Choose an operator")
         choice = tmenu.show()
-        return available_operators[choice]
+        return options[choice]
     except ImportError:
-        operator = prompt_input_value(
-            "operator", deployment_config_schema.get("operator")
-        )
+        operator = prompt_input_value(field, deployment_config_schema.get(field))
 
         return operator
-
-
-def select_template_type(available_templates):
-    try:
-        from simple_term_menu import TerminalMenu
-
-        tmenu = TerminalMenu(available_templates, title="Choose a Template Type")
-        choice = tmenu.show()
-        return available_templates[choice]
-    except ImportError:
-        template_type = prompt_input_value(
-            "template", deployment_config_schema.get("template_type")
-        )
-        return template_type
 
 
 def deployment_config_builder():
@@ -273,7 +252,12 @@ def deployment_config_builder():
     console.print(f"[b]name:[/] {name}")
 
     # get operators
-    operator_name = select_operator()
+    available_operators = list(local_operator_registry.list())
+    operator_name = (
+        available_operators[0]
+        if len(available_operators) == 1
+        else dropdown_select("operator", available_operators)
+    )
     deployment_config["operator"] = operator_name
     console.print(f"[b]operator:[/] {operator_name}")
     operator = local_operator_registry.get(operator_name)
@@ -282,7 +266,7 @@ def deployment_config_builder():
     template_name = (
         operator.default_template
         if len(operator.available_templates) == 1
-        else select_template_type(operator.available_templates)
+        else dropdown_select("template", operator.available_templates)
     )
     deployment_config["template"] = template_name
     console.print(f"[b]template:[/] {template_name}")

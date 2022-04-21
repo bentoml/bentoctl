@@ -1,6 +1,6 @@
 # pylint: disable=W0621
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import pytest
@@ -44,7 +44,7 @@ def mock_operator():
         schema: dict
         module_name: str = None
         default_template: str = None
-        available_templates: list = "terraform"
+        available_templates: list = field(default_factory=lambda: ["terraform"])
 
         def __post_init__(self):
             if self.module_name is None:

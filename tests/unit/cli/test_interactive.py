@@ -23,25 +23,11 @@ def mock_terminal_menu(monkeypatch):
 
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="don't work for windows")
-def test_select_operator(mock_terminal_menu, monkeypatch):
-
-    monkeypatch.setattr(
-        interactive_cli.local_operator_registry, "list", lambda: ["op1", "op2"]
-    )
-    assert interactive_cli.select_operator() == "op2"
-
-    # with only one
-    monkeypatch.setattr(
-        interactive_cli.local_operator_registry, "list", lambda: ["op2"]
-    )
-    assert interactive_cli.select_operator() == "op2"
-
-
-@pytest.mark.skipif(sys.platform.startswith("win"), reason="don't work for windows")
-def test_select_template_type(mock_terminal_menu):
-    assert interactive_cli.select_template_type(["template1"]) == "template1"
+def test_dropdown_select(mock_terminal_menu):
+    assert interactive_cli.dropdown_select("field", ["template1"]) == "template1"
     assert (
-        interactive_cli.select_template_type(["template1", "template2"]) == "template2"
+        interactive_cli.dropdown_select("field", ["template1", "template2"])
+        == "template2"
     )
 
 
@@ -60,8 +46,9 @@ def test_deployment_config_builder(
     get_mock_operator_registry.get = lambda _: operator1
     stdin = StringIO("testdeployment\n")
     monkeypatch.setattr("sys.stdin", stdin)
-    monkeypatch.setattr(interactive_cli, "select_operator", lambda: "operator1")
-    monkeypatch.setattr(interactive_cli, "select_template_type", lambda types: types[0])
+    monkeypatch.setattr(
+        interactive_cli, "dropdown_select", lambda field, options: "operator1"
+    )
     monkeypatch.setattr(
         interactive_cli, "local_operator_registry", get_mock_operator_registry
     )
