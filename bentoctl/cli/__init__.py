@@ -3,7 +3,7 @@ import os
 import click
 
 from bentoctl import __version__
-from bentoctl.cli.helper_scripts import terraform_apply, terraform_destroy
+from bentoctl.terraform import terraform_apply, terraform_destroy, is_terraform_applied
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -182,10 +182,13 @@ def destroy(deployment_config_file):
     Destroy all the resources created and remove the registry.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
-    if deployment_config.template_type.startswith("terraform"):
+    if (
+        deployment_config.template_type.startswith("terraform")
+        and is_terraform_applied()
+    ):
         terraform_destroy()
-        deployment_config.delete_repository()
-        console.print(f"Deleted the repository {deployment_config.repository_name}")
+    deployment_config.delete_repository()
+    console.print(f"Deleted the repository {deployment_config.repository_name}")
 
 
 @bentoctl.command()
