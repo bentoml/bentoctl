@@ -12,13 +12,14 @@ def terraform_run(cmd: list, return_output: bool = False):
     try:
         if not return_output:
             subprocess.run(["terraform", *cmd], check=False)
-        proc = subprocess.Popen(
-            ["terraform", *cmd],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        stdout, stderr = proc.communicate()
-        return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
+        else:
+            proc = subprocess.Popen(
+                ["terraform", *cmd],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            stdout, stderr = proc.communicate()
+            return proc.returncode, stdout.decode("utf-8"), stderr.decode("utf-8")
     except FileNotFoundError:
         raise BentoctlException(
             "terraform not available. Please make "
