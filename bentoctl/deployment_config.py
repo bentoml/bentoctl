@@ -40,7 +40,7 @@ deployment_config_schema = {
         "help_message": "The operator to use for deployment",
         "check_with": operator_exists,
     },
-    "template_type": {
+    "template": {
         "required": True,
         "default": "terraform",
         "help_message": "The template type for generated deployment",
@@ -49,19 +49,6 @@ deployment_config_schema = {
         "required": True,
     },
 }
-
-
-def get_bento_path(bento_name_or_path: str):
-    if os.path.isdir(bento_name_or_path) and os.path.isfile(
-        os.path.join(bento_name_or_path, "bento.yaml")
-    ):
-        return os.path.abspath(bento_name_or_path)
-    else:
-        try:
-            bento = bentoml.get(bento_name_or_path)
-            return bento.path
-        except bentoml.exceptions.BentoMLException:
-            raise InvalidDeploymentConfig(f"Bento {bento_name_or_path} not found!")
 
 
 def remove_help_message(schema):
@@ -142,8 +129,8 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig(
                 (
                     f"template '{self.template_type}' not supported by operator "
-                    "{self.operator_name}. Available template types are "
-                    "{self.operator.available_templates}."
+                    f"{self.operator_name}. Available template types are "
+                    f"{self.operator.available_templates}."
                 )
             )
 

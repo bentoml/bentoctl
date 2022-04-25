@@ -70,13 +70,14 @@ def init(save_path, do_not_generate):
             return
 
     deployment_config.save(save_path=save_path, filename=deployment_config_filname)
-    console.print(
-        "[green]deployment config generated to: "
-        f"{os.path.relpath(config_path, save_path)}[/]"
-    )
+    try:
+        relative_path = os.path.relpath(config_path, os.curdir)
+    except ValueError:
+        relative_path = config_path
+    console.print("[green]deployment config generated to: " f"{relative_path}[/]")
 
     if not do_not_generate:
-        generated_files = deployment_config.generate()
+        generated_files = deployment_config.generate(destination_dir=save_path)
         print_generated_files_list(generated_files)
 
 
@@ -166,7 +167,7 @@ def build(
         generated_files = deployment_config.generate(values_only=True)
         print_generated_files_list(generated_files)
     else:
-        console.print(f"[green]Create docker image: {local_docker_tag}[/]")
+        console.print(f"[green]Created docker image: {local_docker_tag}[/]")
 
 
 @bentoctl.command()
