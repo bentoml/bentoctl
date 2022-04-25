@@ -1,18 +1,61 @@
 # pylint: disable=W0621
 import os
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
 from bentoctl.operator import get_local_operator_registry
+from bentoctl.operator.registry import OperatorRegistry
 
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
 
 @pytest.fixture
-def op_reg(tmp_path):
+def mock_operator_registry(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
     op_reg = get_local_operator_registry()
 
     yield op_reg
 
     del os.environ["BENTOCTL_HOME"]
+
+
+@pytest.fixture
+def get_mock_operator_registry(monkeypatch, tmp_path):
+    operator_registry = OperatorRegistry(tmp_path)
+    monkeypatch.setattr(
+        "bentoctl.operator.get_local_operator_registry", lambda: operator_registry
+    )
+    return operator_registry
+
+
+@pytest.fixture
+def tmp_bento_path(tmpdir):
+    Path(tmpdir, "bento.yaml").touch()
+    return tmpdir
+
+
+@pytest.fixture()
+def mock_operator():
+    @dataclass
+    class MockOperator:
+        name: str
+        schema: dict
+        module_name: str = None
+        default_template: str = None
+        available_templates: list = field(default_factory=lambda: ["terraform"])
+
+        def __post_init__(self):
+            if self.module_name is None:
+                self.module_name = self.name
+            if self.default_template is None:
+                self.default_template = self.available_templates[0]
+
+        def generate(self):
+            pass
+
+    def factory(**kwargs):
+        return MockOperator(**kwargs)
+
+    return factory
