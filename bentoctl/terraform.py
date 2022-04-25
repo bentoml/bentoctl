@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import subprocess
 
 from bentoctl.exceptions import BentoctlException
@@ -28,12 +28,14 @@ def terraform_run(cmd: list, return_output: bool = False):
 
 def terraform_destroy():
     if not is_terraform_initialised():
-        raise BentoctlException('terraform is not initialised')
+        raise BentoctlException("terraform is not initialised")
     if not os.path.exists(os.path.join(os.curdir, TERRAFORM_VALUES_FILE)):
         raise BentoctlException(
             f"{TERRAFORM_VALUES_FILE} not found in current directory."
         )
-    terraform_run(["apply", "-destroy", "-var-file", TERRAFORM_VALUES_FILE, '-auto-approve'])
+    terraform_run(
+        ["apply", "-destroy", "-var-file", TERRAFORM_VALUES_FILE, "-auto-approve"]
+    )
 
 
 def is_terraform_initialised():
@@ -44,7 +46,7 @@ def terraform_apply():
     if not is_terraform_initialised():
         terraform_run(["init"])
 
-    terraform_run(["apply", "-var-file", TERRAFORM_VALUES_FILE, '-auto-approve'])
+    terraform_run(["apply", "-var-file", TERRAFORM_VALUES_FILE, "-auto-approve"])
 
 
 def terraform_output():
