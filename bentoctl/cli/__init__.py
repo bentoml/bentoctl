@@ -3,6 +3,11 @@ import os
 import click
 
 from bentoctl import __version__
+from bentoctl.utils.terraform import (
+    terraform_apply,
+    terraform_destroy,
+    is_terraform_applied,
+)
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -17,8 +22,8 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.terraform import is_terraform_applied, terraform_apply, terraform_destroy
-from bentoctl.utils import TempDirectory, get_debug_mode
+from bentoctl.utils import get_debug_mode
+from bentoctl.utils.temp_dir import TempDirectory
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
