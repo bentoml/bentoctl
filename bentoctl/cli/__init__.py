@@ -3,7 +3,6 @@ import os
 import click
 
 from bentoctl import __version__
-from bentoctl.terraform import terraform_apply, terraform_destroy, is_terraform_applied
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -18,6 +17,7 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
+from bentoctl.terraform import is_terraform_applied, terraform_apply, terraform_destroy
 from bentoctl.utils import TempDirectory, get_debug_mode
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -152,17 +152,20 @@ def build(
         )
     if not dry_run:
         (
-            registry_url,
-            registry_username,
-            registry_password,
+            repository_url,
+            username,
+            password,
         ) = deployment_config.create_repository()
+
         console.print(f"Created the repository {deployment_config.repository_name}")
-        repository_image_tag = deployment_config.generate_docker_image_tag(registry_url)
+        repository_image_tag = deployment_config.generate_docker_image_tag(
+            repository_url
+        )
         tag_docker_image(local_docker_tag, repository_image_tag)
         push_docker_image_to_repository(
             repository=repository_image_tag,
-            username=registry_username,
-            password=registry_password,
+            username=username,
+            password=password,
         )
         generated_files = deployment_config.generate(values_only=True)
         print_generated_files_list(generated_files)

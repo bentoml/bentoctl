@@ -213,20 +213,17 @@ class DeploymentConfig:
         return dockerfile_path, docker_context_path, build_args
 
     def create_repository(self):
-        (registry_url, username, password,) = self.operator.create_repository(
+        (repository_url, username, password,) = self.operator.create_repository(
             repository_name=self.repository_name,
             operator_spec=self.operator_spec,
         )
-        return registry_url, username, password
+        return repository_url, username, password
 
     def delete_repository(self):
         return self.operator.delete_repository(self.repository_name, self.operator_spec)
 
-    def generate_docker_image_tag(self, registry_url: str) -> str:
-        image_tag = (
-            f"{registry_url.replace('https://', '')}/"
-            f"{self.repository_name}:{self.bento.tag.version}"
-        )
+    def generate_docker_image_tag(self, repository_url: str) -> str:
+        image_tag = f"{repository_url.replace('https://', '')}:{self.bento.tag.version}"
         self.operator_spec["image_tag"] = image_tag
         return image_tag
 
