@@ -156,7 +156,7 @@ def build(
             username,
             password,
         ) = deployment_config.create_repository()
-        breakpoint()
+
         console.print(f"Created the repository {deployment_config.repository_name}")
         repository_image_tag = deployment_config.generate_docker_image_tag(
             repository_url
