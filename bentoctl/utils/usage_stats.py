@@ -52,9 +52,9 @@ class CliEvent:
     ):
         self.cmd_group = cmd_group
         self.cmd_name = cmd_name
-        self.duration_in_ms = 0
-        self.error_type = None
-        self.return_code = None
+        self.duration_in_ms = duration_in_ms
+        self.error_type = error_type
+        self.return_code = return_code
         self.operator = operator
         self.version = version
 
