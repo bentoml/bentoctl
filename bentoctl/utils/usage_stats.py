@@ -3,6 +3,8 @@ import uuid
 import requests
 import yaml
 
+# These are internal apis. We will need to make sure update these when BentoML changes.
+from bentoml._internal.utils import bentoml_cattr
 from bentoml._internal.utils.analytics.schemas import CommonProperties
 
 
@@ -20,46 +22,58 @@ def do_not_track() -> bool:
 def get_payload(event_properties: dict) -> dict:
     common_properties = CommonProperties()
     return {
-        "common_properties": common_properties,
+        "common_properties": bentoml_cattr.unstructure(common_properties),
         "event_properties": event_properties,
         "session_id": uuid.uuid1().hex,
-        "event_type": "bentoctl-cli"
+        "event_type": "bentoctl-cli",
     }
 
 
-def track(event_properties: dict):
+def track(event_properties):
     if do_not_track():
         return
-    payload = get_payload(event_properties=event_properties)
+    payload = get_payload(event_properties=vars(event_properties))
 
     requests.post(
         USAGE_TRACKING_URL, json=payload, timeout=USAGE_REQUEST_TIMEOUT_SECONDS
     )
 
 
-def _cli_bentoctl_build_event(cmd_group, cmd_name, cmd_args, cmd_kwargs):
-    return {}
+class CliEvent:
+    def __init__(
+        self,
+        cmd_group,
+        cmd_name,
+        duration_in_ms=None,
+        error_type=None,
+        return_code=None,
+        operator=None,
+        version=None,
+    ):
+        self.cmd_group = cmd_group
+        self.cmd_name = cmd_name
+        self.duration_in_ms = 0
+        self.error_type = None
+        self.return_code = None
+        self.operator = operator
+        self.version = version
 
 
-cli_events_map = {"cli": {"build": _cli_bentoctl_build_event}}
-# {
-#     'session_id': 'e0511c1ac5a711ecbc9f1c5c60561cbc',
-#     'event_properties': {
-#         'cmd_name': 'serve',
-#         'error_type': None,
-#         'return_code': None
-#     },
-#     'common_properties': {
-#         'timestamp': '2022-04-26T21:28:59.408329+00:00',
-#         'platform': 'Darwin-21.5.0-x86_64-i386-64bit',
-#         'bentoml_version': '1.0.0a7.post9+gea0040f3',
-#         'python_version': '3.7.10',
-#          'is_interactive': False, 'in_notebook': False, 'memory_usage_percent': 0.6437778472900391, 'total_memory_in_mb': 16384,
-#          'client': {
-#              'id': '0cf269e4-ecf7-4869-ba7f-f32bc3d39ee5',
-#              'creation_timestamp': '2022-04-06T22:14:53.694582+00:00'
-#         },
-#         'yatai_user_email': 'admin@abc.com'
-#     },
-#     'event_type': 'cli'
-# }
+def _bentoctl_event(cmd_group, cmd_name, return_value=None):
+    if return_value is not None:
+        deployment_config = return_value
+        version = (
+            deployment_config.bento.tag.version if deployment_config.bento else None
+        )
+
+        return CliEvent(
+            cmd_group,
+            cmd_name,
+            operator=deployment_config.operator_name,
+            version=version,
+        )
+    else:
+        return CliEvent(cmd_group, cmd_name)
+
+
+cli_events_map = {"bentoctl": _bentoctl_event}

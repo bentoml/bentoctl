@@ -1,11 +1,17 @@
 import functools
 import sys
+import time
 
 import click
 
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import set_debug_mode
-from bentoctll.utils.usage_stats import BENTOCTL_DO_NOT_TRACK, cli_events_map
+from bentoctl.utils.usage_stats import (
+    BENTOCTL_DO_NOT_TRACK,
+    cli_events_map,
+    CliEvent,
+    track,
+)
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
@@ -59,21 +65,28 @@ class BentoctlCommandGroup(click.Group):
                 os.environs["BENTOCTL_DO_NOT_TRACK"] = str(True)
                 return func(*args, **kwargs)
             start_time = time.time_ns()
-            if (cmd_group.name in cli_events_map and command_name in cli_events_map[cmd_group.name]):
+            if cmd_group.name in cli_events_map:
+                # If cli command is build or operator related, we will add additoinal properties
                 get_tracking_event = functools.partial(
-                    cli_events_map[cmd_group.name][command_name],
+                    cli_events_map[cmd_group.name],
                     cmd_group.name,
-                    command_name
+                    command_name,
                 )
+            elif cmd_group.name == "operator":
+
+                def get_tracking_event(return_value):
+                    return CliEvent(
+                        cmd_group.name, command_name, operator=kwargs.get("name", None)
+                    )
+
             else:
+
                 def get_tracking_event(ret):
-                    return {
-                        cmd_group=cmd_group.name,
-                        cmd_name=command_name,
-                    }
+                    return CliEvent(cmd_group.name, command_name)
+
             try:
                 return_value = func(*args, **kwargs)
-                event = get_tracking_event(return_value)
+                event = get_tracking_event(return_value=return_value)
                 duration_in_ms = time.time_ns() - start_time
                 event.duration_in_ms = duration_in_ms / 1e6
                 track(event)
@@ -86,6 +99,7 @@ class BentoctlCommandGroup(click.Group):
                 event.return_code = 2 if isinstance(e, KeyboardInterrupt) else 1
                 track(event)
                 raise
+
         return wrapper
 
     def command(self, *args, **kwargs):
