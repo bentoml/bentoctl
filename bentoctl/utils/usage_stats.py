@@ -1,11 +1,11 @@
 import os
 import uuid
 import requests
-import yaml
 
 # These are internal apis. We will need to make sure update these when BentoML changes.
 from bentoml._internal.utils import bentoml_cattr
 from bentoml._internal.utils.analytics.schemas import CommonProperties
+from bentoctl import __version__
 
 
 BENTOCTL_DO_NOT_TRACK = "BENTOCTL_DO_NOT_TRACK"
@@ -57,6 +57,7 @@ class CliEvent:
         self.return_code = return_code
         self.operator = operator
         self.version = version
+        self.bentoctl_version = __version__
 
 
 def _bentoctl_event(cmd_group, cmd_name, return_value=None):
