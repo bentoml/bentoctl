@@ -8,7 +8,7 @@ from bentoml._internal.utils import bentoml_cattr
 from bentoml._internal.utils.analytics.schemas import CommonProperties
 
 
-BENTOCTL_DO_NOT_TRACK = "BENTOML_DO_NOT_TRACK"
+BENTOCTL_DO_NOT_TRACK = "BENTOCTL_DO_NOT_TRACK"
 USAGE_TRACKING_URL = "https://t.bentoml.com"
 USAGE_REQUEST_TIMEOUT_SECONDS = 1
 
