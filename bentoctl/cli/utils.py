@@ -8,7 +8,7 @@ import click
 from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import set_debug_mode
 from bentoctl.utils.usage_stats import (
-    BENTOCTL_DO_NOT_TRACK,
+    BENTOML_DO_NOT_TRACK,
     cli_events_map,
     CliEvent,
     track,
@@ -45,7 +45,7 @@ class BentoctlCommandGroup(click.Group):
             "--do-not-track",
             is_flag=True,
             default=False,
-            envvar=BENTOCTL_DO_NOT_TRACK,
+            envvar=BENTOML_DO_NOT_TRACK,
             help="Do not send uage info",
         )
         @functools.wraps(func)
@@ -67,7 +67,8 @@ class BentoctlCommandGroup(click.Group):
                 return func(*args, **kwargs)
             start_time = time.time_ns()
             if cmd_group.name in cli_events_map:
-                # If cli command is build or operator related, we will add additoinal properties
+                # If cli command is build or operator related, we will add
+                # additoinal properties
                 get_tracking_event = functools.partial(
                     cli_events_map[cmd_group.name],
                     cmd_group.name,
@@ -75,14 +76,14 @@ class BentoctlCommandGroup(click.Group):
                 )
             elif cmd_group.name == "operator":
 
-                def get_tracking_event(return_value):
+                def get_tracking_event(return_value):  # pylint: disable=unused-argument
                     return CliEvent(
                         cmd_group.name, command_name, operator=kwargs.get("name", None)
                     )
 
             else:
 
-                def get_tracking_event(ret):
+                def get_tracking_event(ret):  # pylint: disable=unused-argument
                     return CliEvent(cmd_group.name, command_name)
 
             try:

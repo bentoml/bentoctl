@@ -1,42 +1,11 @@
-import os
-import uuid
-import requests
-
-# These are internal apis. We will need to make sure update these when BentoML changes.
-from bentoml._internal.utils import bentoml_cattr
-from bentoml._internal.utils.analytics.schemas import CommonProperties
 from bentoctl import __version__
 
-
-BENTOCTL_DO_NOT_TRACK = "BENTOCTL_DO_NOT_TRACK"
-USAGE_TRACKING_URL = "https://t.bentoml.com"
-USAGE_REQUEST_TIMEOUT_SECONDS = 1
-
-
-def do_not_track() -> bool:
-    # Returns True if and only if the environment variable is defined and has value True.
-    # The function is cached for better performance.
-    return os.environ.get(BENTOCTL_DO_NOT_TRACK, str(False)).lower() == "true"
-
-
-def get_payload(event_properties: dict) -> dict:
-    common_properties = CommonProperties()
-    return {
-        "common_properties": bentoml_cattr.unstructure(common_properties),
-        "event_properties": event_properties,
-        "session_id": uuid.uuid1().hex,
-        "event_type": "bentoctl-cli",
-    }
-
-
-def track(event_properties):
-    if do_not_track():
-        return
-    payload = get_payload(event_properties=vars(event_properties))
-
-    requests.post(
-        USAGE_TRACKING_URL, json=payload, timeout=USAGE_REQUEST_TIMEOUT_SECONDS
-    )
+# These are internal apis. We will need to make sure update these when BentoML changes.
+from bentoml._internal.utils.analytics.usage_stats import ( # noqa pylint: disable=unused-import
+    do_not_track,
+    track,
+    BENTOML_DO_NOT_TRACK,
+)
 
 
 class CliEvent:
@@ -58,6 +27,7 @@ class CliEvent:
         self.operator = operator
         self.version = version
         self.bentoctl_version = __version__
+        self.event_name = 'bentoctl_cli'
 
 
 def _bentoctl_event(cmd_group, cmd_name, return_value=None):

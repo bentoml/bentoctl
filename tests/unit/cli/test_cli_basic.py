@@ -4,6 +4,7 @@ import os
 
 import pytest
 from click.testing import CliRunner
+from unittest.mock import MagicMock
 
 import bentoctl
 from bentoctl import __version__, deployment_config
@@ -41,9 +42,14 @@ def test_bentoctl_version():
     assert __version__ in result.output
 
 
+bentomock = MagicMock()
+bentomock.tag.version = "mock_version"
+
 @dataclass
 class DeploymentConfigMock:
     repository_name: str = None
+    bento = bentomock
+    operator_name = 'mocked_operator_name'
 
     @classmethod
     def from_file(cls, file):
