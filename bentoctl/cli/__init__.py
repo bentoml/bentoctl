@@ -3,6 +3,11 @@ import os
 import click
 
 from bentoctl import __version__
+from bentoctl.utils.terraform import (
+    terraform_apply,
+    terraform_destroy,
+    is_terraform_applied,
+)
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -17,8 +22,8 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.terraform import is_terraform_applied, terraform_apply, terraform_destroy
-from bentoctl.utils import TempDirectory, get_debug_mode
+from bentoctl.utils import get_debug_mode
+from bentoctl.utils.temp_dir import TempDirectory
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -79,6 +84,7 @@ def init(save_path, do_not_generate):
     if not do_not_generate:
         generated_files = deployment_config.generate(destination_dir=save_path)
         print_generated_files_list(generated_files)
+    return deployment_config
 
 
 @bentoctl.command()
@@ -110,6 +116,7 @@ def generate(deployment_config_file, values_only, save_path):
         destination_dir=save_path, values_only=values_only
     )
     print_generated_files_list(generated_files)
+    return deployment_config
 
 
 @bentoctl.command()
@@ -171,6 +178,7 @@ def build(
         print_generated_files_list(generated_files)
     else:
         console.print(f"[green]Created docker image: {local_docker_tag}[/]")
+    return deployment_config
 
 
 @bentoctl.command()
@@ -193,6 +201,7 @@ def destroy(deployment_config_file):
         terraform_destroy()
     deployment_config.delete_repository()
     console.print(f"Deleted the repository {deployment_config.repository_name}")
+    return deployment_config
 
 
 @bentoctl.command()
@@ -210,6 +219,7 @@ def apply(deployment_config_file):
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     if deployment_config.template_type.startswith("terraform"):
         terraform_apply()
+    return deployment_config
 
 
 # subcommands
