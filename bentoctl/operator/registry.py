@@ -14,12 +14,14 @@ from bentoctl.exceptions import (
 )
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
-from bentoctl.operator.utils import (
+from bentoctl.operator.utils.git import (
     _clone_git_repo,
     _fetch_github_info,
-    _get_operator_dir_path,
     _is_git_link,
     _is_github_repo,
+)
+from bentoctl.operator.utils import (
+    _get_operator_dir_path,
     _is_official_operator,
 )
 
@@ -49,7 +51,7 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def add(self, name):
+    def add(self, name, version=None):
         """
         1. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you.
@@ -127,6 +129,7 @@ class OperatorRegistry:
             "git_url": git_url,
             "git_branch": git_branch,
             "is_local": is_local,
+            "version": ""
         }
         self._write_to_file()
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import bentoctl.operator.utils
 from bentoctl.exceptions import OperatorExists, OperatorNotFound
 from bentoctl.operator import registry, utils
 from bentoctl.operator.operator import Operator
@@ -18,7 +19,7 @@ TEST_OPERATOR = Operator(TESTOP_PATH)
 @pytest.fixture
 def op_reg(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
-    utils._get_bentoctl_home()
+    bentoctl.operator.utils._get_bentoctl_home()
     op_reg = registry.OperatorRegistry(tmp_path / "operators")
     yield op_reg
 

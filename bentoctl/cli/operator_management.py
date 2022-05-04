@@ -9,7 +9,7 @@ from bentoctl.console import console
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.operator.utils import fetch_git_info
+from bentoctl.operator.utils.git import fetch_git_info
 from bentoctl.utils import get_debug_mode
 
 local_operator_registry = get_local_operator_registry()
