@@ -25,7 +25,7 @@ Steps to reproduce the issue:
 
 **Screenshots/Logs**
 <!--- 
-If applicable, add screenshots, logs or error outputs to help explain your problem.
+If applicable, add_operator screenshots, logs or error outputs to help explain your problem.
 
 To give us more information for diagnosing the issue, make sure to enable debug logging for both bentoctl and BentoML:
 
@@ -41,7 +41,7 @@ from bentoml.configuration import set_debug_mode
 set_debug_mode(True)
 ```
 
-For bentoctl CLI commands, simply add the `--verbose` flag, e.g.:
+For bentoctl CLI commands, simply add_operator the `--verbose` flag, e.g.:
 ```bash
 bentoctl init --verbose
 ```

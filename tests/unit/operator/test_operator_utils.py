@@ -50,7 +50,9 @@ def test_is_official_operator(official_op, truth):
 
 def test_get_operator_dir_path(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
-    op_dir = bentoctl.operator.utils._get_operator_dir_path(operator_name="test_operator")
+    op_dir = bentoctl.operator.utils._get_operator_dir_path(
+        operator_name="test_operator"
+    )
     assert op_dir == str(tmp_path / "operators" / "test_operator")
 
 

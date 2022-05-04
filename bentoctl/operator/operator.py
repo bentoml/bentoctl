@@ -12,19 +12,22 @@ from bentoctl.exceptions import (
     OperatorLoadException,
     PipInstallException,
 )
+from bentoctl.operator.utils import sort_semver_versions
 
 logger = logging.getLogger(__name__)
 
 
 class Operator:
-    def __init__(self, path):
+    def __init__(self, path, metadata=None):
         self.path = Path(path)
+        self.metadata = metadata
 
         # load the operator config
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
 
         self.operator_config = _import_module("operator_config", self.path)
+        self.version = metadata["version"] if metadata else None
 
     @property
     def name(self):
@@ -51,6 +54,31 @@ class Operator:
             return self.operator_config.OPERATOR_AVAILABLE_TEMPLATES
         else:
             return [self.operator_config.OPERATOR_DEFAULT_TEMPLATE]
+
+    def is_latest_version(self):
+        """
+        Returns True if the operator is the latest version.
+        """
+        latest_version = self.get_latest_version()
+        return True if latest_version == self.version else False
+
+    def get_latest_version(self):
+        """
+        Returns the latest version of the operator.
+        """
+        return self.version
+
+    def get_versions_from_git(self):
+        """
+        Returns the versions of the operator from the git history.
+        """
+        return []
+
+    def available_versions(self):
+        """
+        Returns the available versions for the operator.
+        """
+        return sort_semver_versions([])
 
     def generate(
         self,
@@ -108,6 +136,8 @@ class Operator:
             directory to create the deployable into.
         bento_metadata: dict
             metadata about the bento.
+        overwrite_deployable: bool
+            Overwrite the deployable if it already exists.
 
         Returns
         -------
@@ -132,7 +162,7 @@ class Operator:
 
         Parameters
         ----------
-        deployment_name: str
+        repository_name: str
         operator_spec: str
             Operator specifications
 
@@ -154,7 +184,7 @@ class Operator:
 
         Parameters
         ----------
-        deployment_name: str
+        repository_name: str
         operator_spec: str
             Operator specifications
         """

@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from semantic_version import Version
+
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 
 
@@ -31,3 +33,12 @@ def _get_operator_dir_path(operator_name):
 def _is_official_operator(operator_name: str) -> bool:
     official_operators = list(OFFICIAL_OPERATORS.keys())
     return operator_name in official_operators
+
+
+def get_semver_version(version: str) -> Version:
+    version = version if not version.startswith("v") else version[1:]
+    return Version(version)
+
+
+def sort_semver_versions(versions: list, sort_ascending=False) -> list:
+    return sorted(versions) if sort_ascending else sorted(versions, reverse=True)

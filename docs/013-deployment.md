@@ -137,7 +137,7 @@ deploy_aws_lambda(BENTO_BUNDLE_PATH, DEPLOYMENT_NAME, CONFIG_JSON)
 Use CLI
 
 ```bash
-python update.py <Bento_bundle_path> <Deployment_name> <Config_JSON>
+python update_operator.py <Bento_bundle_path> <Deployment_name> <Config_JSON>
 ```
 
 Use Python API

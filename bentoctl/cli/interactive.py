@@ -150,17 +150,17 @@ def prompt_input(
         input_value = []
         if rule.get("required") is not True:
             should_add_item_to_list = prompt_confirmation(
-                f"Do you want to add item to {field_name}"
+                f"Do you want to add_operator item to {field_name}"
             )
         else:
             should_add_item_to_list = (
-                True  # user should be able to add at least one item
+                True  # user should be able to add_operator at least one item
             )
         while should_add_item_to_list:
             value = prompt_input("", rule["schema"], indent_level, True, True)
             input_value.append(value)
             should_add_item_to_list = prompt_confirmation(
-                f"Do you want to add another item to {field_name}"
+                f"Do you want to add_operator another item to {field_name}"
             )
         if not input_value:
             input_value = None
@@ -212,7 +212,7 @@ def generate_spec(schema):
 
     for field, rule in schema.items():
         val = prompt_input(field, rule)
-        if val:  # only update with non-empty value
+        if val:  # only update_operator with non-empty value
             spec.update({field: val})
 
     return spec

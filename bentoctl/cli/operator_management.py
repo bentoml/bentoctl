@@ -19,7 +19,7 @@ def get_operator_management_subcommands():
     @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
-        Sub-commands to install, list, remove and update operators.
+        Sub-commands to install, list, remove_operator and update_operator operators.
 
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
@@ -83,7 +83,7 @@ def get_operator_management_subcommands():
                     "Please specify the name of the operator to install."
                 )
         try:
-            operator_name = local_operator_registry.add(name)
+            operator_name = local_operator_registry.add_operator(name)
             if operator_name is not None:
                 click.echo(f"Installed {operator_name}!")
             else:
@@ -107,7 +107,7 @@ def get_operator_management_subcommands():
         """
         Remove operators.
 
-        This will remove the operator from the list and also remove the local codebase.
+        This will remove_operator the operator from the list and also remove_operator the local codebase.
         Pass the flag `--keep-locally` to keep the operator codebase in the local
         director.
         """
@@ -118,7 +118,7 @@ def get_operator_management_subcommands():
             if not proceed_with_delete:
                 return
         try:
-            local_operator_registry.remove(name)
+            local_operator_registry.remove_operator(name)
             click.echo(f"operator '{name}' removed!")
         except BentoctlException as e:
             e.show()
@@ -131,10 +131,10 @@ def get_operator_management_subcommands():
 
         This only works for operators that have a URL associated with them. When passed
         the name of an available operator it goes and fetches the latest code from
-        the Github repo and update the local codebase with it.
+        the Github repo and update_operator the local codebase with it.
         """
         try:
-            local_operator_registry.update(name)
+            local_operator_registry.update_operator(name)
             click.echo(f"Operator '{name}' updated!")
         except BentoctlException as e:
             e.show()
