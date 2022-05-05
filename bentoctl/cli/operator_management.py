@@ -19,7 +19,7 @@ def get_operator_management_subcommands():
     @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
-        Sub-commands to install, list, remove_operator and update_operator operators.
+        Sub-commands to install, list, remove and update operators.
 
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
@@ -110,7 +110,7 @@ def get_operator_management_subcommands():
         """
         Remove operators.
 
-        This will remove_operator the operator from the list and also remove_operator the local codebase.
+        This will remove the operator from the list and also remove_operator the local codebase.
         Pass the flag `--keep-locally` to keep the operator codebase in the local
         director.
         """
@@ -134,7 +134,7 @@ def get_operator_management_subcommands():
 
         This only works for operators that have a URL associated with them. When passed
         the name of an available operator it goes and fetches the latest code from
-        the Github repo and update_operator the local codebase with it.
+        the Github repo and update the local codebase with it.
         """
         try:
             local_operator_registry.update_operator(name)
