@@ -67,15 +67,15 @@ class OperatorRegistry:
 
         2. Github Repo: this should be in the format
            `repo_owner/repo_name[:repo_branch]`.
-           eg: `bentoctl add_operator bentoml/aws-lambda-repo`
+           eg: `bentoctl operator install bentoml/aws-lambda-repo`
 
         3. Git Url: of the form https://[\\w]+.git.
-           eg: `bentoctl add_operator https://github.com/bentoml/aws-lambda-deploy.git`
+           eg: `bentoctl operator install https://github.com/bentoml/aws-lambda-deploy.git`
 
         4. Path: If you have the operator locally, either because you are building
            our own operator or if cloning and tracking the operator in some other
            remote repository (other than github) then you can just pass the path
-           after the add_operator command and it will register the local operator for you.
+           after the install command and it will register the local operator for you.
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
 

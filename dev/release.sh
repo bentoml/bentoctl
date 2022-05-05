@@ -55,7 +55,7 @@ if [ "$REPO" = "testpypi" ]; then
   poetry config repositories.testpypi https://test.pypi.org/legacy/
   poetry publish --repository $REPO
 elif [ "$REPO" = "pypi" ]; then
-  git add_operator pyproject.toml
+  git add pyproject.toml
   git commit -m "Update version to $VERSION_STR"
   git push origin main
 
