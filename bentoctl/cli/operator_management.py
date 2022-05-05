@@ -38,7 +38,8 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name", required=False)
-    def install(name=None):  # pylint: disable=unused-variable
+    @click.option("--version", "-v", type=click.STRING)
+    def install(name=None, version=None):  # pylint: disable=unused-variable
         """
         install operators.
 
@@ -78,12 +79,14 @@ def get_operator_management_subcommands():
                 )
                 choice = tmenu.show()
                 name = available_operators[choice]
+                # When user uses the interactive mode, we will default to the latest version
+                version = None
             except ImportError:
                 raise BentoctlException(
                     "Please specify the name of the operator to install."
                 )
         try:
-            operator_name = local_operator_registry.add_operator(name)
+            operator_name = local_operator_registry.add_operator(name, version)
             if operator_name is not None:
                 click.echo(f"Installed {operator_name}!")
             else:
@@ -145,17 +148,17 @@ def get_operator_management_subcommands():
 def print_operator_list(operator_list):
     if get_debug_mode():
         console.print(operator_list)
-    table = Table("Name", "Location", box=None)
+    table = Table("Name", "Version", "Location", box=None)
 
     for name, info in operator_list.items():
         if info.get("git_url") is not None:
             owner, repo = fetch_git_info(info["git_url"])
             location_str = f"{owner}/{repo} ({info['git_branch']})"
-            table.add_row(name, location_str)
+            table.add_row(name, info.get("version", ""), location_str)
         else:
             location_str = os.path.join(
                 "$HOME", os.path.relpath(info["path"], os.path.expanduser("~"))
             )
-            table.add_row(name, location_str)
+            table.add_row(name, "", location_str)
 
     console.print(table)

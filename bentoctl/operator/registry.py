@@ -103,7 +103,7 @@ class OperatorRegistry:
                 owner, repo, branch = _fetch_github_info(operator_git_repo)
                 git_url = f"https://github.com/{owner}/{repo}.git"
                 git_branch = branch
-                content_path = _clone_git_repo(git_url, branch=branch, version=version)
+                content_path = _clone_git_repo(git_url, version=version)
 
             elif _is_git_link(name):
                 git_url = name
@@ -142,7 +142,7 @@ class OperatorRegistry:
 
         return operator.name
 
-    def update_operator(self, name):
+    def update_operator(self, name, version=None):
         try:
             operator = self.get(name)
             if operator.metadata["is_local"]:
@@ -155,7 +155,7 @@ class OperatorRegistry:
             git_url = self.operators_list[name]["git_url"]
             # update_operator from git repo
             temp_operator_path = _clone_git_repo(
-                operator.metadata["git_url"], operator.metadata["git_branch"]
+                git_url=operator.metadata["git_url"], version=version
             )
             # install latest dependencies
             updated_operator = Operator(temp_operator_path)

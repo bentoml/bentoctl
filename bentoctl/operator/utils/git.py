@@ -53,15 +53,8 @@ def fetch_git_info(git_url):
     return owner, repo
 
 
-def fetch_git_repo_tags(operator_repo_dir):
-    repo = Repo(path=operator_repo_dir)
-    remote_repo = repo.remotes[0]
-    remote_repo.fetch(refspec="refs/tags/*:refs/tags/*")
-    return
-
-
-def get_operator_tags(operator_repo_dir):
-    repo = Repo(path=operator_repo_dir)
+def get_git_repo_tags(git_repo_path):
+    repo = Repo(path=git_repo_path)
     remote_repo = repo.remotes[0]
     remote_repo.fetch(refspec="refs/tags/*:refs/tags/*")
     return [tag.name for tag in repo.tags]

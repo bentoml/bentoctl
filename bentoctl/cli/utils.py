@@ -67,7 +67,7 @@ class BentoctlCommandGroup(click.Group):
                 return func(*args, **kwargs)
             start_time = time.time_ns()
             if cmd_group.name in cli_events_map:
-                # If cli command is build or operator related, we will add_operator
+                # If cli command is build or operator related, we will add
                 # additoinal properties
                 get_tracking_event = functools.partial(
                     cli_events_map[cmd_group.name],
@@ -106,7 +106,7 @@ class BentoctlCommandGroup(click.Group):
 
     def command(self, *args, **kwargs):
         def wrapper(func):
-            # add_operator common parameters to command
+            # add common parameters to command
             func = BentoctlCommandGroup.bentoctl_common_params(func)
             func = BentoctlCommandGroup.bentoctl_track_usage(func, self, **kwargs)
 

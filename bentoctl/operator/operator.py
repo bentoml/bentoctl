@@ -12,7 +12,8 @@ from bentoctl.exceptions import (
     OperatorLoadException,
     PipInstallException,
 )
-from bentoctl.operator.utils import sort_semver_versions
+from bentoctl.operator.utils import sort_semver_versions, get_semver_version
+from bentoctl.operator.utils.git import get_git_repo_tags
 
 logger = logging.getLogger(__name__)
 
@@ -66,19 +67,16 @@ class Operator:
         """
         Returns the latest version of the operator.
         """
-        return self.version
+        versions = self.get_versions_from_git()
+        return versions[0] if versions else None
 
     def get_versions_from_git(self):
         """
         Returns the versions of the operator from the git history.
         """
-        return []
-
-    def available_versions(self):
-        """
-        Returns the available versions for the operator.
-        """
-        return sort_semver_versions([])
+        tags = get_git_repo_tags(self.path)
+        versions = [get_semver_version(tag) for tag in tags]
+        return sort_semver_versions(versions)
 
     def generate(
         self,

@@ -103,7 +103,7 @@ def init(save_path, do_not_generate):
 @click.option(
     "--values-only",
     is_flag=True,
-    help="create/update_operator the values file only.",
+    help="create/update the values file only.",
     default=False,
 )
 @handle_bentoctl_exceptions
@@ -191,7 +191,7 @@ def build(
 @handle_bentoctl_exceptions
 def destroy(deployment_config_file):
     """
-    Destroy all the resources created and remove_operator the registry.
+    Destroy all the resources created and remove the registry.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     if (
@@ -214,7 +214,7 @@ def destroy(deployment_config_file):
 @handle_bentoctl_exceptions
 def apply(deployment_config_file):
     """
-    [Experimental] Apply the generated template file to create/update_operator the deployment.
+    [Experimental] Apply the generated template file to create/update the deployment.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     if deployment_config.template_type.startswith("terraform"):
