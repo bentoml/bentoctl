@@ -3,25 +3,29 @@
 bentoctl is a command line tool for deploying BentoML packaged ML models as API endpoint on popular cloud platforms.
 It automates Bento docker image build, generate terraform project, and easily manage deployments.
 
+## Why bentoctl?
+* Supports major cloud providers: AWS, Azure, Google Cloud, and more.
+* Easy to deploy, update and reproduce model deployments.
+* First class integration with Terraform.
+* Optimized for CI/CD workflow.
+* Extensible with custom operators.
+* High performance serving powered by [BentoML](https://github.com/bentoml/BentoML)
 Supported platforms:
 
-- [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
-- [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
-- [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
-- [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-- [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
-- [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
-- [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
-- [Heroku](https://github.com/bentoml/heroku-deploy)
+* [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
+* [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
+* [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
+* [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
+* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
+* Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
+* **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
-![demo.gif](https://github.com/bentoml/bentoctl/raw/main/demo.gif)
+**Upcoming:**
+* [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy) (BentoML 1.0 migration in progress)
+* [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy) (BentoML 1.0 migration in progress)
+* [Heroku](https://github.com/bentoml/heroku-deploy) (BentoML 1.0 migration in progress)
+* [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
 
-## Why bentoctl?
-
-- Supports multiple cloud providers: AWS, Azure, Google Cloud, and more.
-- First class integration with Terraform.
-- Optimized for CI/CD workflow
-- Easy customization.
 
 ## How to install
 
