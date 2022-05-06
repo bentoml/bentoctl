@@ -34,6 +34,8 @@ simple-term-menu = "0.4.4"
 GitPython = "3.1.24"
 importlib-metadata = { version = ">=4.3", python = "<3.8" }
 docker = "^5"
+mkdocs-click = "^0.7.0"
+mkdocs = "^1.3.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.2"
