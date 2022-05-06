@@ -1,0 +1,11 @@
+site_name: bentoctl
+site_url: https://example.com/
+theme: readthedocs
+markdown_extensions:
+    - mkdocs-click
+
+nav:
+  - Quickstart: quickstart.md
+  - Core Concepts: core-concepts.md
+  - Operators: operator-list.md
+  - CLI reference: cli-reference.md
