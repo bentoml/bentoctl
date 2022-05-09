@@ -14,7 +14,7 @@ This guide walks through the steps of building a bento and deploying it to AWS L
 
 Import the iris-classifier bento from s3 to your local machine by running
 ```bash
-bentoml import s3://bentoml.com/quickstart/iris_classifier-sfx3dagmpogmockr.bento
+bentoml import s3://bentoml.com/quickstart/iris_classifier.bento
 ```
 The code for this bento can be found in [bentoml/gallery/quickstart](https://github.com/bentoml/gallery/tree/main/quickstart). This bento has a `/classify` endpoint that exposes an sklearn model trained on the iris dataset.
 
