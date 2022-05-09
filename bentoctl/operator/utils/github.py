@@ -19,6 +19,19 @@ def github_get_call(url):
         raise Exception(f"Failed to make request to {url}")
 
 
+def get_github_release_info(repo_name: str, tag: str):
+    """
+    Get the release info of a GitHub repository.
+    """
+    url = f"https://api.github.com/repos/{repo_name}/releases/tags/{tag}"
+    try:
+        return github_get_call(url)
+    except Exception as e:
+        raise BentoctlGithubException(
+            f"Failed to get release info for {repo_name} with {tag}"
+        ) from e
+
+
 def get_github_releases(repo_name):
     """
     Get the releases of a GitHub repository.
@@ -30,7 +43,7 @@ def get_github_releases(repo_name):
         raise BentoctlGithubException(f"Failed to get releases for {repo_name}") from e
 
 
-def get_latest_release(repo_name):
+def get_latest_release_info(repo_name):
     """
     Get the latest release of a GitHub repository.
     """
@@ -82,7 +95,7 @@ def download_github_release_tarfile(repo_name: str, output_dir: str, tag: str):
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-        return tarball_path
+        return tarball_path, release_name
     except Exception as e:
         raise BentoctlGithubException(
             f"Failed to download release for {repo_name}"

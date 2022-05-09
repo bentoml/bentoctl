@@ -13,7 +13,11 @@ from bentoctl.exceptions import (
     OperatorNotUpdated,
     OperatorRegistryException,
 )
-from bentoctl.operator.utils.github import download_github_release_tarfile
+from bentoctl.operator.utils.github import (
+    download_github_release_tarfile,
+    get_github_release_info,
+    get_latest_release_info,
+)
 from bentoctl.utils.temp_dir import TempDirectory
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
@@ -64,21 +68,35 @@ class OperatorRegistry:
             json.dump(self.operators_list, f)
 
     def _install_official_operators(self, name, version=None):
+        repo_name = OFFICIAL_OPERATORS[name]
+        release_info = (
+            get_github_release_info(repo_name, version)
+            if version
+            else get_latest_release_info(repo_name)
+        )
+
         with TempDirectory() as temp_dir:
-            repo_name = OFFICIAL_OPERATORS[name]
-            downloaded_path = download_github_release_tarfile(
+            tarfile_path = download_github_release_tarfile(
                 repo_name=repo_name, output_dir=temp_dir, version=version
             )
-            operator = Operator(downloaded_path)
-            operator_path = _get_operator_dir_path(operator.name)
-            tar = tarfile.open(downloaded_path)
-            tar.extractall(path=operator_path)
+            tar = tarfile.open(tarfile_path)
+            tar.extractall(path=temp_dir)
             tar.close()
+            content_path = os.path.join(temp_dir, release_info['name'])
+            operator = Operator(content_path)
+            operator_path = _get_operator_dir_path(operator.name)
+            operator.install_dependencies()
+            shutil.move(content_path, operator_path)
+        operator_info = {
+            "path": os.path.abspath(operator.path),
+            "git_url": None,
+            "git_branch": None,
+            "is_local": False,
+            "is_official": True,
+            "version": version,
+        }
 
-        # install operator dependencies
-        operator.install_dependencies()
-
-        return '', {}
+        return operator.name, operator_info
 
     def _install_custom_operators(self, name, version=None):
         is_official = False
