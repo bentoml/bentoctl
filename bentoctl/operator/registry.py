@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import tarfile
 from pathlib import Path
 
 from bentoctl.exceptions import (
@@ -12,6 +13,8 @@ from bentoctl.exceptions import (
     OperatorNotUpdated,
     OperatorRegistryException,
 )
+from bentoctl.operator.utils.github import download_github_release_tarfile
+from bentoctl.utils.temp_dir import TempDirectory
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils.git import (
@@ -60,6 +63,77 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
+    def _install_official_operators(self, name, version=None):
+        with TempDirectory() as temp_dir:
+            repo_name = OFFICIAL_OPERATORS[name]
+            downloaded_path = download_github_release_tarfile(
+                repo_name=repo_name, output_dir=temp_dir, version=version
+            )
+            operator = Operator(downloaded_path)
+            operator_path = _get_operator_dir_path(operator.name)
+            tar = tarfile.open(downloaded_path)
+            tar.extractall(path=operator_path)
+            tar.close()
+
+        # install operator dependencies
+        operator.install_dependencies()
+
+        return '', {}
+
+    def _install_custom_operators(self, name, version=None):
+        is_official = False
+        """
+        1. download operator
+        2. check is operator is already installed. We can't do this, because we 
+            don't have the name of the operator before we download it
+        3. install operator dependencies
+        4. add operator in registry
+        """
+        if os.path.exists(name):
+            logger.info(f"adding operator from path ({name})")
+            content_path = name
+            git_url = None
+            git_branch = None
+            is_local = True
+        elif _is_github_repo(name):
+            operator_git_repo = name
+            owner, repo, branch = _fetch_github_info(operator_git_repo)
+            git_url = f"https://github.com/{owner}/{repo}.git"
+            git_branch = branch
+            content_path = _clone_git_repo(git_url, version=version)
+        elif _is_git_link(name):
+            git_url = name
+            content_path = _clone_git_repo(git_url)
+            git_branch = None
+        else:
+            OperatorNotAdded(
+                f"Operator not Added, Unable to parse {name}. "
+                "Please check docs to see the supported ways of adding operators."
+            )
+        operator = Operator(content_path)
+        if operator.name in self.operators_list:
+            raise OperatorExists(operator_name=operator.name)
+        # install operator dependencies
+        operator.install_dependencies()
+
+        if is_local:
+            operator_path = content_path
+        else:
+            operator_path = _get_operator_dir_path(operator.name)
+            # move operator to bentoctl home
+            shutil.copytree(content_path, operator_path)
+
+        operator.path = Path(operator_path)
+        operator_info = {
+            "path": os.path.abspath(operator.path),
+            "git_url": git_url,
+            "git_branch": git_branch,
+            "is_local": is_local,
+            "is_official": is_official,
+            "version": version,
+        }
+        return operator.name, operator_info
+
     def add_operator(self, name, version=None):
         """
         1. Official operator: you can pass the name of one of the official operators
@@ -86,61 +160,17 @@ class OperatorRegistry:
         Raises:
             OperatorExists: There is another operator with the same name.
         """
-
-        if os.path.exists(name):
-            logger.info(f"adding operator from path ({name})")
-            content_path = name
-            git_url = None
-            git_branch = None
-            is_local = True
+        if _is_official_operator(name):
+            if name in self.operators_list:
+                raise OperatorExists(operator_name=name)
+            operator_name, operator_info = self._install_official_operators(
+                name, version
+            )
         else:
-            is_local = False
-            if _is_official_operator(name) or _is_github_repo(name):
-                if _is_official_operator(name):
-                    operator_git_repo = OFFICIAL_OPERATORS[name]
-                else:
-                    operator_git_repo = name
-                owner, repo, branch = _fetch_github_info(operator_git_repo)
-                git_url = f"https://github.com/{owner}/{repo}.git"
-                git_branch = branch
-                content_path = _clone_git_repo(git_url, version=version)
-
-            elif _is_git_link(name):
-                git_url = name
-                content_path = _clone_git_repo(git_url)
-                git_branch = None
-
-            else:
-                OperatorNotAdded(
-                    f"Operator not Added, Unable to parse {name}. "
-                    "Please check docs to see the supported ways of adding operators."
-                )
-        operator = Operator(content_path)
-        if operator.name in self.operators_list:
-            raise OperatorExists(operator_name=operator.name)
-
-        if is_local:
-            operator_path = content_path
-        else:
-            operator_path = _get_operator_dir_path(operator.name)
-            # move operator to bentoctl home
-            shutil.copytree(content_path, operator_path)
-
-        # install operator dependencies
-        operator.install_dependencies()
-
-        operator.path = Path(operator_path)
-
-        self.operators_list[operator.name] = {
-            "path": os.path.abspath(operator.path),
-            "git_url": git_url,
-            "git_branch": git_branch,
-            "is_local": is_local,
-            "version": "",
-        }
+            operator_name, operator_info = self._install_custom_operators(name, version)
+        self.operators_list[operator_name] = operator_info
         self._write_to_file()
-
-        return operator.name
+        return operator_name
 
     def update_operator(self, name, version=None):
         try:
