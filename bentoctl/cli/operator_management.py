@@ -151,14 +151,11 @@ def print_operator_list(operator_list):
     table = Table("Name", "Version", "Location", box=None)
 
     for name, info in operator_list.items():
-        if info.get("git_url") is not None:
-            owner, repo = fetch_git_info(info["git_url"])
-            location_str = f"{owner}/{repo} ({info['git_branch']})"
-            table.add_row(name, info.get("version", ""), location_str)
-        else:
+        if info.get("is_official", False):
+            table.add_row(name, info["version"], info["path"])
+        elif info.get("is_local", False):
             location_str = os.path.join(
                 "$HOME", os.path.relpath(info["path"], os.path.expanduser("~"))
             )
             table.add_row(name, "", location_str)
-
     console.print(table)

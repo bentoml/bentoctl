@@ -1,4 +1,5 @@
 import os.path
+import tarfile
 
 import requests
 
@@ -65,7 +66,7 @@ def get_github_release_tags(repo_name):
     return tags
 
 
-def download_github_release_tarfile(repo_name: str, output_dir: str, tag: str):
+def download_github_release(repo_name: str, output_dir: str, tag: str):
     """
     Download a GitHub release in tar.gz file.
     """
@@ -76,18 +77,22 @@ def download_github_release_tarfile(repo_name: str, output_dir: str, tag: str):
     try:
         release_info = github_get_call(url)
         release_name = release_info['name']
-        release_tarball_name = f"{release_name}.tar.gz"
-        tarball_asset = next(
-            (
-                asset
-                for asset in release_info['assets']
-                if asset['name'] == release_tarball_name
-            ),
-            None,
-        )
-        if tarball_asset is None:
-            raise Exception(f"Failed to find tarball for {release_name} in {repo_name}")
-        tarball_url = tarball_asset['browser_download_url']
+        if release_info['assets']:
+            release_tarball_name = f"{release_name}.tar.gz"
+            tarball_asset = next(
+                (
+                    asset
+                    for asset in release_info['assets']
+                    if asset['name'] == release_tarball_name
+                ),
+                None,
+            )
+            if tarball_asset is None:
+                raise Exception(f"Failed to find tarball for {release_name} in {repo_name}")
+            tarball_url = tarball_asset['browser_download_url']
+        else:
+            release_tarball_name = f"{release_name}.tar.gz" # wrong, need to rework
+            tarball_url = release_info['tarball_url']
         tarball_path = os.path.join(output_dir, release_tarball_name)
         with requests.get(tarball_url, stream=True) as r:
             r.raise_for_status()
@@ -95,7 +100,10 @@ def download_github_release_tarfile(repo_name: str, output_dir: str, tag: str):
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-        return tarball_path, release_name
+        tar = tarfile.open(tarball_path)
+        tar.extractall(path=output_dir)
+        tar.close()
+        return tarball_path
     except Exception as e:
         raise BentoctlGithubException(
             f"Failed to download release for {repo_name}"

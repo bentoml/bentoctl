@@ -13,7 +13,6 @@ from bentoctl.exceptions import (
     PipInstallException,
 )
 from bentoctl.operator.utils import sort_semver_versions, get_semver_version
-from bentoctl.operator.utils.git import get_git_repo_tags
 from bentoctl.operator.utils.github import get_github_release_tags
 
 logger = logging.getLogger(__name__)
@@ -56,31 +55,6 @@ class Operator:
             return self.operator_config.OPERATOR_AVAILABLE_TEMPLATES
         else:
             return [self.operator_config.OPERATOR_DEFAULT_TEMPLATE]
-
-    def is_latest_version(self):
-        """
-        Returns True if the operator is the latest version.
-        """
-        latest_version = self.get_latest_version()
-        return True if latest_version == self.version else False
-
-    def get_latest_version(self):
-        """
-        Returns the latest version of the operator.
-        """
-        versions = self.get_versions()
-        return versions[0] if versions else None
-
-    def get_versions(self):
-        """
-        Returns the versions of the operator.
-        """
-        if self.metadata['is_official']:
-            tags = get_github_release_tags('')
-        else:
-            tags = get_git_repo_tags(self.path)
-        versions = [get_semver_version(tag) for tag in tags]
-        return sort_semver_versions(versions)
 
     def generate(
         self,

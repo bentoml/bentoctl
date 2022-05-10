@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import shutil
-import tarfile
 from pathlib import Path
 
 from bentoctl.exceptions import (
@@ -14,23 +13,17 @@ from bentoctl.exceptions import (
     OperatorRegistryException,
 )
 from bentoctl.operator.utils.github import (
-    download_github_release_tarfile,
+    download_github_release,
     get_github_release_info,
-    get_latest_release_info,
+    get_latest_release_info, get_github_release_tags,
 )
 from bentoctl.utils.temp_dir import TempDirectory
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
-from bentoctl.operator.utils.git import (
-    _clone_git_repo,
-    _fetch_github_info,
-    _is_git_link,
-    _is_github_repo,
-)
 from bentoctl.operator.utils import (
     _get_operator_dir_path,
     _is_official_operator,
-    get_semver_version,
+    get_semver_version, sort_semver_versions,
 )
 
 
@@ -69,28 +62,20 @@ class OperatorRegistry:
 
     def _install_official_operators(self, name, version=None):
         repo_name = OFFICIAL_OPERATORS[name]
-        release_info = (
-            get_github_release_info(repo_name, version)
-            if version
-            else get_latest_release_info(repo_name)
-        )
-
-        with TempDirectory() as temp_dir:
-            tarfile_path = download_github_release_tarfile(
-                repo_name=repo_name, output_dir=temp_dir, version=version
+        if version is None:
+            latest_release = get_latest_release_info(repo_name)
+            version = latest_release["tag_name"]
+        with TempDirectory(cleanup=False) as temp_dir:
+            content_path = download_github_release(
+                repo_name=repo_name, output_dir=temp_dir, tag=version
             )
-            tar = tarfile.open(tarfile_path)
-            tar.extractall(path=temp_dir)
-            tar.close()
-            content_path = os.path.join(temp_dir, release_info['name'])
             operator = Operator(content_path)
-            operator_path = _get_operator_dir_path(operator.name)
             operator.install_dependencies()
+            # copy into the operator registry
+            operator_path = _get_operator_dir_path(operator.name)
             shutil.move(content_path, operator_path)
         operator_info = {
             "path": os.path.abspath(operator.path),
-            "git_url": None,
-            "git_branch": None,
             "is_local": False,
             "is_official": True,
             "version": version,
@@ -100,6 +85,7 @@ class OperatorRegistry:
 
     def _install_custom_operators(self, name, version=None):
         is_official = False
+        is_local = True
         """
         1. download operator
         2. check is operator is already installed. We can't do this, because we 
@@ -107,45 +93,20 @@ class OperatorRegistry:
         3. install operator dependencies
         4. add operator in registry
         """
-        if os.path.exists(name):
-            logger.info(f"adding operator from path ({name})")
-            content_path = name
-            git_url = None
-            git_branch = None
-            is_local = True
-        elif _is_github_repo(name):
-            operator_git_repo = name
-            owner, repo, branch = _fetch_github_info(operator_git_repo)
-            git_url = f"https://github.com/{owner}/{repo}.git"
-            git_branch = branch
-            content_path = _clone_git_repo(git_url, version=version)
-        elif _is_git_link(name):
-            git_url = name
-            content_path = _clone_git_repo(git_url)
-            git_branch = None
-        else:
-            OperatorNotAdded(
+        if not os.path.exists(name):
+            raise OperatorNotAdded(
                 f"Operator not Added, Unable to parse {name}. "
                 "Please check docs to see the supported ways of adding operators."
             )
+        logger.info(f"adding operator from path ({name})")
+        content_path = name
         operator = Operator(content_path)
         if operator.name in self.operators_list:
             raise OperatorExists(operator_name=operator.name)
         # install operator dependencies
         operator.install_dependencies()
-
-        if is_local:
-            operator_path = content_path
-        else:
-            operator_path = _get_operator_dir_path(operator.name)
-            # move operator to bentoctl home
-            shutil.copytree(content_path, operator_path)
-
-        operator.path = Path(operator_path)
         operator_info = {
-            "path": os.path.abspath(operator.path),
-            "git_url": git_url,
-            "git_branch": git_branch,
+            "path": os.path.abspath(Path(content_path)),
             "is_local": is_local,
             "is_official": is_official,
             "version": version,
@@ -156,15 +117,7 @@ class OperatorRegistry:
         """
         1. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you.
-
-        2. Github Repo: this should be in the format
-           `repo_owner/repo_name[:repo_branch]`.
-           eg: `bentoctl operator install bentoml/aws-lambda-repo`
-
-        3. Git Url: of the form https://[\\w]+.git.
-           eg: `bentoctl operator install https://github.com/bentoml/aws-lambda-deploy.git`
-
-        4. Path: If you have the operator locally, either because you are building
+        2. Path: If you have the operator locally, either because you are building
            our own operator or if cloning and tracking the operator in some other
            remote repository (other than github) then you can just pass the path
            after the install command and it will register the local operator for you.
@@ -196,24 +149,25 @@ class OperatorRegistry:
             if operator.metadata["is_local"]:
                 logger.info("Local Operator need not be updated!")
                 return
-            if not operator.metadata["git_url"]:
-                raise OperatorRegistryException(
-                    "No git url or local operator path associated with this operator."
+            repo_name = OFFICIAL_OPERATORS[name]
+            if version is None:
+                latest_release = get_latest_release_info(repo_name)
+                version = latest_release["tag_name"]
+            with TempDirectory(cleanup=False) as temp_dir:
+                content_path = download_github_release(
+                    repo_name=repo_name, output_dir=temp_dir, tag=version
                 )
-            git_url = self.operators_list[name]["git_url"]
-            # update_operator from git repo
-            temp_operator_path = _clone_git_repo(
-                git_url=operator.metadata["git_url"], version=version
-            )
-            # install latest dependencies
-            updated_operator = Operator(temp_operator_path)
-            updated_operator.install_dependencies()
-
-            operator_path = operator.path
-            shutil.rmtree(operator_path)
-            shutil.copytree(
-                temp_operator_path, operator_path, copy_function=shutil.copy
-            )
+                operator = Operator(content_path)
+                operator.install_dependencies()
+                # copy into the operator registry
+                operator_path = _get_operator_dir_path(operator.name)
+                shutil.rmtree(operator_path)
+                shutil.copytree(
+                    content_path, operator_path, copy_function=shutil.copy
+                )
+            self.operators_list[name]['version'] = version
+            self._write_to_file()
+            return name
         except BentoctlException as e:
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 
@@ -225,3 +179,23 @@ class OperatorRegistry:
             shutil.rmtree(self.operators_list[name]["path"])
         del self.operators_list[name]
         self._write_to_file()
+
+    def get_operator_versions(self, name):
+        """
+             Returns the versions of the operator.
+             """
+        if not _is_official_operator(name):
+            return [] # custom operators don't have versions
+        repo_name = OFFICIAL_OPERATORS[name]
+        tags = get_github_release_tags()
+        versions = [get_semver_version(tag) for tag in tags]
+        return sort_semver_versions(versions)
+
+    def get_operator_latest_version(self, name):
+        versions = self.get_operator_versions(name)
+        return versions[0] if versions else None
+
+    def is_latest_version_for_operator(self, name):
+        latest_version = self.get_operator_latest_version(name)
+        current_version = get_semver_version(self.operators_list[name]['version'])
+        return True if latest_version == current_version else False
