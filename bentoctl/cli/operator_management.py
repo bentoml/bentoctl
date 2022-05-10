@@ -9,7 +9,6 @@ from bentoctl.console import console
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.operator.utils.git import fetch_git_info
 from bentoctl.utils import get_debug_mode
 
 local_operator_registry = get_local_operator_registry()
@@ -43,7 +42,7 @@ def get_operator_management_subcommands():
         """
         install operators.
 
-        There are 5 ways to install an operator into bentoctl and they are -
+        There are 3 ways to install an operator into bentoctl and they are -
 
         1. Interactive Mode: lists all official operators for user to choose from. Just
            type `bentoctl install` to enter this mode.
@@ -60,13 +59,6 @@ def get_operator_management_subcommands():
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
 
-        4. Github Repo: this should be in the format
-           `repo_owner/repo_name[:repo_branch]`.
-           eg: `bentoctl install bentoml/aws-lambda-repo`
-
-        5. Git Url: of the form https://[\\w]+.git.
-           eg: `bentoctl install https://github.com/bentoml/aws-lambda-deploy.git`
-
         """
         if not name:
             try:
@@ -79,14 +71,15 @@ def get_operator_management_subcommands():
                 )
                 choice = tmenu.show()
                 name = available_operators[choice]
-                # When user uses the interactive mode, we will default to the latest version
+                # When user uses the interactive mode, we will default to the latest
+                # version
                 version = None
             except ImportError:
                 raise BentoctlException(
                     "Please specify the name of the operator to install."
                 )
         try:
-            operator_name = local_operator_registry.add_operator(name, version)
+            operator_name = local_operator_registry.install_operator(name, version)
             if operator_name is not None:
                 click.echo(f"Installed {operator_name}!")
             else:
@@ -110,9 +103,9 @@ def get_operator_management_subcommands():
         """
         Remove operators.
 
-        This will remove the operator from the list and also remove_operator the local codebase.
-        Pass the flag `--keep-locally` to keep the operator codebase in the local
-        director.
+        This will remove the operator from the list and also remove_operator the local
+        codebase. Pass the flag `--keep-locally` to keep the operator codebase in the
+        local director.
         """
         if not skip_confirm:
             proceed_with_delete = Confirm.ask(
@@ -137,8 +130,11 @@ def get_operator_management_subcommands():
         the Github repo and update the local codebase with it.
         """
         try:
-            local_operator_registry.update_operator(name)
-            click.echo(f"Operator '{name}' updated!")
+            if local_operator_registry.is_operator_on_latest_version(name):
+                click.echo(f"Operator '{name}' is already on the latest version.")
+            else:
+                local_operator_registry.update_operator(name)
+                click.echo(f"Operator '{name}' updated!")
         except BentoctlException as e:
             e.show()
 

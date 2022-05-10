@@ -18,31 +18,6 @@ def test_get_bentoctl_home(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "git_link, truth",
-    [
-        ("git@gitlab.com:nick.thomas/gitaly.git", True),
-        ("https://gitlab.com/nick.thomas/gitaly.git", True),
-        ("git@github.com:bentoml/aws-sagemaker-deploy.git", True),
-        ("https://github.com/bentoml/aws-sagemaker-deploy.git", True),
-    ],
-)
-def test_is_git_link(git_link, truth):
-    assert operator_utils.git._is_git_link(git_link) is truth
-
-
-@pytest.mark.parametrize(
-    "github_repo, truth",
-    [
-        ("bentoml/sagemaker", True),
-        ("bentoml/aws-lambda:test", True),
-        ("notgitrepo", False),
-    ],
-)
-def test_is_github_repo(github_repo, truth):
-    assert operator_utils.git._is_github_repo(github_repo) is truth
-
-
-@pytest.mark.parametrize(
     "official_op, truth", [("aws-lambda", True), ("testop", False)]
 )
 def test_is_official_operator(official_op, truth):
@@ -67,31 +42,3 @@ class PatchedRepo:
 
     def checkout(self, branch):
         Path(self.repo_path / branch).touch()
-
-
-def test_clone_git_repo(monkeypatch):
-    monkeypatch.setattr(operator_utils.git, "Repo", PatchedRepo)
-    repo_path = operator_utils.git._clone_git_repo("git_url")
-    assert os.path.exists(repo_path)
-
-    # checkout with branch
-    repo_path = operator_utils.git._clone_git_repo("git_url", branch="test")
-    assert os.path.exists(repo_path)
-    assert os.path.exists(os.path.join(repo_path, "test"))
-
-
-@pytest.mark.parametrize(
-    "github_link, info, raise_error",
-    [
-        ("bentoml/sagemaker", ("bentoml", "sagemaker", None), False),
-        ("bentoml/sagemaker:test", ("bentoml", "sagemaker", "test"), False),
-        ("not_github_info", ("bentoml", "sagemaker", "test"), True),
-    ],
-)
-def test_fetch_github_info(github_link, info, raise_error):
-    if raise_error:
-        with pytest.raises(ValueError):
-            operator_utils.git._fetch_github_info(github_link)
-    else:
-        returned_info = operator_utils.git._fetch_github_info(github_link)
-        assert returned_info == info

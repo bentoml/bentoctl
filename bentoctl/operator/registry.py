@@ -10,12 +10,11 @@ from bentoctl.exceptions import (
     OperatorNotAdded,
     OperatorNotFound,
     OperatorNotUpdated,
-    OperatorRegistryException,
 )
 from bentoctl.operator.utils.github import (
     download_github_release,
-    get_github_release_info,
-    get_latest_release_info, get_github_release_tags,
+    get_latest_release_info,
+    get_github_release_tags,
 )
 from bentoctl.utils.temp_dir import TempDirectory
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
@@ -23,7 +22,8 @@ from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
     _get_operator_dir_path,
     _is_official_operator,
-    get_semver_version, sort_semver_versions,
+    get_semver_version,
+    sort_semver_versions,
 )
 
 
@@ -47,7 +47,9 @@ class OperatorRegistry:
             raise OperatorNotFound(operator_name=name)
         metadata = self.operators_list[name]
         op_path = metadata["path"]
-        metadata["version"] = get_semver_version(metadata["version"])
+        metadata["version"] = (
+            get_semver_version(metadata["version"]) if metadata["version"] else None
+        )
         return Operator(op_path, metadata)
 
     def get_operator_metadata(self, name):
@@ -60,11 +62,7 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def _install_official_operators(self, name, version=None):
-        repo_name = OFFICIAL_OPERATORS[name]
-        if version is None:
-            latest_release = get_latest_release_info(repo_name)
-            version = latest_release["tag_name"]
+    def _download_install_official_operator(self, repo_name, version=None):
         with TempDirectory(cleanup=False) as temp_dir:
             content_path = download_github_release(
                 repo_name=repo_name, output_dir=temp_dir, tag=version
@@ -74,30 +72,34 @@ class OperatorRegistry:
             # copy into the operator registry
             operator_path = _get_operator_dir_path(operator.name)
             shutil.move(content_path, operator_path)
+        return operator_path, operator.name
+
+    def _install_official_operators(self, name, version=None):
+        repo_name = OFFICIAL_OPERATORS[name]
+        if version is None:
+            latest_release = get_latest_release_info(repo_name)
+            version = latest_release["tag_name"]
+
+        operator_path, operator_name = self._download_install_official_operator(
+            repo_name, version
+        )
         operator_info = {
-            "path": os.path.abspath(operator.path),
+            "path": os.path.abspath(operator_path),
             "is_local": False,
             "is_official": True,
             "version": version,
         }
 
-        return operator.name, operator_info
+        return operator_name, operator_info
 
-    def _install_custom_operators(self, name, version=None):
+    def _install_custom_operators(self, name):
         is_official = False
-        is_local = True
-        """
-        1. download operator
-        2. check is operator is already installed. We can't do this, because we 
-            don't have the name of the operator before we download it
-        3. install operator dependencies
-        4. add operator in registry
-        """
         if not os.path.exists(name):
             raise OperatorNotAdded(
                 f"Operator not Added, Unable to parse {name}. "
                 "Please check docs to see the supported ways of adding operators."
             )
+        is_local = True
         logger.info(f"adding operator from path ({name})")
         content_path = name
         operator = Operator(content_path)
@@ -109,11 +111,11 @@ class OperatorRegistry:
             "path": os.path.abspath(Path(content_path)),
             "is_local": is_local,
             "is_official": is_official,
-            "version": version,
+            "version": None,
         }
         return operator.name, operator_info
 
-    def add_operator(self, name, version=None):
+    def install_operator(self, name, version=None):
         """
         1. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you.
@@ -126,6 +128,7 @@ class OperatorRegistry:
 
         Args:
             name: Name of the operator
+            version: Version of the operator
         Returns:
             The the name of the operator installed.
         Raises:
@@ -138,7 +141,7 @@ class OperatorRegistry:
                 name, version
             )
         else:
-            operator_name, operator_info = self._install_custom_operators(name, version)
+            operator_name, operator_info = self._install_custom_operators(name)
         self.operators_list[operator_name] = operator_info
         self._write_to_file()
         return operator_name
@@ -149,22 +152,12 @@ class OperatorRegistry:
             if operator.metadata["is_local"]:
                 logger.info("Local Operator need not be updated!")
                 return
+            if get_semver_version(operator.version) == get_semver_version(version):
+                logger.info(f"Operator is already on version {version}!")
+                return
             repo_name = OFFICIAL_OPERATORS[name]
-            if version is None:
-                latest_release = get_latest_release_info(repo_name)
-                version = latest_release["tag_name"]
-            with TempDirectory(cleanup=False) as temp_dir:
-                content_path = download_github_release(
-                    repo_name=repo_name, output_dir=temp_dir, tag=version
-                )
-                operator = Operator(content_path)
-                operator.install_dependencies()
-                # copy into the operator registry
-                operator_path = _get_operator_dir_path(operator.name)
-                shutil.rmtree(operator_path)
-                shutil.copytree(
-                    content_path, operator_path, copy_function=shutil.copy
-                )
+            version = version if version else self.get_operator_latest_version(name)
+            self._download_install_official_operator(repo_name, version)
             self.operators_list[name]['version'] = version
             self._write_to_file()
             return name
@@ -182,12 +175,12 @@ class OperatorRegistry:
 
     def get_operator_versions(self, name):
         """
-             Returns the versions of the operator.
-             """
+        Returns the versions of the operator.
+        """
         if not _is_official_operator(name):
-            return [] # custom operators don't have versions
+            return []  # custom operators don't have versions
         repo_name = OFFICIAL_OPERATORS[name]
-        tags = get_github_release_tags()
+        tags = get_github_release_tags(repo_name)
         versions = [get_semver_version(tag) for tag in tags]
         return sort_semver_versions(versions)
 
@@ -195,7 +188,7 @@ class OperatorRegistry:
         versions = self.get_operator_versions(name)
         return versions[0] if versions else None
 
-    def is_latest_version_for_operator(self, name):
+    def is_operator_on_latest_version(self, name):
         latest_version = self.get_operator_latest_version(name)
         current_version = get_semver_version(self.operators_list[name]['version'])
         return True if latest_version == current_version else False

@@ -77,8 +77,8 @@ def download_github_release(repo_name: str, output_dir: str, tag: str):
     try:
         release_info = github_get_call(url)
         release_name = release_info['name']
+        release_tarball_name = f"{release_name}.tar.gz"
         if release_info['assets']:
-            release_tarball_name = f"{release_name}.tar.gz"
             tarball_asset = next(
                 (
                     asset
@@ -88,10 +88,11 @@ def download_github_release(repo_name: str, output_dir: str, tag: str):
                 None,
             )
             if tarball_asset is None:
-                raise Exception(f"Failed to find tarball for {release_name} in {repo_name}")
+                raise Exception(
+                    f"Failed to find tarball for {release_name} in {repo_name}"
+                )
             tarball_url = tarball_asset['browser_download_url']
         else:
-            release_tarball_name = f"{release_name}.tar.gz" # wrong, need to rework
             tarball_url = release_info['tarball_url']
         tarball_path = os.path.join(output_dir, release_tarball_name)
         with requests.get(tarball_url, stream=True) as r:
@@ -103,7 +104,15 @@ def download_github_release(repo_name: str, output_dir: str, tag: str):
         tar = tarfile.open(tarball_path)
         tar.extractall(path=output_dir)
         tar.close()
-        return tarball_path
+        operator_dir = next(
+            (
+                i
+                for i in os.listdir(output_dir)
+                if os.path.isdir(os.path.join(output_dir, i))
+            ),
+            None,
+        )
+        return os.path.join(output_dir, operator_dir)
     except Exception as e:
         raise BentoctlGithubException(
             f"Failed to download release for {repo_name}"

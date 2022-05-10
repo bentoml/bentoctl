@@ -118,7 +118,7 @@ class DeploymentConfig:
                 )
             else:
                 logger.warning("Install operator %s from bentoml", self.operator_name)
-                local_operator_registry.add_operator(self.operator_name)
+                local_operator_registry.install_operator(self.operator_name)
                 self.operator = local_operator_registry.get(self.operator_name)
 
     def _set_template_type(self):

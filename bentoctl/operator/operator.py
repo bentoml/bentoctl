@@ -12,8 +12,6 @@ from bentoctl.exceptions import (
     OperatorLoadException,
     PipInstallException,
 )
-from bentoctl.operator.utils import sort_semver_versions, get_semver_version
-from bentoctl.operator.utils.github import get_github_release_tags
 
 logger = logging.getLogger(__name__)
 

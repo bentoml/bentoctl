@@ -27,7 +27,7 @@ def op_reg_with_testop(tmp_path, monkeypatch):
     # patched operator registry with testop added
     os.environ["BENTOCTL_HOME"] = str(op_reg_path)
     op_reg = get_local_operator_registry()
-    op_reg.add_operator(TESTOP_PATH)
+    op_reg.install_operator(TESTOP_PATH)
     monkeypatch.setattr(deployment_config, "local_operator_registry", op_reg)
 
     yield op_reg

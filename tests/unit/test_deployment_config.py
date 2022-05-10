@@ -108,7 +108,7 @@ def create_yaml_file(yml_str, path):
 @pytest.fixture
 def op_reg_with_testop(get_mock_operator_registry, monkeypatch):
     monkeypatch.setattr(dconf, "local_operator_registry", get_mock_operator_registry)
-    get_mock_operator_registry.add_operator(TESTOP_PATH)
+    get_mock_operator_registry.install_operator(TESTOP_PATH)
 
     yield get_mock_operator_registry
 

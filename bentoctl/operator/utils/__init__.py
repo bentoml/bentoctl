@@ -35,7 +35,9 @@ def _is_official_operator(operator_name: str) -> bool:
     return operator_name in official_operators
 
 
-def get_semver_version(version: str) -> Version:
+def get_semver_version(version) -> Version:
+    if type(version) == Version:
+        return version
     version = version if not version.startswith("v") else version[1:]
     return Version(version)
 
