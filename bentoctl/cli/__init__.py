@@ -221,6 +221,8 @@ def apply(deployment_config_file):
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     if deployment_config.template_type.startswith("terraform"):
         terraform_apply()
+
+    print_post_build_help_message(template_type=deployment_config.template_type)
     return deployment_config
 
 
