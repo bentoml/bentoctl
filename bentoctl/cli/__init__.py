@@ -14,6 +14,7 @@ from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
 from bentoctl.console import (
     console,
     print_generated_files_list,
+    print_post_build_help_message,
     prompt_user_for_filename,
 )
 from bentoctl.deployment_config import DeploymentConfig
@@ -176,6 +177,7 @@ def build(
         )
         generated_files = deployment_config.generate(values_only=True)
         print_generated_files_list(generated_files)
+        print_post_build_help_message(template_type=deployment_config.template_type)
     else:
         console.print(f"[green]Created docker image: {local_docker_tag}[/]")
     return deployment_config
