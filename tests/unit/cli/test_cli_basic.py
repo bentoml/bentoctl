@@ -1,14 +1,15 @@
 # pylint: disable=W0621
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
+from unittest.mock import MagicMock
 
 import pytest
 from click.testing import CliRunner
-from unittest.mock import MagicMock
 
 import bentoctl
 from bentoctl import __version__, deployment_config
 from bentoctl.cli import bentoctl as bentoctl_cli
+from bentoctl.console import POST_BUILD_HELP_MESSAGE_TERRAFORM
 from bentoctl.operator import get_local_operator_registry
 from tests.conftest import TESTOP_PATH
 
@@ -49,6 +50,7 @@ bentomock.tag.version = "mock_version"
 @dataclass
 class DeploymentConfigMock:
     repository_name: str = None
+    template_type: str = "terraform"
     bento = bentomock
     operator_name = "mocked_operator_name"
 
@@ -131,8 +133,12 @@ def test_cli_generate(monkeypatch):
     assert "- bentoctl.tfvars" in result.output
 
 
-def test_cli_build(monkeypatch):
-    monkeypatch.setattr(bentoctl.cli, "DeploymentConfig", DeploymentConfigMock)
+def mock_bentoctl_cli(monkeypatch, template_type):
+    monkeypatch.setattr(
+        bentoctl.cli,
+        "DeploymentConfig",
+        DeploymentConfigMock(template_type=template_type),
+    )
     monkeypatch.setattr(
         bentoctl.cli, "build_docker_image", lambda **kwargs: print(kwargs)
     )
@@ -140,6 +146,18 @@ def test_cli_build(monkeypatch):
         bentoctl.cli, "push_docker_image_to_repository", lambda **kwargs: print(kwargs)
     )
     monkeypatch.setattr(bentoctl.cli, "tag_docker_image", lambda *args: print(args))
+
+
+@pytest.mark.parametrize(
+    "template_type, post_build_help_message",
+    [
+        ("terraform", POST_BUILD_HELP_MESSAGE_TERRAFORM),
+        ("terraform-something", POST_BUILD_HELP_MESSAGE_TERRAFORM),
+        ("cloudformation", None),
+    ],
+)
+def test_cli_build(monkeypatch, template_type, post_build_help_message):
+    mock_bentoctl_cli(monkeypatch, template_type)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -157,6 +175,8 @@ def test_cli_build(monkeypatch):
     assert "generated template files" in result.output
     assert "- bentoctl.tfvars" in result.output
     assert "- main.tf" not in result.output
+    if post_build_help_message is not None:
+        assert post_build_help_message in result.output
 
     # test dry run
     result = runner.invoke(
@@ -177,3 +197,5 @@ def test_cli_build(monkeypatch):
     assert "- bentoctl.tfvars" not in result.output
     assert "- main.tf" not in result.output
     assert "Created docker image:" in result.output
+    if post_build_help_message is not None:
+        assert not post_build_help_message in result.output
