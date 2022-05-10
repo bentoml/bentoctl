@@ -198,4 +198,4 @@ def test_cli_build(monkeypatch, template_type, post_build_help_message):
     assert "- main.tf" not in result.output
     assert "Created docker image:" in result.output
     if post_build_help_message is not None:
-        assert not post_build_help_message in result.output
+        assert post_build_help_message not in result.output
