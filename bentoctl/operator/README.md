@@ -14,9 +14,23 @@ Bentoctl manage installed operators with operator registry. The default location
 
 Registry will read `operator_list.json` file in the directory to get the list of installed operators.
 
+Example `operator_list.json`:
+```
+{
+    "aws-lambda": {
+        "path": "/Users/bozhaoyu/bentoctl/operators/aws-lambda",
+        "git_url": "https://github.com/bentoml/aws-lambda-deploy.git",
+        "git_branch": "main",
+        "is_local": false,
+        "version": "0.1.0"
+    }
+}
+```
+
 
 Operator registry can add/update/list/remove operators.
 
 Registry add can add operator from the official operator list, local path or from remote git repository.
 
 Registry update will update the operator based on their add location.
+

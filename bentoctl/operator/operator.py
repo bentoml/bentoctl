@@ -17,14 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 class Operator:
-    def __init__(self, path):
+    def __init__(self, path, metadata=None):
         self.path = Path(path)
+        self.metadata = metadata
 
         # load the operator config
         if not os.path.exists(os.path.join(self.path, "operator_config.py")):
             raise OperatorConfigNotFound(operator_path=self.path)
 
         self.operator_config = _import_module("operator_config", self.path)
+        self.version = metadata["version"] if metadata else None
 
     @property
     def name(self):
@@ -108,6 +110,8 @@ class Operator:
             directory to create the deployable into.
         bento_metadata: dict
             metadata about the bento.
+        overwrite_deployable: bool
+            Overwrite the deployable if it already exists.
 
         Returns
         -------
@@ -132,7 +136,7 @@ class Operator:
 
         Parameters
         ----------
-        deployment_name: str
+        repository_name: str
         operator_spec: str
             Operator specifications
 
@@ -154,7 +158,7 @@ class Operator:
 
         Parameters
         ----------
-        deployment_name: str
+        repository_name: str
         operator_spec: str
             Operator specifications
         """

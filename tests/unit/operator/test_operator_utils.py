@@ -4,7 +4,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from bentoctl.operator import utils as operator_utils
+import bentoctl.operator.utils as operator_utils
+
+# import bentoctl.operator.utils.git
+# from bentoctl.operator import utils as operator_utils
 
 
 def test_get_bentoctl_home(tmp_path):
@@ -12,31 +15,6 @@ def test_get_bentoctl_home(tmp_path):
     bentoctl_home = operator_utils._get_bentoctl_home()
     assert bentoctl_home == tmp_path
     assert (tmp_path / "operators").exists()
-
-
-@pytest.mark.parametrize(
-    "git_link, truth",
-    [
-        ("git@gitlab.com:nick.thomas/gitaly.git", True),
-        ("https://gitlab.com/nick.thomas/gitaly.git", True),
-        ("git@github.com:bentoml/aws-sagemaker-deploy.git", True),
-        ("https://github.com/bentoml/aws-sagemaker-deploy.git", True),
-    ],
-)
-def test_is_git_link(git_link, truth):
-    assert operator_utils._is_git_link(git_link) is truth
-
-
-@pytest.mark.parametrize(
-    "github_repo, truth",
-    [
-        ("bentoml/sagemaker", True),
-        ("bentoml/aws-lambda:test", True),
-        ("notgitrepo", False),
-    ],
-)
-def test_is_github_repo(github_repo, truth):
-    assert operator_utils._is_github_repo(github_repo) is truth
 
 
 @pytest.mark.parametrize(
@@ -64,31 +42,3 @@ class PatchedRepo:
 
     def checkout(self, branch):
         Path(self.repo_path / branch).touch()
-
-
-def test_clone_git_repo(monkeypatch):
-    monkeypatch.setattr(operator_utils, "Repo", PatchedRepo)
-    repo_path = operator_utils._clone_git_repo("git_url")
-    assert os.path.exists(repo_path)
-
-    # checkout with branch
-    repo_path = operator_utils._clone_git_repo("git_url", branch="test")
-    assert os.path.exists(repo_path)
-    assert os.path.exists(os.path.join(repo_path, "test"))
-
-
-@pytest.mark.parametrize(
-    "github_link, info, raise_error",
-    [
-        ("bentoml/sagemaker", ("bentoml", "sagemaker", None), False),
-        ("bentoml/sagemaker:test", ("bentoml", "sagemaker", "test"), False),
-        ("not_github_info", ("bentoml", "sagemaker", "test"), True),
-    ],
-)
-def test_fetch_github_info(github_link, info, raise_error):
-    if raise_error:
-        with pytest.raises(ValueError):
-            operator_utils._fetch_github_info(github_link)
-    else:
-        returned_info = operator_utils._fetch_github_info(github_link)
-        assert returned_info == info

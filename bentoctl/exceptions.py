@@ -158,3 +158,9 @@ class TemplateTypeNotDefined(BentoctlException):
             f"Template type <{template_type} not supported by the operator provided."
         )
         super(TemplateTypeNotDefined, self).__init__(self.msg)
+
+
+class BentoctlGithubException(BentoctlException):
+    """
+    Raised when github request fails
+    """
