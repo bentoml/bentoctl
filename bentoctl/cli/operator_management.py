@@ -49,8 +49,12 @@ def get_operator_management_subcommands():
 
         2. Official operator: you can pass the name of one of the official operators
            and the tool with fetch it for you. You can see the list of official
-           operators <link to list off operators>.
-           eg. `bentoctl install aws-lambda`
+           operators <link to list off operators>. eg. `bentoctl install aws-lambda`
+
+           Available operators: [aws-lambda, aws-sagemaker, aws-ec2, azure-functions,
+           azure-container-instances, google-compute-engine, google-cloud-run,
+           heroku]
+
 
         3. Path: If you have the operator locally, either because you are building
            our own operator or if cloning the operator from some other
