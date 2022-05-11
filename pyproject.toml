@@ -28,11 +28,11 @@ python = "^3.7"
 bentoml = {version="^1.0.0*", allow-prereleases=true}
 click = "^8"
 cerberus = "^1"
-rich = "^10.9"
+rich = "^12"
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
 GitPython = "3.1.24"
-importlib-metadata = { version = "~=1.0", python = "<3.8" }
+importlib-metadata = { version = ">=4.3", python = "<3.8" }
 docker = "^5"
 semantic_version = "^2.9.0"
 

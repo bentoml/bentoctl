@@ -17,27 +17,8 @@ Name your Pull Request with one of the following prefixes, e.g. "feat: add suppo
 - revert: (reverts a previous commit)
 -->
 
-## Description
+#### Description
 <!--- Describe your changes in detail -->
 <!--- Attach screenshots here if appropriate. -->
 
-## Motivation and Context
-<!--- Why is this change required? What problem does it solve? -->
-<!--- If it fixes an open issue, please link to the issue here. -->
-<!--- If it is based on a conversation in slack channel, pls quote related messages here -->
-
-## How Has This Been Tested?
-<!--- Please describe in detail how you tested your changes. -->
-<!--- Include details of your testing environment, and the tests you ran to -->
-<!--- see how your change affects other areas of the code, etc. -->
-
-## Checklist:
-<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
-<!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
-<!--- If you plan to update documentation or tests in follow-up, please note -->
-- [ ] My code follows the bentoctl code style, both `make format` and
-  `make lint` script have passed
-- [ ] My change reduces project test coverage and requires unit tests to be added
-- [ ] I have added unit tests covering my code change
-- [ ] My change requires a change to the documentation
-- [ ] I have updated the documentation accordingly
+closes: <!--- reference any issue that this PR will close -->

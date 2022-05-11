@@ -27,7 +27,7 @@ class CliEvent:
         self.operator = operator
         self.version = version
         self.bentoctl_version = __version__
-        self.event_name = 'bentoctl_cli'
+        self.event_name = "bentoctl_cli"
 
 
 def _bentoctl_event(cmd_group, cmd_name, return_value=None):

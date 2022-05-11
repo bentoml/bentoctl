@@ -50,7 +50,7 @@ bentomock.tag.version = "mock_version"
 class DeploymentConfigMock:
     repository_name: str = None
     bento = bentomock
-    operator_name = 'mocked_operator_name'
+    operator_name = "mocked_operator_name"
 
     @classmethod
     def from_file(cls, file):

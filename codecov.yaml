@@ -1,0 +1,20 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 10%
+        base: auto
+        branches:
+          - main
+        if_ci_failed: error #success, failure, error, ignore
+        only_pulls: true
+    patch:
+      default:
+        target: auto
+        threshold: 10%
+        base: auto
+        branches:
+          - main
+        if_ci_failed: error #success, failure, error, ignore
+        only_pulls: true

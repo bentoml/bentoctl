@@ -8,21 +8,22 @@ This guide walks through the steps of building a bento and deploying it to AWS L
 2. Terraform - [Terraform](https://www.terraform.io/) is a tool for building, configuring, and managing infrastructure.
 3. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
-### Step 1: Create a bento
+### Step 1: Import a bento
 
-> Note: Skip to step 2, if you already built a bento with the BentoML 1.0 quick start guide.
+> Note: Skip to step 2, if you already built a bento with the [BentoML’s quickstart guide](https://docs.bentoml.org/en/latest/quickstart.html).
 
-Follow the instructions from the [BentoML’s quickstart guide](https://docs.bentoml.org/en/latest/quickstart.html) to build a bento.
+Import the iris-classifier bento from s3 to your local machine by running
+```bash
+bentoml import s3://bentoml.com/quickstart/iris_classifier.bento
+```
+The code for this bento can be found in [bentoml/gallery/quickstart](https://github.com/bentoml/gallery/tree/main/quickstart). This bento has a `/classify` endpoint that exposes an sklearn model trained on the iris dataset.
 
 ### Step 2: Verify bento
 
-To verify the bento, run `bentoml list` to display the available bentos in your local bento store:
+To verify the bento, run `bentoml get` to display the properties of the bento from your local bento store:
 
 ```bash
-> bentoml list
-
-Tag                               Size       Creation Time        Path
-iris_classifier:btzv5wfv665trhcu  19.78 KiB  2022-04-06 22:15:26  ~/bentoml/bentos/iris_classifier/btzv5wfv665trhcu
+bentoml get iris_classifier:latest
 ```
 
 ### Step 3: Install aws-lambda operator

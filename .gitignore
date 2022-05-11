@@ -6,3 +6,5 @@ testop_spec.yaml
 .coverage
 dist/*
 unit.xml
+
+site
