@@ -23,3 +23,28 @@ def prompt_user_for_filename():
         deployment_config_filname += ".yaml"
 
     return deployment_config_filname
+
+
+POST_BUILD_HELP_MESSAGE_TERRAFORM = """
+bentoctl has built and pushed the bento and generated the terraform files 🎉
+
+Now follow the steps below to use terraform to carry out the deployment
+1. Initialise the terraform working directory.
+$ terraform init
+
+2. Run terraform plan to see the changes that will take place
+$ terraform plan -var-file bentoctl.tfvars
+
+3. Apply the changes to create the actual infrastructure
+$ terraform apply -var-file bentoctl.tfvars
+
+---
+
+To cleanup all the resources created and delete the registry run
+$ bentoctl destory
+"""
+
+
+def print_post_build_help_message(template_type: str):
+    if template_type.startswith("terraform"):
+        console.print(f"[green]{POST_BUILD_HELP_MESSAGE_TERRAFORM}[/green]")
