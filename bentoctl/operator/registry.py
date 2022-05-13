@@ -11,12 +11,6 @@ from bentoctl.exceptions import (
     OperatorNotFound,
     OperatorNotUpdated,
 )
-from bentoctl.operator.utils.github import (
-    download_github_release,
-    get_latest_release_info,
-    get_github_release_tags,
-)
-from bentoctl.utils.temp_dir import TempDirectory
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
 from bentoctl.operator.operator import Operator
 from bentoctl.operator.utils import (
@@ -25,7 +19,12 @@ from bentoctl.operator.utils import (
     get_semver_version,
     sort_semver_versions,
 )
-
+from bentoctl.operator.utils.github import (
+    download_github_release,
+    get_github_release_tags,
+    get_latest_release_info,
+)
+from bentoctl.utils.temp_dir import TempDirectory
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ class OperatorRegistry:
     def list(self):
         return self.operators_list
 
-    def get(self, name):
+    def get(self, name: str):
         if name not in self.operators_list:
             raise OperatorNotFound(operator_name=name)
         metadata = self.operators_list[name]
@@ -158,7 +157,7 @@ class OperatorRegistry:
             repo_name = OFFICIAL_OPERATORS[name]
             version = version if version else self.get_operator_latest_version(name)
             self._download_install_official_operator(repo_name, version)
-            self.operators_list[name]['version'] = version
+            self.operators_list[name]["version"] = version
             self._write_to_file()
             return name
         except BentoctlException as e:
@@ -190,5 +189,5 @@ class OperatorRegistry:
 
     def is_operator_on_latest_version(self, name):
         latest_version = self.get_operator_latest_version(name)
-        current_version = get_semver_version(self.operators_list[name]['version'])
+        current_version = get_semver_version(self.operators_list[name]["version"])
         return True if latest_version == current_version else False

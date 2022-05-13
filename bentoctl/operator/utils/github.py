@@ -62,7 +62,7 @@ def get_github_release_tags(repo_name):
     Get the tags of a GitHub repository.
     """
     releases = get_github_releases(repo_name)
-    tags = [release['tag_name'] for release in releases]
+    tags = [release["tag_name"] for release in releases]
     return tags
 
 
@@ -76,14 +76,14 @@ def download_github_release(repo_name: str, output_dir: str, tag: str):
         url = f"https://api.github.com/repos/{repo_name}/releases/latest"
     try:
         release_info = github_get_call(url)
-        release_name = release_info['name']
+        release_name = release_info["name"]
         release_tarball_name = f"{release_name}.tar.gz"
-        if release_info['assets']:
+        if release_info["assets"]:
             tarball_asset = next(
                 (
                     asset
-                    for asset in release_info['assets']
-                    if asset['name'] == release_tarball_name
+                    for asset in release_info["assets"]
+                    if asset["name"] == release_tarball_name
                 ),
                 None,
             )
@@ -91,13 +91,13 @@ def download_github_release(repo_name: str, output_dir: str, tag: str):
                 raise Exception(
                     f"Failed to find tarball for {release_name} in {repo_name}"
                 )
-            tarball_url = tarball_asset['browser_download_url']
+            tarball_url = tarball_asset["browser_download_url"]
         else:
-            tarball_url = release_info['tarball_url']
+            tarball_url = release_info["tarball_url"]
         tarball_path = os.path.join(output_dir, release_tarball_name)
         with requests.get(tarball_url, stream=True) as r:
             r.raise_for_status()
-            with open(tarball_path, 'wb') as f:
+            with open(tarball_path, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)

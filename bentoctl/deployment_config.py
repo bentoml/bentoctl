@@ -106,9 +106,12 @@ class DeploymentConfig:
             raise InvalidDeploymentConfig("name not found")
 
     def _set_operator(self):
-        self.operator_name = self.deployment_config.get("operator")
-        if self.operator_name is None:
+        operator_dict = self.deployment_config.get("operator")
+        if operator_dict is None:
             raise InvalidDeploymentConfig("operator is a required field")
+        self.operator_name = operator_dict.get("name")
+        if self.operator_name is None:
+            raise InvalidDeploymentConfig("operator.name is a required field")
         try:
             self.operator = local_operator_registry.get(self.operator_name)
         except OperatorNotFound:
