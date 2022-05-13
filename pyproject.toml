@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bentoctl"
-version = "1.0.0a5"
+version = "0.2.0"
 description = "Fast model deployment with BentoML on cloud platforms."
 authors = ["bentoml.org <contact@bentoml.ai>"]
 homepage = "https://github.com/bentoml/bentoctl"
