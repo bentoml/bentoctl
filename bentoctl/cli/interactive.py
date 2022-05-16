@@ -258,7 +258,7 @@ def deployment_config_builder():
         if len(available_operators) == 1
         else dropdown_select("operator", available_operators)
     )
-    indented_print(f"[b]operator:[/]")
+    indented_print("[b]operator:[/]")
     indented_print(f"[b]name:[/] {operator_name}", indent_level=1)
     deployment_config["operator"] = {"name": operator_name}
     operator = local_operator_registry.get(operator_name)

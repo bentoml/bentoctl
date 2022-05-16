@@ -94,7 +94,7 @@ api_version: tst: something: something
 VALID_YAML_INVALID_SCHEMA = """
 api_version: v1
 name: test
-operator: 
+operator:
     name: testop
 template: terraform
 spec:
