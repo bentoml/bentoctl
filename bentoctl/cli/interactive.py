@@ -146,7 +146,7 @@ def prompt_input(
     #  prompt will display `: your_input`
     input_value = None
     if rule.get("type") == "list":
-        intended_print(f"{field_name}:", indent_level)
+        indented_print(f"{field_name}:", indent_level)
         input_value = []
         if rule.get("required") is not True:
             should_add_item_to_list = prompt_confirmation(
@@ -167,7 +167,7 @@ def prompt_input(
     elif rule.get("type") == "dict":
         input_value = {}
         if not belongs_to_list:
-            intended_print(f"{field_name}:", indent_level)
+            indented_print(f"{field_name}:", indent_level)
             for key in rule.get("schema").keys():
                 input_value[key] = prompt_input(
                     key, rule.get("schema").get(key), indent_level + 1
@@ -194,11 +194,11 @@ def prompt_input(
                 display_input_result = f"  {field_name}: {input_value}"
         else:
             display_input_result = f"{field_name}: {input_value}"
-        intended_print(display_input_result, indent_level=indent_level)
+        indented_print(display_input_result, indent_level=indent_level)
     return input_value
 
 
-def intended_print(message, indent_level=0):
+def indented_print(message, indent_level=0):
     """
     print the message with indentation
     """
@@ -258,8 +258,9 @@ def deployment_config_builder():
         if len(available_operators) == 1
         else dropdown_select("operator", available_operators)
     )
-    deployment_config["operator"] = operator_name
-    console.print(f"[b]operator:[/] {operator_name}")
+    indented_print("[b]operator:[/]")
+    indented_print(f"[b]name:[/] {operator_name}", indent_level=1)
+    deployment_config["operator"] = {"name": operator_name}
     operator = local_operator_registry.get(operator_name)
 
     # get template_type

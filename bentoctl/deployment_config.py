@@ -36,9 +36,14 @@ def operator_exists(field, operator_name, error):
 deployment_config_schema = {
     "name": {"required": True, "help_message": "The name for the deployment"},
     "operator": {
+        "type": "dict",
         "required": True,
-        "help_message": "The operator to use for deployment",
-        "check_with": operator_exists,
+        "schema": {
+            "name": {
+                "help_message": "The operator to use for deployment",
+                "check_with": operator_exists,
+            }
+        },
     },
     "template": {
         "required": True,

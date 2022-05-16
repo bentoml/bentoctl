@@ -18,11 +18,10 @@ TEST_OPERATOR = Operator(TESTOP_PATH)
 @pytest.fixture
 def op_reg(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
-    op_reg = registry.OperatorRegistry(tmp_path / "operators")
+    op_reg = registry.OperatorRegistry(tmp_path)
     yield op_reg
 
 
-# fix me
 def test_registry_get(op_reg):
     op_reg.install_operator(TESTOP_PATH)
     testop = op_reg.get("testop")
@@ -40,7 +39,6 @@ def test_registry_init_and_list(tmp_path):
     assert op_reg.list() == sample_op_list_json
 
 
-# fix me
 def test_registry_install_local_operator(op_reg):
     op_reg_path = op_reg.path
     assert not (op_reg_path / TEST_OPERATOR.name).exists()
@@ -57,41 +55,6 @@ def test_registry_install_local_operator(op_reg):
         op_reg.install_operator(TESTOP_PATH)
 
 
-# fix me
-@pytest.mark.parametrize(
-    "user_input, git_url, git_branch",
-    [
-        ("aws-lambda", "https://github.com/bentoml/aws-lambda-deploy.git", "main"),
-        ("bentoml/heroku", "https://github.com/bentoml/heroku.git", None),
-        (
-            "owner/heroku:branch",
-            "https://github.com/owner/heroku.git",
-            "branch",
-        ),
-        (
-            "https://github.com/bentoml/aws-sagemaker-deploy.git",
-            "https://github.com/bentoml/aws-sagemaker-deploy.git",
-            None,
-        ),
-    ],
-)
-def test_registry_install(user_input, git_url, git_branch, op_reg, monkeypatch):
-    def patched_clone_git_repo(git_url, branch=None):  # pylint: disable=W0613
-        return TESTOP_PATH
-
-    monkeypatch.setattr(registry, "_clone_git_repo", patched_clone_git_repo)
-
-    op_reg.install_operator(user_input)
-    assert (op_reg.path / TEST_OPERATOR.name).exists()
-    assert op_reg.operators_list[TEST_OPERATOR.name] == {
-        "path": str(op_reg.path / TEST_OPERATOR.name),
-        "git_url": git_url,
-        "git_branch": git_branch,
-        "is_local": False,
-    }
-
-
-# fix me
 def test_registry_update_local_operator(op_reg, tmpdir):
     tmp_testop_path = os.path.join(tmpdir, "testop")
     shutil.copytree(TESTOP_PATH, tmp_testop_path)
@@ -107,7 +70,6 @@ def test_registry_update_local_operator(op_reg, tmpdir):
     assert path_to_first_file_before_updation == path_to_first_file_after_updation
 
 
-# fix me
 def test_registry_remove(op_reg):
     op_reg.install_operator(TESTOP_PATH)
     testop_path = op_reg.path / "testop"

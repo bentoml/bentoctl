@@ -35,7 +35,7 @@ def test_dropdown_select(mock_terminal_menu):
 def test_inteneded_print(indent_level):
     f = StringIO()
     with redirect_stdout(f):
-        interactive_cli.intended_print("test_message", indent_level=indent_level)
+        interactive_cli.indented_print("test_message", indent_level=indent_level)
         assert f.getvalue() == f"{'    '*indent_level}test_message\n"
 
 
