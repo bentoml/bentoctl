@@ -62,7 +62,8 @@ deployment. Fill out the appropriate values for the fields.
 
 api_version: v1
 name: quickstart
-operator: aws-lambda
+operator:
+    name: aws-lambda
 template: terraform
 spec:
     region: us-west-1
