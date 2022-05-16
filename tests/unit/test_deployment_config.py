@@ -46,9 +46,7 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "terraform",
-                "operator": {
-                    "name": "testop"
-                    },
+                "operator": {"name": "testop"},
                 "spec": {},
             }
         )
@@ -60,9 +58,7 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "",
-                "operator": {
-                    "name": "testop"
-                    },
+                "operator": {"name": "testop"},
                 "spec": {},
             }
         )
@@ -74,9 +70,7 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "not-valid-template",
-                "operator": {
-                    "name": "testop"
-                    },
+                "operator": {"name": "testop"},
                 "spec": {},
             }
         )
