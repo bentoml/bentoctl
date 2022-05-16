@@ -2,16 +2,17 @@
 name = "bentoctl"
 version = "0.2.2"
 description = "Fast model deployment with BentoML on cloud platforms."
-authors = ["bentoml.org <contact@bentoml.ai>"]
+authors = ["bentoml.org <contact@bentoml.com>"]
 homepage = "https://github.com/bentoml/bentoctl"
 readme = "./README.md"
 license = "Apache-2.0"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Software Development",
 ]
 
@@ -31,7 +32,6 @@ cerberus = "^1"
 rich = "^12"
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
-GitPython = "3.1.24"
 importlib-metadata = { version = ">=4.3", python = "<3.8" }
 docker = "^5"
 semantic_version = "^2.9.0"
@@ -49,7 +49,7 @@ profile = "black"
 
 [tool.black]
 line-length = 88
-target-version = ["py36", "py37", "py38"]
+target-version = ["py37", "py38", "py39", "py310"]
 include = '\.pyi?$'
 exclude = '''
 /(
