@@ -47,7 +47,7 @@ class OperatorRegistry:
         metadata = self.operators_list[name]
         op_path = metadata["path"]
         metadata["version"] = (
-            get_semver_version(metadata["version"]) if metadata["version"] else None
+            get_semver_version(metadata["version"]) if metadata.get("version") else None
         )
         return Operator(op_path, metadata)
 

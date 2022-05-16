@@ -46,7 +46,9 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "terraform",
-                "operator": "testop",
+                "operator": {
+                    "name": "testop"
+                    },
                 "spec": {},
             }
         )
@@ -58,7 +60,9 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "",
-                "operator": "testop",
+                "operator": {
+                    "name": "testop"
+                    },
                 "spec": {},
             }
         )
@@ -70,7 +74,9 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
                 "api_version": "v1",
                 "name": "test",
                 "template": "not-valid-template",
-                "operator": "testop",
+                "operator": {
+                    "name": "testop"
+                    },
                 "spec": {},
             }
         )
@@ -79,7 +85,8 @@ def test_deployment_config_init(get_mock_operator_registry, monkeypatch):
 VALID_YAML = """
 api_version: v1
 name: test
-operator: testop
+operator:
+    name: testop
 template: terraform
 spec:
     project_id: testproject
@@ -93,7 +100,8 @@ api_version: tst: something: something
 VALID_YAML_INVALID_SCHEMA = """
 api_version: v1
 name: test
-operator: testop
+operator: 
+    name: testop
 template: terraform
 spec:
     project_id: testproject
