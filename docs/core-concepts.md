@@ -26,7 +26,9 @@ bentoctl uses deployment configuration to specify the deployment properties. The
 
 Here is a sample deployment config for the EC2 operator.
 
-![sample deployment config](./imgs/deployment-config-concept.png)
+<p align="center">
+  <img src="./imgs/deployment-config-concept.png" alt="sample deployment config"/>
+</p>
 
 1 :- `api_version` specifies deployment configuration version.
 
