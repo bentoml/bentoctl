@@ -34,7 +34,7 @@ Here is a sample deployment config for the EC2 operator.
 
 2 :- `name` Deployment's name. bentoctl recommends to keep deployment name unqiue within each operator to avoid any potential issues.
 
-3 :- `operator.name` - The name of the operator to used for deployment, see the list of [official operatos]() supported. If the the operator is not installed it is installed for you based on the version provided. You can also provide a path to the operator if it is in the local directory. This is helpfull if using custom operators.
+3 :- `operator.name` - The name of the operator to used for deployment, see the list of [official operatos](./operator-list.md) supported. If the the operator is not installed it is installed for you based on the version provided. You can also provide a path to the operator if it is in the local directory. This is helpfull if using custom operators.
 
 4: - `operator.version` (optional) - The version of the operator to use. The default is to use the latest.
 
