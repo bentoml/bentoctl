@@ -11,7 +11,7 @@ class BentoctlException(Exception):
         """
         used by CLI to generate a user readable error message.
         """
-        print("Error: ", self)
+        print(f"Error [{type(self).__name__}]: ", self)
 
 
 class OperatorExists(BentoctlException):
@@ -95,6 +95,10 @@ class DeploymentConfigNotFound(BentoctlException):
     """
     When deployment config is not found.
     """
+
+    def __init__(self, deployment_config_path: str = "deployment_config not found."):
+        self.msg = f"deployment_config not found at <{deployment_config_path}>."
+        super(DeploymentConfigNotFound, self).__init__(self.msg)
 
 
 class OperatorRegistryException(BentoctlException):

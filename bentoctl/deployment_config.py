@@ -162,7 +162,7 @@ class DeploymentConfig:
     def from_file(cls, file_path: t.Union[str, Path]):
         file_path = Path(file_path)
         if not file_path.exists():
-            raise DeploymentConfigNotFound
+            raise DeploymentConfigNotFound(file_path)
         elif file_path.suffix in [".yaml", ".yml"]:
             try:
                 config_dict = yaml.safe_load(file_path.read_text(encoding="utf-8"))
