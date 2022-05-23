@@ -29,10 +29,10 @@
 * [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
 * [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
 * [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
-* [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy) (BentoML 1.0 migration in progress)
+* [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
 * [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-* [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy) (BentoML 1.0 migration in progress)
-* [Heroku](https://github.com/bentoml/heroku-deploy) (BentoML 1.0 migration in progress)
+* [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
+* [Heroku](https://github.com/bentoml/heroku-deploy)
 * Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
 * **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
