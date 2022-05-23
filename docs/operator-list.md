@@ -11,7 +11,7 @@
 | google-compute-engine | https://github.com/bentoml/google-compute-engine-deploy | ❌ |  |
 | google-cloud-run | https://github.com/bentoml/google-cloud-run-deploy | ✅ |  |
 | azure-functions | https://github.com/bentoml/azure-functions-deploy | ✅ |  |
-| azure-container-instances | https://github.com/bentoml/azure-container-instances-deploy | ❌ |  |
-| Heroku | https://github.com/bentoml/heroku-deploy | ❌ |  |
+| azure-container-instances | https://github.com/bentoml/azure-container-instances-deploy | ✅ |  |
+| Heroku | https://github.com/bentoml/heroku-deploy | ✅ |  |
 
 ## Community Operators
