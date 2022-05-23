@@ -1,7 +1,7 @@
 from collections import UserDict
 
-DEPLOYMENT_PARAMS_WARNING = """# This file is maintained automatically by 
-# "bentoctl generate" and "bentoctl build" commands. 
+DEPLOYMENT_PARAMS_WARNING = """# This file is maintained automatically by
+# "bentoctl generate" and "bentoctl build" commands.
 # Manual edits may be lost the next time these commands are run.
 
 """
@@ -37,7 +37,7 @@ class DeploymentValues(UserDict):
         for param_name, param_value in self.items():
             params.append(f'{param_name} = "{param_value}"')
 
-        with open(file_path, "w") as params_file:
+        with open(file_path, "w", encoding="utf-8") as params_file:
             params_file.write(DEPLOYMENT_PARAMS_WARNING)
             params_file.write("\n".join(params))
             params_file.write("\n")
