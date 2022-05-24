@@ -38,7 +38,13 @@ $ terraform plan -var-file bentoctl.tfvars
 3. Apply the changes to create the actual infrastructure
 $ terraform apply -var-file bentoctl.tfvars
 
+To cleanup all the resources and delete the repositories created run
+$ bentoctl destory
+
 ---
+There is also an experimental command that you can use.
+To create the resources specifed run this after the build command.
+$ bentoctl apply
 
 To cleanup all the resources created and delete the registry run
 $ bentoctl destory
