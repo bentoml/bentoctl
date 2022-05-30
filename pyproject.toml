@@ -25,13 +25,13 @@ bentoctl = "bentoctl.cli:bentoctl"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-bentoml = {version="^1.0.0*", allow-prereleases=true}
+bentoml = {version="1.0.0a7", allow-prereleases=true}
 click = "^8"
 cerberus = "^1"
-rich = "^12"
+rich = ""
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
-importlib-metadata = { version = ">=4.3", python = "<3.8" }
+importlib-metadata = { version = "", python = "<3.8" }
 docker = "^5"
 semantic_version = "^2.9.0"
 
