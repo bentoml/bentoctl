@@ -1,19 +1,12 @@
 import logging
-import os
 import subprocess
-import typing as t
 from collections import OrderedDict
-from typing import TYPE_CHECKING
 
 import docker
 from rich.live import Live
 
 from bentoctl.console import console
 from bentoctl.exceptions import BentoctlDockerException
-
-if TYPE_CHECKING:
-    from bentoml._internal.types import PathType
-
 
 # default location were dockerfile can be found
 DOCKERFILE_PATH = "env/docker/Dockerfile"
@@ -135,7 +128,7 @@ def build_docker_image(
         logger.error(f"Failed building docker image: {e}")
         if platform != "linux/amd64":
             logger.debug(
-                f"""If you run into the following error: "failed to solve: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed". This means Docker doesn't have context of your build platform {platform}. By default BentoML will set target build platform to the current machine platform via `uname -m`. Try again by specifying to build x86_64 (amd64) platform: bentoml containerize {image_tag} --platform linux/amd64"""
+                f"""If you run into the following error: "failed to solve: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed". This means Docker doesn't have context of your build platform {platform}. By default BentoML will set target build platform to the current machine platform via `uname -m`. Try again by specifying to build x86_64 (amd64) platform: bentoml containerize {image_tag} --platform linux/amd64"""  # NOQA
             )
         return False
     else:
