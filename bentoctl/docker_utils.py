@@ -1,11 +1,24 @@
+import logging
 import os
+import subprocess
+import typing as t
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 import docker
 from rich.live import Live
 
 from bentoctl.console import console
 from bentoctl.exceptions import BentoctlDockerException
+
+if TYPE_CHECKING:
+    from bentoml._internal.types import PathType
+
+
+# default location were dockerfile can be found
+DOCKERFILE_PATH = "env/docker/Dockerfile"
+
+logger = logging.getLogger(__name__)
 
 
 class DockerPushProgressBar:
@@ -46,34 +59,89 @@ class DockerPushProgressBar:
 
 
 def build_docker_image(
-    context_path,
-    image_tag,
-    dockerfile="env/docker/Dockerfile",
+    context_path: str,
+    image_tag: str,
     additional_build_args=None,
+    add_host=None,
+    allow=None,
+    build_args=None,
+    build_context=None,
+    builder=None,
+    cache_from=None,
+    cache_to=None,
+    cgroup_parent=None,
+    iidfile=None,
+    labels=None,
+    load=True,
+    metadata_file=None,
+    network=None,
+    no_cache=False,
+    no_cache_filter=None,
+    output=None,
+    platform=None,
+    progress="auto",
+    pull=False,
+    push=False,
+    quiet=False,
+    secrets=None,
+    shm_size=None,
+    rm=False,
+    ssh=None,
+    target=None,
+    ulimit=None,
 ):
-    docker_client = docker.from_env()
-    context_path = str(context_path)
-    # make dockerfile relative to context_path
-    dockerfile = os.path.relpath(dockerfile, context_path)
+    from bentoml._internal.utils import buildx
+
+    env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
+
+    # run health check whether buildx is install locally
+    buildx.health()
+
+    logger.info(f"Building docker image for {image_tag}...")
     try:
-        output_stream = docker_client.images.client.api.build(
-            path=context_path,
-            tag=image_tag,
-            dockerfile=dockerfile,
-            buildargs=additional_build_args,
-            decode=True,
+        buildx.build(
+            subprocess_env=env,
+            cwd=context_path,
+            file=DOCKERFILE_PATH,
+            tags=image_tag,
+            add_host=add_host,
+            allow=allow,
+            build_args=build_args,
+            build_context=build_context,
+            builder=builder,
+            cache_from=cache_from,
+            cache_to=cache_to,
+            cgroup_parent=cgroup_parent,
+            iidfile=iidfile,
+            labels=labels,
+            load=load,
+            metadata_file=metadata_file,
+            network=network,
+            no_cache=no_cache,
+            no_cache_filter=no_cache_filter,
+            output=output,
+            platform=platform,
+            progress=progress,
+            pull=pull,
+            push=push,
+            quiet=quiet,
+            secrets=secrets,
+            shm_size=shm_size,
+            rm=rm,
+            ssh=ssh,
+            target=target,
+            ulimit=ulimit,
         )
-        for line in output_stream:
-            print(line.get("stream", ""), end="")
-            if "errorDetail" in line:  # incase error while building.
-                raise BentoctlDockerException(
-                    f"Failed to build docker image {image_tag}: {line['error']}"
-                )
-        console.print(":hammer: Image build!")
-    except (docker.errors.APIError, docker.errors.BuildError) as error:
-        raise BentoctlDockerException(
-            f"Failed to build docker image {image_tag}: {error}"
-        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed building docker image: {e}")
+        if platform != "linux/amd64":
+            logger.debug(
+                f"""If you run into the following error: "failed to solve: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed". This means Docker doesn't have context of your build platform {platform}. By default BentoML will set target build platform to the current machine platform via `uname -m`. Try again by specifying to build x86_64 (amd64) platform: bentoml containerize {image_tag} --platform linux/amd64"""
+            )
+        return False
+    else:
+        logger.info(f'Successfully built docker image "{image_tag}"')
+        return True
 
 
 def tag_docker_image(image_name, image_tag):
