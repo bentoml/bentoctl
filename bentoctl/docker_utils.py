@@ -61,7 +61,6 @@ class DockerPushProgressBar:
 def build_docker_image(
     context_path: str,
     image_tag: str,
-    additional_build_args=None,
     add_host=None,
     allow=None,
     build_args=None,
