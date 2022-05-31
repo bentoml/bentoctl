@@ -115,18 +115,19 @@ class Operator:
 
         Returns
         -------
-        dockerfile_path : str
-            path to the dockerfile.
         docker_context_path : str
             path to the docker context.
-        additional_build_args : dict
-            Any addition build arguments that need to be passed to the
-            docker build command
         """
         operator = self._load_operator_module()
-        return operator.create_deployable(
+        returned_values = operator.create_deployable(
             bento_path, destination_dir, bento_metadata, overwrite_deployable
         )
+
+        if len(returned_values) == 3:
+            # maintain backward compatibility and return only the context_path
+            return returned_values[1]
+
+        return returned_values
 
     def create_repository(
         self, repository_name: str, operator_spec: str

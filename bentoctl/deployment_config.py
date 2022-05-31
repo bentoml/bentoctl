@@ -207,18 +207,14 @@ class DeploymentConfig:
         # for debugging purpose. So by setting overwrite_deployable
         # to false, we don't delete the deployable after the build.
         overwrite_deployable = not get_debug_mode()
-        (
-            dockerfile_path,
-            docker_context_path,
-            build_args,
-        ) = self.operator.create_deployable(
+        docker_context_path = self.operator.create_deployable(
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=bento_metadata,
             overwrite_deployable=overwrite_deployable,
         )
 
-        return dockerfile_path, docker_context_path, build_args
+        return docker_context_path
 
     def create_repository(self):
         (repository_url, username, password,) = self.operator.create_repository(
