@@ -54,6 +54,7 @@ class DockerPushProgressBar:
 def build_docker_image(
     context_path: str,
     image_tag: str,
+    platform=None,
     add_host=None,
     allow=None,
     build_args=None,
@@ -70,7 +71,6 @@ def build_docker_image(
     no_cache=False,
     no_cache_filter=None,
     output=None,
-    platform=None,
     progress="auto",
     pull=False,
     push=False,
@@ -128,12 +128,11 @@ def build_docker_image(
         logger.error(f"Failed building docker image: {e}")
         if platform != "linux/amd64":
             logger.debug(
-                f"""If you run into the following error: "failed to solve: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed". This means Docker doesn't have context of your build platform {platform}. By default BentoML will set target build platform to the current machine platform via `uname -m`. Try again by specifying to build x86_64 (amd64) platform: bentoml containerize {image_tag} --platform linux/amd64"""  # NOQA
+                f"""If you run into the following error: "failed to solve: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed". This means Docker doesn't have context of your build platform {platform}. By default BentoML will set target build platform to the current machine platform via `uname -m`. Try again by specifying to build x86_64 (amd64) platform: bentoml build -b {image_tag} --platform linux/amd64"""  # NOQA
             )
-        return False
+        raise BentoctlDockerException(f"Failed building docker image: {e}")
     else:
         logger.info(f'Successfully built docker image "{image_tag}"')
-        return True
 
 
 def tag_docker_image(image_name, image_tag):
