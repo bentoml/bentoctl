@@ -144,7 +144,7 @@ def build(
     deployment_config.set_bento(bento_tag)
     local_docker_tag = deployment_config.generate_local_image_tag()
     debug_mode = get_debug_mode()
-    with TempDirectory(cleanup=debug_mode) as dist_dir:
+    with TempDirectory(debug_mode=debug_mode) as dist_dir:
         dockercontext_path = deployment_config.create_deployable(
             destination_dir=dist_dir,
         )
