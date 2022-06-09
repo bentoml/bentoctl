@@ -10,4 +10,4 @@ format: ## Running code formatter: black and isort
 	black --config ./pyproject.toml bentoctl tests
 	isort .
 lint: ## Running lint checker: pylint
-	pylint --rcfile=.pylintrc bentoctl tests
+	pylint --rcfile=./pylintrc bentoctl tests
