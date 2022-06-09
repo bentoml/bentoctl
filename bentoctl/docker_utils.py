@@ -1,11 +1,16 @@
-import os
 from collections import OrderedDict
 
 import docker
+from bentoml._internal.utils import buildx
 from rich.live import Live
 
 from bentoctl.console import console
+from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlDockerException
+from bentoctl.utils.temp_dir import TempDirectory
+
+# default location were dockerfile can be found
+DOCKERFILE_PATH = "env/docker/Dockerfile"
 
 
 class DockerPushProgressBar:
@@ -45,35 +50,48 @@ class DockerPushProgressBar:
         yield "\n".join(progress_table)
 
 
-def build_docker_image(
-    context_path,
-    image_tag,
-    dockerfile="env/docker/Dockerfile",
-    additional_build_args=None,
-):
-    docker_client = docker.from_env()
-    context_path = str(context_path)
-    # make dockerfile relative to context_path
-    dockerfile = os.path.relpath(dockerfile, context_path)
-    try:
-        output_stream = docker_client.images.client.api.build(
-            path=context_path,
-            tag=image_tag,
-            dockerfile=dockerfile,
-            buildargs=additional_build_args,
-            decode=True,
-        )
-        for line in output_stream:
-            print(line.get("stream", ""), end="")
-            if "errorDetail" in line:  # incase error while building.
-                raise BentoctlDockerException(
-                    f"Failed to build docker image {image_tag}: {line['error']}"
-                )
-        console.print(":hammer: Image build!")
-    except (docker.errors.APIError, docker.errors.BuildError) as error:
-        raise BentoctlDockerException(
-            f"Failed to build docker image {image_tag}: {error}"
-        )
+def generate_deployable_container(
+    tag: str, deployment_config: DeploymentConfig, cleanup: bool
+) -> None:
+    with TempDirectory(cleanup=cleanup) as dist_dir:
+        env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
+        buildx_args = {
+            "subprocess_env": env,
+            "cwd": deployment_config.create_deployable(destination_dir=str(dist_dir)),
+            "file": DOCKERFILE_PATH,
+            "tags": tag,
+            "add_host": None,
+            "allow": None,
+            "build_args": None,
+            "build_context": None,
+            "builder": None,
+            "cache_from": None,
+            "cache_to": None,
+            "cgroup_parent": None,
+            "iidfile": None,
+            "labels": None,
+            "load": None,
+            "metadata_file": None,
+            "network": None,
+            "no_cache": False,
+            "no_cache_filter": None,
+            "output": None,
+            "platform": "linux/amd64",
+            "progress": "auto",
+            "pull": False,
+            "push": False,
+            "quiet": False,
+            "secrets": None,
+            "shm_size": None,
+            "rm": False,
+            "ssh": None,
+            "target": None,
+            "ulimit": None,
+        }
+
+        # run health check whether buildx is install locally
+        buildx.health()
+        buildx.build(**buildx_args)
 
 
 def tag_docker_image(image_name, image_tag):

@@ -97,7 +97,7 @@ class Operator:
         destination_dir: str,
         bento_metadata: dict,
         overwrite_deployable: bool = True,
-    ) -> Tuple[str, str]:
+    ) -> str:
         """
         The deployable is the bento along with all the modifications (if any)
         requried to deploy to the cloud service.
@@ -121,9 +121,15 @@ class Operator:
             path to the docker context.
         """
         operator = self._load_operator_module()
-        return operator.create_deployable(
+        returned_values = operator.create_deployable(
             bento_path, destination_dir, bento_metadata, overwrite_deployable
         )
+        if len(returned_values) == 3:
+            return returned_values[1]
+
+        assert not isinstance(returned_values, tuple)
+
+        return returned_values
 
     def create_repository(
         self, repository_name: str, operator_spec: str

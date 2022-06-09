@@ -91,12 +91,6 @@ def get_bento_metadata(bento_path: str) -> dict:
     return metadata
 
 
-@attr.frozen
-class DeployableDockerContext:
-    dockerfile: str = attr.field(validator=attr.validators.instance_of(str))
-    context_path: str = attr.field(validator=attr.validators.instance_of(str))
-
-
 class DeploymentConfig:
     bento: Bento
 
@@ -206,7 +200,7 @@ class DeploymentConfig:
 
         return generated_files
 
-    def create_deployable(self, destination_dir=os.curdir) -> DeployableDockerContext:
+    def create_deployable(self, destination_dir=os.curdir) -> str:
         """
         Creates the deployable in the destination_dir and returns
         the docker args for building
@@ -214,13 +208,12 @@ class DeploymentConfig:
         # NOTE: In the case of debug mode, we want to keep the deployable
         # for debugging purpose. So by setting overwrite_deployable to false,
         # we don't delete the deployable after the build.
-        dockerfile, context_path = self.operator.create_deployable(
+        return self.operator.create_deployable(
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=get_bento_metadata(self.bento.path),
             overwrite_deployable=not get_debug_mode(),
         )
-        return DeployableDockerContext(dockerfile=dockerfile, context_path=context_path)
 
     def create_repository(self):
         (repository_url, username, password,) = self.operator.create_repository(

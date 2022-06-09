@@ -63,7 +63,7 @@ class BentoctlCommandGroup(click.Group):
         @functools.wraps(func)
         def wrapper(do_not_track: bool, *args, **kwargs):
             if do_not_track:
-                os.environs["BENTOCTL_DO_NOT_TRACK"] = str(True)
+                os.environ["BENTOCTL_DO_NOT_TRACK"] = str(True)
                 return func(*args, **kwargs)
             start_time = time.time_ns()
             if cmd_group.name in cli_events_map:

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# USAGE: release.sh <version> [<repo>]
+# possible options for <repo>: testpypi or pypi
 set -e
 
 if [ "$#" -eq 1 ]; then

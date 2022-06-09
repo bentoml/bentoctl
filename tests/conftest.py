@@ -11,6 +11,13 @@ from bentoctl.operator.registry import OperatorRegistry
 TESTOP_PATH = os.path.join(os.path.dirname(__file__), "test-operator")
 
 
+@pytest.fixture(scope="function", name="change_test_dir")
+def fixture_change_test_dir(request: pytest.FixtureRequest):
+    os.chdir(request.fspath.dirname)  # type: ignore (bad pytest stubs)
+    yield request.fspath.dirname  # type: ignore (bad pytest stubs)
+    os.chdir(request.config.invocation_dir)  # type: ignore (bad pytest stubs)
+
+
 @pytest.fixture
 def mock_operator_registry(tmp_path):
     os.environ["BENTOCTL_HOME"] = str(tmp_path)
