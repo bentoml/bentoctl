@@ -1,7 +1,7 @@
 import functools
+import os
 import sys
 import time
-import os
 
 import click
 
@@ -9,8 +9,8 @@ from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import set_debug_mode
 from bentoctl.utils.usage_stats import (
     BENTOML_DO_NOT_TRACK,
-    cli_events_map,
     CliEvent,
+    cli_events_map,
     track,
 )
 

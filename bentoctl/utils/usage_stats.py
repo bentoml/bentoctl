@@ -1,11 +1,11 @@
-from bentoctl import __version__
-
 # These are internal apis. We will need to make sure update these when BentoML changes.
 from bentoml._internal.utils.analytics.usage_stats import (  # noqa pylint: disable=unused-import
+    BENTOML_DO_NOT_TRACK,
     do_not_track,
     track,
-    BENTOML_DO_NOT_TRACK,
 )
+
+from bentoctl import __version__
 
 
 class CliEvent:

@@ -1,6 +1,7 @@
 import os
 import shutil
 import tempfile
+from pathlib import Path
 
 
 class TempDirectory(object):
@@ -24,20 +25,20 @@ class TempDirectory(object):
     def __repr__(self):
         return "<{} {!r}>".format(self.__class__.__name__, self.path)
 
-    def __enter__(self):
-        self.create()
-        return self.path
+    def __enter__(self) -> Path:
+        return Path(self.create())
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self._cleanup:
             self.cleanup()
 
-    def create(self):
+    def create(self) -> str:
         if self.path is not None:
             return self.path
 
         tempdir = tempfile.mkdtemp(prefix="bentoctl-{}-".format(self._prefix))
         self.path = os.path.realpath(tempdir)
+        return self.path
 
     def cleanup(self, ignore_errors=False):
         """

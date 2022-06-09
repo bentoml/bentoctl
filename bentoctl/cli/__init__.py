@@ -1,13 +1,9 @@
 import os
 
 import click
+from bentoml._internal.utils import buildx
 
 from bentoctl import __version__
-from bentoctl.utils.terraform import (
-    terraform_apply,
-    terraform_destroy,
-    is_terraform_applied,
-)
 from bentoctl.cli.interactive import deployment_config_builder
 from bentoctl.cli.operator_management import get_operator_management_subcommands
 from bentoctl.cli.utils import BentoctlCommandGroup, handle_bentoctl_exceptions
@@ -18,13 +14,14 @@ from bentoctl.console import (
     prompt_user_for_filename,
 )
 from bentoctl.deployment_config import DeploymentConfig
-from bentoctl.docker_utils import (
-    build_docker_image,
-    push_docker_image_to_repository,
-    tag_docker_image,
-)
+from bentoctl.docker_utils import push_docker_image_to_repository, tag_docker_image
 from bentoctl.utils import get_debug_mode
 from bentoctl.utils.temp_dir import TempDirectory
+from bentoctl.utils.terraform import (
+    is_terraform_applied,
+    terraform_apply,
+    terraform_destroy,
+)
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -140,24 +137,53 @@ def build(
     """
     Build the Docker image for the given deployment config file and bento.
     """
+
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
     local_docker_tag = deployment_config.generate_local_image_tag()
-    debug_mode = get_debug_mode()
-    with TempDirectory(cleanup=debug_mode) as dist_dir:
-        (
-            dockerfile_path,
-            dockercontext_path,
-            build_args,
-        ) = deployment_config.create_deployable(
-            destination_dir=dist_dir,
+    with TempDirectory(cleanup=get_debug_mode()) as dist_dir:
+        deployable_context = deployment_config.create_deployable(
+            destination_dir=str(dist_dir)
         )
-        build_docker_image(
-            image_tag=local_docker_tag,
-            context_path=dockercontext_path,
-            dockerfile=dockerfile_path,
-            additional_build_args=build_args,
-        )
+        env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
+        buildx_args = {
+            "subprocess_env": env,
+            "cwd": deployable_context.context_path,
+            "file": deployable_context.dockerfile,
+            "tags": bento_tag,
+            "add_host": None,
+            "allow": None,
+            "build_args": None,
+            "build_context": None,
+            "builder": None,
+            "cache_from": None,
+            "cache_to": None,
+            "cgroup_parent": None,
+            "iidfile": None,
+            "labels": None,
+            "load": None,
+            "metadata_file": None,
+            "network": None,
+            "no_cache": False,
+            "no_cache_filter": False,
+            "output": None,
+            "platform": "linux/amd64",
+            "progress": "auto",
+            "pull": False,
+            "push": False,
+            "quiet": False,
+            "secrets": None,
+            "shm_size": None,
+            "rm": False,
+            "ssh": None,
+            "target": None,
+            "ulimit": None,
+        }
+
+        # run health check whether buildx is install locally
+        buildx.health()
+        buildx.build(**buildx_args)
+
     if not dry_run:
         (
             repository_url,
