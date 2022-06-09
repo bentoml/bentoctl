@@ -4,12 +4,11 @@ import os
 import typing as t
 from pathlib import Path
 
-import attr
 import bentoml
 import cerberus
 import fs
 import yaml
-from bentoml.bentos import Bento
+from bentoml._internal.bento import Bento
 from bentoml.exceptions import NotFound
 
 from bentoctl.exceptions import (
