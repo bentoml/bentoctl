@@ -91,9 +91,8 @@ def get_bento_metadata(bento_path: str) -> dict:
 
 
 class DeploymentConfig:
-    bento: Bento
-
     def __init__(self, deployment_config: t.Dict[str, t.Any]):
+        self.bento = None
         self.repository_name = None
 
         # currently there is only 1 version for config
