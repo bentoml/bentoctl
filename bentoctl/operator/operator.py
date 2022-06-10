@@ -121,15 +121,9 @@ class Operator:
             path to the docker context.
         """
         operator = self._load_operator_module()
-        returned_values = operator.create_deployable(
+        return operator.create_deployable(
             bento_path, destination_dir, bento_metadata, overwrite_deployable
         )
-        if len(returned_values) == 3:
-            return returned_values[1]
-
-        assert not isinstance(returned_values, tuple)
-
-        return returned_values
 
     def create_repository(
         self, repository_name: str, operator_spec: str
