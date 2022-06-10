@@ -25,7 +25,7 @@ bentoctl = "bentoctl.cli:bentoctl"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-bentoml = {version="1.0.0a7", allow-prereleases=true}
+bentoml = {version="^1.0.0*", allow-prereleases=true}
 click = "^8"
 cerberus = "^1"
 rich = ""

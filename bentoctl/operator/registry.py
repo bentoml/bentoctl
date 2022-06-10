@@ -61,10 +61,10 @@ class OperatorRegistry:
         with open(self.operator_file, "w", encoding="UTF-8") as f:
             json.dump(self.operators_list, f)
 
-    def _download_install_official_operator(self, repo_name, version=None):
+    def _download_install_official_operator(self, repo_name: str, version: str):
         with TempDirectory(cleanup=False) as temp_dir:
             content_path = download_github_release(
-                repo_name=repo_name, output_dir=temp_dir, tag=version
+                repo_name=repo_name, output_dir=temp_dir.__fspath__(), tag=version
             )
             operator = Operator(content_path)
             operator.install_dependencies()

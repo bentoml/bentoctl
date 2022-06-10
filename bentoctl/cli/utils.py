@@ -1,7 +1,7 @@
 import functools
+import os
 import sys
 import time
-import os
 
 import click
 
@@ -9,8 +9,8 @@ from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import set_debug_mode
 from bentoctl.utils.usage_stats import (
     BENTOML_DO_NOT_TRACK,
-    cli_events_map,
     CliEvent,
+    cli_events_map,
     track,
 )
 
@@ -63,7 +63,7 @@ class BentoctlCommandGroup(click.Group):
         @functools.wraps(func)
         def wrapper(do_not_track: bool, *args, **kwargs):
             if do_not_track:
-                os.environs["BENTOCTL_DO_NOT_TRACK"] = str(True)
+                os.environ["BENTOCTL_DO_NOT_TRACK"] = str(True)
                 return func(*args, **kwargs)
             start_time = time.time_ns()
             if cmd_group.name in cli_events_map:

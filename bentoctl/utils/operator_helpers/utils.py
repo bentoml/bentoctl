@@ -1,5 +1,5 @@
-import subprocess
 import json
+import subprocess
 
 
 def run_shell_command(command, cwd=None, env=None, shell_mode=False):

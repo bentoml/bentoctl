@@ -8,7 +8,8 @@ import bentoml
 import cerberus
 import fs
 import yaml
-from bentoml.bentos import Bento
+from bentoml._internal.bento import Bento
+from bentoml.exceptions import NotFound
 
 from bentoctl.exceptions import (
     BentoNotFound,
@@ -155,8 +156,8 @@ class DeploymentConfig:
     def set_bento(self, bento_tag: str):
         try:
             self.bento = bentoml.get(bento_tag)
-        except bentoml.exceptions.NotFound:
-            raise BentoNotFound(bento_tag)
+        except NotFound as e:
+            raise BentoNotFound(bento_tag) from e
 
     @classmethod
     def from_file(cls, file_path: t.Union[str, Path]):
@@ -197,28 +198,20 @@ class DeploymentConfig:
 
         return generated_files
 
-    def create_deployable(self, destination_dir=os.curdir):
+    def create_deployable(self, destination_dir=os.curdir) -> str:
         """
         Creates the deployable in the destination_dir and returns
         the docker args for building
         """
-        bento_metadata = get_bento_metadata(self.bento.path)
-        # In the case of debug mode, we want to keep the deployable
-        # for debugging purpose. So by setting overwrite_deployable
-        # to false, we don't delete the deployable after the build.
-        overwrite_deployable = not get_debug_mode()
-        (
-            dockerfile_path,
-            docker_context_path,
-            build_args,
-        ) = self.operator.create_deployable(
+        # NOTE: In the case of debug mode, we want to keep the deployable
+        # for debugging purpose. So by setting overwrite_deployable to false,
+        # we don't delete the deployable after the build.
+        return self.operator.create_deployable(
             bento_path=self.bento.path,
             destination_dir=destination_dir,
-            bento_metadata=bento_metadata,
-            overwrite_deployable=overwrite_deployable,
+            bento_metadata=get_bento_metadata(self.bento.path),
+            overwrite_deployable=not get_debug_mode(),
         )
-
-        return dockerfile_path, docker_context_path, build_args
 
     def create_repository(self):
         (repository_url, username, password,) = self.operator.create_repository(

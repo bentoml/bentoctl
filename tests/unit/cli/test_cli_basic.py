@@ -1,7 +1,7 @@
-# pylint: disable=W0621
 import os
 from dataclasses import dataclass
-from unittest.mock import MagicMock
+from typing import TYPE_CHECKING
+from unittest.mock import MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
@@ -12,6 +12,9 @@ from bentoctl.cli import bentoctl as bentoctl_cli
 from bentoctl.console import POST_BUILD_HELP_MESSAGE_TERRAFORM
 from bentoctl.operator import get_local_operator_registry
 from tests.conftest import TESTOP_PATH
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 TEST_DEPLOYMENT_CONFIG_PATH = os.path.join(
     os.path.dirname(__file__), "test_deployment_config.yaml"
@@ -49,6 +52,8 @@ bentomock.tag.version = "mock_version"
 
 @dataclass
 class DeploymentConfigMock:
+
+    directory: "Path" = None
     repository_name: str = None
     template_type: str = "terraform"
     bento = bentomock
@@ -73,8 +78,10 @@ class DeploymentConfigMock:
     def generate_local_image_tag(self):
         return "local_image_tag"
 
-    def create_deployable(self, destination_dir=None):
-        return "dockerfile_path", "docker_context_path", "build_args"
+    def create_deployable(self, destination_dir=None) -> str:
+        if self.directory:
+            return self.directory.__fspath__()
+        return "."
 
     def create_repository(self):
         return "registry_url", "registry_username", "registry_pass"
@@ -86,11 +93,12 @@ class DeploymentConfigMock:
         return "repository_image_tag"
 
 
-def test_cli_init(monkeypatch, tmp_path):
+@pytest.mark.usefixtures("change_test_dir")
+def test_cli_init(monkeypatch, tmp_path, change_test_dir):
     monkeypatch.setattr(
         bentoctl.cli,
         "deployment_config_builder",
-        lambda: DeploymentConfigMock(),
+        lambda: DeploymentConfigMock(directory=change_test_dir),
     )
     runner = CliRunner()
 
@@ -124,28 +132,18 @@ def test_cli_init(monkeypatch, tmp_path):
     assert result.exit_code == 0
 
 
-def test_cli_generate(monkeypatch):
-    monkeypatch.setattr(bentoctl.cli, "DeploymentConfig", DeploymentConfigMock)
+@pytest.mark.usefixtures("change_test_dir")
+def test_cli_generate(monkeypatch, change_test_dir: "Path"):
+    monkeypatch.setattr(
+        bentoctl.cli,
+        "DeploymentConfig",
+        DeploymentConfigMock(directory=change_test_dir),
+    )
     runner = CliRunner()
     result = runner.invoke(bentoctl_cli, ["generate"])
     assert result.exit_code == 0
     assert "- main.tf" in result.output
     assert "- bentoctl.tfvars" in result.output
-
-
-def mock_bentoctl_cli(monkeypatch, template_type):
-    monkeypatch.setattr(
-        bentoctl.cli,
-        "DeploymentConfig",
-        DeploymentConfigMock(template_type=template_type),
-    )
-    monkeypatch.setattr(
-        bentoctl.cli, "build_docker_image", lambda **kwargs: print(kwargs)
-    )
-    monkeypatch.setattr(
-        bentoctl.cli, "push_docker_image_to_repository", lambda **kwargs: print(kwargs)
-    )
-    monkeypatch.setattr(bentoctl.cli, "tag_docker_image", lambda *args: print(args))
 
 
 @pytest.mark.parametrize(
@@ -156,8 +154,27 @@ def mock_bentoctl_cli(monkeypatch, template_type):
         ("cloudformation", None),
     ],
 )
-def test_cli_build(monkeypatch, template_type, post_build_help_message):
-    mock_bentoctl_cli(monkeypatch, template_type)
+@pytest.mark.usefixtures("change_test_dir")
+@patch("bentoctl.cli.generate_deployable_container")
+def test_cli_build(
+    mock_generate_deployable_container,
+    template_type,
+    post_build_help_message,
+    monkeypatch,
+    change_test_dir,
+):
+
+    monkeypatch.setattr(
+        bentoctl.cli,
+        "DeploymentConfig",
+        DeploymentConfigMock(change_test_dir, template_type=template_type),
+    )
+    monkeypatch.setattr(
+        bentoctl.cli, "push_docker_image_to_repository", lambda **kwargs: print(kwargs)
+    )
+    monkeypatch.setattr(bentoctl.cli, "tag_docker_image", lambda *args: print(args))
+
+    mock_generate_deployable_container.return_value = "container_id"
 
     runner = CliRunner()
     result = runner.invoke(
