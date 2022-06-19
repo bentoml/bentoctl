@@ -15,12 +15,14 @@ class TempDirectory(object):
     def __init__(
         self,
         cleanup=True,
+        debug=False,
         prefix="temp",
     ):
 
         self._cleanup = cleanup
         self._prefix = prefix
         self.path = None
+        self.debug = debug
 
     def __repr__(self):
         return "<{} {!r}>".format(self.__class__.__name__, self.path)
@@ -29,6 +31,8 @@ class TempDirectory(object):
         return Path(self.create())
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.debug:
+            self.move_to_curdir()
         if self._cleanup:
             self.cleanup()
 
@@ -46,4 +50,11 @@ class TempDirectory(object):
         """
         if self.path is not None and os.path.exists(self.path):
             shutil.rmtree(self.path, ignore_errors=ignore_errors)
-        self.path = None
+
+    def move_to_curdir(self):
+        breakpoint()
+        deployable_path = os.path.join(os.curdir, "bentoctl_deployable")
+        if os.path.exists(deployable_path):
+            shutil.rmtree(deployable_path)
+
+        shutil.copytree(self.path, deployable_path)

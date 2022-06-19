@@ -7,6 +7,7 @@ from rich.live import Live
 from bentoctl.console import console
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.exceptions import BentoctlDockerException
+from bentoctl.utils import get_debug_mode
 from bentoctl.utils.temp_dir import TempDirectory
 
 # default location were dockerfile can be found
@@ -51,9 +52,13 @@ class DockerPushProgressBar:
 
 
 def generate_deployable_container(
-    tag: str, deployment_config: DeploymentConfig, cleanup: bool
+    tag: str, deployment_config: DeploymentConfig
 ) -> None:
-    with TempDirectory(cleanup=cleanup) as dist_dir:
+    """
+    Calls the operator and generates the deployable. If in debug more the generated 
+    deployable will be moved to the current directory for easier debugging.
+    """
+    with TempDirectory(debug=get_debug_mode()) as dist_dir:
         env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
         buildx_args = {
             "subprocess_env": env,

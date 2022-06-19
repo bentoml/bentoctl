@@ -147,7 +147,6 @@ def build(
     generate_deployable_container(
         tag=local_docker_tag,
         deployment_config=deployment_config,
-        cleanup=get_debug_mode(),
     )
 
     if not dry_run:
