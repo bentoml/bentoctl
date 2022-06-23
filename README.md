@@ -36,8 +36,8 @@
 * **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
 **Upcoming:**
+* [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
 * [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-* [Knative](https://github.com/bentoml/bentoctl/issues/79)
 
 
 ## Install bentoctl
