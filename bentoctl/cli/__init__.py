@@ -18,7 +18,6 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.utils import get_debug_mode
 from bentoctl.utils.terraform import (
     is_terraform_applied,
     terraform_apply,
