@@ -55,7 +55,7 @@ def generate_deployable_container(
     tag: str, deployment_config: DeploymentConfig
 ) -> None:
     """
-    Calls the operator and generates the deployable. If in debug more the generated 
+    Calls the operator and generates the deployable. If in debug more the generated
     deployable will be moved to the current directory for easier debugging.
     """
     with TempDirectory(debug=get_debug_mode()) as dist_dir:
