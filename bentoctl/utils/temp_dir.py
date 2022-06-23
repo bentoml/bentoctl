@@ -52,7 +52,6 @@ class TempDirectory(object):
             shutil.rmtree(self.path, ignore_errors=ignore_errors)
 
     def move_to_curdir(self):
-        breakpoint()
         deployable_path = os.path.join(os.curdir, "bentoctl_deployable")
         if os.path.exists(deployable_path):
             shutil.rmtree(deployable_path)
