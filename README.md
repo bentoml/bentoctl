@@ -30,7 +30,6 @@
 * [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
 * [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
 * [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
-* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
 * [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
 * [Heroku](https://github.com/bentoml/heroku-deploy)
 * Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
@@ -38,6 +37,7 @@
 
 **Upcoming:**
 * [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
+* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
 
 
 ## Install bentoctl
