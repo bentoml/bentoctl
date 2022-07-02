@@ -1,4 +1,5 @@
 import os
+from io import StringIO
 from urllib.parse import urljoin
 
 import requests as r
@@ -21,24 +22,27 @@ def test_json(url):
 
 
 def test_file(url):
-    file_path = os.path.join(os.path.dirname(__file__), "./README.md")
-    file = open(file_path, "rb")
+    FILE_CONTENT = "mock file"
+    file = StringIO(FILE_CONTENT)
     resp = r.post(
         urljoin(url, "test_file"),
         data=file,
         headers={"Content-Type": "application/octet-stream"},
     )
     assert resp.ok
-    file.seek(0)  # seek to begining
-    assert resp.content == file.read()
-    file.close()
+    assert resp.content == FILE_CONTENT.encode()
 
 
 def test_multipart(url):
-    file_path = os.path.join(os.path.dirname(__file__), "./README.md")
-    file = open(file_path, "rb")
+    file = StringIO("mock file")
     resp = r.post(
         urljoin(url, "test_multipart"),
         files={"arr": "[1, 2, 3, 4]", "file": (None, file, "application/octet-stream")},
     )
     assert resp.ok
+
+
+def test_sklearn_runner(url):
+    resp = r.post(urljoin(url, "sklearn_runner"), json=[[1, 2, 3, 4]])
+    assert resp.ok
+    assert resp.json() == [2]
