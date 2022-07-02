@@ -1,6 +1,9 @@
-## Table of Contents
+## Welcome to bentoctl
 
-1. [Introduction](./introduction.md)
+### Introduction
+
+### Where to go from here?
+
 2. [Quickstart](./quickstart.md)
 3. [Core Concepts](./core-concepts.md)
 4. [Operator List](./operator-list.md)

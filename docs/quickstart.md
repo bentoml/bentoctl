@@ -150,7 +150,7 @@ Initialize Terraform project
 Apply Terraform changes
 
 ```bash
-terraform apply -var-file=bentoctl.tfvars --auto-approve
+> terraform apply -var-file=bentoctl.tfvars --auto-approve
 
 aws_iam_role.lambda_exec: Creating...
 aws_apigatewayv2_api.lambda: Creating...
