@@ -1,4 +1,3 @@
-import os
 from io import StringIO
 from urllib.parse import urljoin
 
