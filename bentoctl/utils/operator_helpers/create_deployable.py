@@ -12,8 +12,9 @@ def create_deployable_from_local_bentostore(
     overwrite_deployable=None,  # pylint: disable=unused-argument
 ):
     """
-    The deployable is the bento along with all the modifications (if any)
-    requried to deploy to the cloud service.
+    Default create_deployable() for operators that don't make any special
+    modifications to the bento. This takes the bento as it is and passes the
+    path to the rest of the build process.
 
     Parameters
     ----------
@@ -26,13 +27,8 @@ def create_deployable_from_local_bentostore(
 
     Returns
     -------
-    dockerfile_path : str
-        path to the dockerfile.
     docker_context_path : str
-        path to the docker context.
-    additional_build_args : dict
-        Any addition build arguments that need to be passed to the
-        docker build command
+        path to the bento.
     """
     docker_file_path = os.path.join(bento_path, BENTOML_DOCKER_FILE_PATH)
     if not os.path.exists(docker_file_path):
@@ -41,5 +37,4 @@ def create_deployable_from_local_bentostore(
             f"dockerfile: {docker_file_path}, bento_path: {bento_path}"
         )
 
-    additional_build_args = None
-    return docker_file_path, bento_path, additional_build_args
+    return bento_path
