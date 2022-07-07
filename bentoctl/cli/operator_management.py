@@ -45,11 +45,11 @@ def get_operator_management_subcommands():
         There are 3 ways to install an operator into bentoctl and they are -
 
         1. Interactive Mode: lists all official operators for user to choose from. Just
-           type `bentoctl install` to enter this mode.
+           type `bentoctl operator install` to enter this mode.
 
         2. Official operator: you can pass the name of one of the official operators
-           and the tool with fetch it for you. You can see the list of official
-           operators <link to list off operators>. eg. `bentoctl install aws-lambda`
+           and the tool with fetch it for you.
+           eg. `bentoctl operator install aws-lambda`
 
            Available operators: [aws-lambda, aws-sagemaker, aws-ec2, azure-functions,
            azure-container-instances, google-compute-engine, google-cloud-run,
@@ -58,7 +58,7 @@ def get_operator_management_subcommands():
 
         3. Path: If you have the operator locally, either because you are building
            our own operator or if cloning the operator from some other
-           remote repository (other than github) then you can just pass the path
+           remote repository then you can just pass the path
            after the install command and it will register the local operator for you.
            This is a special case since the operator will not have an associated URL
            with it and hence cannot be updated using the tool.
