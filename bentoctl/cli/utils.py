@@ -9,7 +9,7 @@ from bentoctl.exceptions import BentoctlException
 from bentoctl.utils import set_debug_mode
 from bentoctl.utils.usage_stats import (
     BENTOML_DO_NOT_TRACK,
-    CliEvent,
+    BentoctlCliEvent,
     cli_events_map,
     track,
 )
@@ -77,14 +77,14 @@ class BentoctlCommandGroup(click.Group):
             elif cmd_group.name == "operator":
 
                 def get_tracking_event(return_value):  # pylint: disable=unused-argument
-                    return CliEvent(
+                    return BentoctlCliEvent(
                         cmd_group.name, command_name, operator=kwargs.get("name", None)
                     )
 
             else:
 
                 def get_tracking_event(ret):  # pylint: disable=unused-argument
-                    return CliEvent(cmd_group.name, command_name)
+                    return BentoctlCliEvent(cmd_group.name, command_name)
 
             try:
                 return_value = func(*args, **kwargs)

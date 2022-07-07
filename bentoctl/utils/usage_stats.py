@@ -1,4 +1,9 @@
+import typing as t
+
+import attr
+
 # These are internal apis. We will need to make sure update these when BentoML changes.
+from bentoml._internal.utils.analytics.schemas import EventMeta
 from bentoml._internal.utils.analytics.usage_stats import (  # noqa pylint: disable=unused-import
     BENTOML_DO_NOT_TRACK,
     do_not_track,
@@ -8,26 +13,15 @@ from bentoml._internal.utils.analytics.usage_stats import (  # noqa pylint: disa
 from bentoctl import __version__
 
 
-class CliEvent:
-    def __init__(
-        self,
-        cmd_group,
-        cmd_name,
-        duration_in_ms=None,
-        error_type=None,
-        return_code=None,
-        operator=None,
-        version=None,
-    ):
-        self.cmd_group = cmd_group
-        self.cmd_name = cmd_name
-        self.duration_in_ms = duration_in_ms
-        self.error_type = error_type
-        self.return_code = return_code
-        self.operator = operator
-        self.version = version
-        self.bentoctl_version = __version__
-        self.event_name = "bentoctl_cli"
+@attr.define
+class BentoctlCliEvent(EventMeta):
+    cmd_group: str
+    cmd_name: str
+    duration_in_ms: t.Optional[t.Any] = attr.field(default=None)
+    error_type: t.Optional[str] = attr.field(default=None)
+    return_code: t.Optional[int] = attr.field(default=None)
+    operator: t.Optional[str] = attr.field(default=None)
+    version: t.Optional[str] = attr.field(default=None)
 
 
 def _bentoctl_event(cmd_group, cmd_name, return_value=None):
@@ -37,14 +31,14 @@ def _bentoctl_event(cmd_group, cmd_name, return_value=None):
             deployment_config.bento.tag.version if deployment_config.bento else None
         )
 
-        return CliEvent(
+        return BentoctlCliEvent(
             cmd_group,
             cmd_name,
             operator=deployment_config.operator_name,
             version=version,
         )
     else:
-        return CliEvent(cmd_group, cmd_name)
+        return BentoctlCliEvent(cmd_group, cmd_name)
 
 
 cli_events_map = {"bentoctl": _bentoctl_event}
