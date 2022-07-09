@@ -103,9 +103,9 @@ def get_operator_management_subcommands():
         help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
-    def remove(name, skip_confirm):  # pylint: disable=unused-variable
+    def uninstall(name, skip_confirm):  # pylint: disable=unused-variable
         """
-        Remove operators.
+        Uninstall the given operator.
 
         This will remove the operator from the list and also remove_operator the local
         codebase. Pass the flag `--keep-locally` to keep the operator codebase in the
@@ -127,7 +127,7 @@ def get_operator_management_subcommands():
     @click.argument("name")
     def update(name):  # pylint: disable=unused-variable
         """
-        Update an operator given its name.
+        Update the given operator to the latest version.
 
         This only works for operators that have a URL associated with them. When passed
         the name of an available operator it goes and fetches the latest code from
