@@ -153,38 +153,37 @@ class OperatorRegistry:
         return operator_name
 
     def update_operator(self, name: str, version: t.Optional[str] = None):
-        try:
-            operator = self.get(name)
-            version = version if version else self.get_operator_latest_version(name)
-            if operator.metadata["is_local"]:
-                logger.info("Local Operator need not be updated!")
-                return
-            if get_semver_version(operator.version) == get_semver_version(version):
-                logger.info(f"Operator is already on version {version}!")
-                return
-            repo_name = OFFICIAL_OPERATORS[name]
-            version_str = f"v{version}"
+        operator = self.get(name)
+        version = version if version else self.get_operator_latest_version(name)
 
+        # make sure updation is possible
+        if operator.metadata["is_local"]:
+            logger.info("Local Operator need not be updated!")
+            return
+        if get_semver_version(operator.version) == get_semver_version(version):
+            logger.info(f"Operator is already on version {version}!")
+            return
+
+        repo_name = OFFICIAL_OPERATORS[name]
+        version_str = f"v{version}"
+        operator_path = _get_operator_dir_path(operator.name)
+        tmp_operator_dir = TempDirectory(cleanup=False)
+        tmp_operator_dir_path = tmp_operator_dir.create()
+        try:
             # move the old operator to tmp location and perform updation
-            operator_path = _get_operator_dir_path(operator.name)
-            tmp_operator_dir = TempDirectory(cleanup=False)
-            tmp_operator_dir_path = tmp_operator_dir.create()
-            try:
-                shutil.move(operator_path, tmp_operator_dir_path)
-                self._download_install_official_operator(repo_name, version_str)
-                self.operators_list[name]["version"] = version_str
-                self._write_to_file()
-            except Exception as e:
-                # undo all the changes
-                shutil.move(
-                    os.path.join(tmp_operator_dir_path, operator.name), operator_path
-                )
-                self.operators_list[name]["version"] = f"v{operator.version}"
-                self._write_to_file()
-                raise e
+            shutil.move(operator_path, tmp_operator_dir_path)
+            self._download_install_official_operator(repo_name, version_str)
+            self.operators_list[name]["version"] = version_str
+            self._write_to_file()
 
             return name
-        except BentoctlException as e:
+        except Exception as e:
+            # undo all the changes
+            shutil.move(
+                os.path.join(tmp_operator_dir_path, operator.name), operator_path
+            )
+            self.operators_list[name]["version"] = f"v{operator.version}"
+            self._write_to_file()
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
 
     def remove_operator(self, name):
