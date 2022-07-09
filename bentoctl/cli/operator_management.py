@@ -18,7 +18,7 @@ def get_operator_management_subcommands():
     @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
-        Sub-commands to install, list, remove and update operators.
+        Sub-commands to install, list, uninstall and update operators.
 
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
@@ -107,9 +107,8 @@ def get_operator_management_subcommands():
         """
         Uninstall the given operator.
 
-        This will remove the operator from the list and also remove_operator the local
-        codebase. Pass the flag `--keep-locally` to keep the operator codebase in the
-        local director.
+        This will remove the operator from the list. If the operator was
+        installed locally this will not clear the codebase.
         """
         if not skip_confirm:
             proceed_with_delete = Confirm.ask(
