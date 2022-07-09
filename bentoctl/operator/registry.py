@@ -6,7 +6,6 @@ import typing as t
 from pathlib import Path
 
 from bentoctl.exceptions import (
-    BentoctlException,
     OperatorExists,
     OperatorNotAdded,
     OperatorNotFound,
