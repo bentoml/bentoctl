@@ -23,6 +23,7 @@ class BentoctlCliEvent(EventMeta):
     return_code: t.Optional[int] = attr.field(default=None)
     operator: t.Optional[str] = attr.field(default=None)
     version: t.Optional[str] = attr.field(default=None)
+    bentoctl_version: str = __version__
 
 
 def _bentoctl_event(
