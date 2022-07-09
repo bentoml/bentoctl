@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import typing as t
 from pathlib import Path
 
 from bentoctl.exceptions import (
@@ -62,6 +63,12 @@ class OperatorRegistry:
             json.dump(self.operators_list, f)
 
     def _download_install_official_operator(self, repo_name: str, version: str):
+        """
+        Download from github releases and installs the dependencies
+        Args:
+            repo_name: github repo name
+            version: the github tag to download. Eg('v0.2.2')
+        """
         with TempDirectory(cleanup=False) as temp_dir:
             content_path = download_github_release(
                 repo_name=repo_name, output_dir=temp_dir.__fspath__(), tag=version
@@ -145,9 +152,10 @@ class OperatorRegistry:
         self._write_to_file()
         return operator_name
 
-    def update_operator(self, name, version=None):
+    def update_operator(self, name: str, version: t.Optional[str] = None):
         try:
             operator = self.get(name)
+            version = version if version else self.get_operator_latest_version(name)
             if operator.metadata["is_local"]:
                 logger.info("Local Operator need not be updated!")
                 return
@@ -155,10 +163,26 @@ class OperatorRegistry:
                 logger.info(f"Operator is already on version {version}!")
                 return
             repo_name = OFFICIAL_OPERATORS[name]
-            version = version if version else self.get_operator_latest_version(name)
-            self._download_install_official_operator(repo_name, version)
-            self.operators_list[name]["version"] = version
-            self._write_to_file()
+            version_str = f"v{version}"
+
+            # move the old operator to tmp location and perform updation
+            operator_path = _get_operator_dir_path(operator.name)
+            tmp_operator_dir = TempDirectory(cleanup=False)
+            tmp_operator_dir_path = tmp_operator_dir.create()
+            try:
+                shutil.move(operator_path, tmp_operator_dir_path)
+                self._download_install_official_operator(repo_name, version_str)
+                self.operators_list[name]["version"] = version_str
+                self._write_to_file()
+            except:
+                # undo all the changes
+                shutil.move(
+                    os.path.join(tmp_operator_dir_path, operator.name), operator_path
+                )
+                self.operators_list[name]["version"] = f"v{operator.version}"
+                self._write_to_file()
+                raise
+
             return name
         except BentoctlException as e:
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
