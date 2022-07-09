@@ -174,14 +174,14 @@ class OperatorRegistry:
                 self._download_install_official_operator(repo_name, version_str)
                 self.operators_list[name]["version"] = version_str
                 self._write_to_file()
-            except:
+            except Exception as e:
                 # undo all the changes
                 shutil.move(
                     os.path.join(tmp_operator_dir_path, operator.name), operator_path
                 )
                 self.operators_list[name]["version"] = f"v{operator.version}"
                 self._write_to_file()
-                raise
+                raise e
 
             return name
         except BentoctlException as e:
