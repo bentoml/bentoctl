@@ -165,15 +165,15 @@ class OperatorRegistry:
             return
 
         repo_name = OFFICIAL_OPERATORS[name]
-        version_str = f"v{version}"
+        updated_version_str = f"v{version}"
         operator_path = _get_operator_dir_path(operator.name)
         tmp_operator_dir = TempDirectory(cleanup=False)
         tmp_operator_dir_path = tmp_operator_dir.create()
         try:
             # move the old operator to tmp location and perform updation
             shutil.move(operator_path, tmp_operator_dir_path)
-            self._download_install_official_operator(repo_name, version_str)
-            self.operators_list[name]["version"] = version_str
+            self._download_install_official_operator(repo_name, updated_version_str)
+            self.operators_list[name]["version"] = updated_version_str
             self._write_to_file()
 
             return name
