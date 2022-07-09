@@ -11,6 +11,7 @@ from bentoml._internal.utils.analytics.usage_stats import (  # noqa pylint: disa
 )
 
 from bentoctl import __version__
+from bentoctl.deployment_config import DeploymentConfig
 
 
 @attr.define
@@ -24,7 +25,9 @@ class BentoctlCliEvent(EventMeta):
     version: t.Optional[str] = attr.field(default=None)
 
 
-def _bentoctl_event(cmd_group, cmd_name, return_value=None):
+def _bentoctl_event(
+    cmd_group: str, cmd_name: str, return_value: t.Optional[DeploymentConfig] = None
+):
     if return_value is not None:
         deployment_config = return_value
         version = (

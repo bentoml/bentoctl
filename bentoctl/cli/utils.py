@@ -76,19 +76,19 @@ class BentoctlCommandGroup(click.Group):
                 )
             elif cmd_group.name == "operator":
 
-                def get_tracking_event(return_value):  # pylint: disable=unused-argument
+                def get_tracking_event(_):  # pylint: disable=unused-argument
                     return BentoctlCliEvent(
                         cmd_group.name, command_name, operator=kwargs.get("name", None)
                     )
 
             else:
 
-                def get_tracking_event(ret):  # pylint: disable=unused-argument
+                def get_tracking_event(_):  # pylint: disable=unused-argument
                     return BentoctlCliEvent(cmd_group.name, command_name)
 
             try:
                 return_value = func(*args, **kwargs)
-                event = get_tracking_event(return_value=return_value)
+                event = get_tracking_event(return_value)
                 duration_in_ms = time.time_ns() - start_time
                 event.duration_in_ms = duration_in_ms / 1e6
                 track(event)
