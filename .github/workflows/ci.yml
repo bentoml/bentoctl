@@ -9,8 +9,8 @@ on:
 #    - cron '0 2 * * *'
 
 env:
-  BENTOCTL_DO_NOT_TRACK = True
-  BENTOML_DO_NOT_TRACK = True
+  BENTOCTL_DO_NOT_TRACK: True
+  BENTOML_DO_NOT_TRACK: True
 
 jobs:
 
