@@ -32,10 +32,8 @@ Supported platforms:
 Install via pip:
 
 ```bash
-pip install --pre bentoctl
+pip install bentoctl
 ```
-
-> bentoctl is in pre-release stage, include the `--pre` to download the latest version
 
 ## Next steps
 
