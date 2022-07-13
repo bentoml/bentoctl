@@ -103,6 +103,27 @@ def get_operator_management_subcommands():
         help="skip the prompt asking if you are sure.",
     )
     @click.argument("name", type=click.STRING)
+    def remove(name, skip_confirm):  # pylint: disable=unused-variable
+        """
+        [Deprecated] remove the given operator.
+
+        This will remove the operator from the list. If the operator was
+        installed locally this will not clear the codebase.
+        """
+        console.print(
+            "[red]This command will be removed soon"
+            "Use the 'operator uninstall' command.[/]"
+        )
+        uninstall_operator(name=name, skip_confirm=skip_confirm)
+
+    @operator_management.command()
+    @click.option(
+        "-y",
+        "skip_confirm",
+        is_flag=True,
+        help="skip the prompt asking if you are sure.",
+    )
+    @click.argument("name", type=click.STRING)
     def uninstall(name, skip_confirm):  # pylint: disable=unused-variable
         """
         Uninstall the given operator.
@@ -110,6 +131,9 @@ def get_operator_management_subcommands():
         This will remove the operator from the list. If the operator was
         installed locally this will not clear the codebase.
         """
+        uninstall_operator(name=name, skip_confirm=skip_confirm)
+
+    def uninstall_operator(name: str, skip_confirm: bool) -> None:
         if not skip_confirm:
             proceed_with_delete = Confirm.ask(
                 f"Are you sure you want to delete '{name}' operator"
