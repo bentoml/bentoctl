@@ -5,7 +5,10 @@ import shutil
 import typing as t
 from pathlib import Path
 
+from semantic_version import Version
+
 from bentoctl.exceptions import (
+    BentoctlException,
     OperatorExists,
     OperatorNotAdded,
     OperatorNotFound,
@@ -164,7 +167,13 @@ class OperatorRegistry:
             return
 
         repo_name = OFFICIAL_OPERATORS[name]
-        updated_version_str = f"v{version}"
+        if isinstance(version, str):
+            updated_version_str = f"v{version.strip('v')}"
+        elif isinstance(version, Version):
+            updated_version_str = f"v{version}"
+        else:
+            raise BentoctlException("version is None")
+
         operator_path = _get_operator_dir_path(operator.name)
         tmp_operator_dir = TempDirectory(cleanup=False)
         tmp_operator_dir_path = tmp_operator_dir.create()

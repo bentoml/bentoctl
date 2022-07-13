@@ -148,7 +148,8 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name")
-    def update(name):  # pylint: disable=unused-variable
+    @click.option("--version", "-v", type=click.STRING)
+    def update(name, version):  # pylint: disable=unused-variable
         """
         Update the given operator to the latest version.
 
@@ -160,7 +161,7 @@ def get_operator_management_subcommands():
             if local_operator_registry.is_operator_on_latest_version(name):
                 click.echo(f"Operator '{name}' is already on the latest version.")
             else:
-                local_operator_registry.update_operator(name)
+                local_operator_registry.update_operator(name, version)
                 click.echo(f"Operator '{name}' updated!")
         except BentoctlException as e:
             e.show()
