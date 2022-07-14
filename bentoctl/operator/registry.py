@@ -157,6 +157,10 @@ class OperatorRegistry:
     def update_operator(self, name: str, version: t.Optional[str] = None):
         operator = self.get(name)
         version = version if version else self.get_operator_latest_version(name)
+        if version is None:
+            raise BentoctlException(
+                f"Unable to find the latest version of {name} operator"
+            )
 
         # make sure updation is possible
         if operator.metadata["is_local"]:
@@ -167,12 +171,11 @@ class OperatorRegistry:
             return
 
         repo_name = OFFICIAL_OPERATORS[name]
+
         if isinstance(version, str):
             updated_version_str = f"v{version.strip('v')}"
         elif isinstance(version, Version):
             updated_version_str = f"v{version}"
-        else:
-            raise BentoctlException("version is None")
 
         operator_path = _get_operator_dir_path(operator.name)
         tmp_operator_dir = TempDirectory(cleanup=False)
@@ -182,7 +185,6 @@ class OperatorRegistry:
             shutil.move(operator_path, tmp_operator_dir_path)
             self._download_install_official_operator(repo_name, updated_version_str)
             self.operators_list[name]["version"] = updated_version_str
-            self._write_to_file()
 
             return name
         except Exception as e:
@@ -191,8 +193,9 @@ class OperatorRegistry:
                 os.path.join(tmp_operator_dir_path, operator.name), operator_path
             )
             self.operators_list[name]["version"] = f"v{operator.version}"
-            self._write_to_file()
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
+        finally:
+            self._write_to_file()
 
     def remove_operator(self, name):
         if name not in self.operators_list:
