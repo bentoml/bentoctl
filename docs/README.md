@@ -30,7 +30,7 @@ built with bentoml to any cloud service you want.
    Will be using deploying to AWS Lambda as an example.
 2. [Core Concepts](./core-concepts.md) - Introduces the philosophy behind
    bentoctl and the different components.
-3. [Customising Deployments](./custom-deployments.md) - Explain the different
+3. [Customising Deployments](./customizing-deployments.md) - Explain the different
    terraform files generated and how to modify them to meet specific deployment
    setups.
 4. [Managing Deployments](./managing-deployments.md) - Explain what terraform
