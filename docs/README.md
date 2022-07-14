@@ -33,9 +33,9 @@ built with bentoml to any cloud service you want.
 3. [Customising Deployments](./custom-deployments.md) - Explain the different
    terraform files generated and how to modify them to meet specific deployment
    setups.
-4. [Managing Deployments](./manage-deployments.md) - Explain what terraform
+4. [Managing Deployments](./managing-deployments.md) - Explain what terraform
    cloud is and how it can help with managing different deployments in a team.
    We will also go through an example.
-5. [Cloud Deployment Reference](./cloud-guides.md) - Lists all the supported
+5. [Cloud Deployment Reference](./cloud-deployment-reference) - Lists all the supported
    deployment targets and has the references and best practices for these
    specific targets.

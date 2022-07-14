@@ -1,6 +1,6 @@
 # Quickstart
 
-This guide walks through the steps of building a bento and deploying it. For the sake of completion, we will be deploying into AWS Lambda. You can also try deploying to other cloud services. The entire list of cloud services and configuration is mentioned in the [Cloud Service specific Guides(LINK HERE)
+This guide walks through the steps of building a bento and deploying it. For the sake of completion, we will be deploying into AWS Lambda. You can also try deploying to other cloud services. The entire list of cloud services and configuration is mentioned in the [cloud deployment reference](./cloud-deployment-reference/) section.
 
 This quickstart will use the iris classifier bento with `/classify` API endpoint created in the BentoML quickstart guide as an example bento.
 
@@ -35,9 +35,9 @@ bentoctl has operators that help deploy bentos to different cloud services.
 
 > **Operator** is a plugin that interacts with the cloud service to perform the bentoctl commands. The operator is responsible for creating and configuring the resources for deploying to the cloud service. Learn more from the [Core Concepts](./core-concepts.md#operators) page.
 
-This guide uses the official aws-lambda operator to deploy and manage deployments. Check the [aws-lambda operator docs](LINK HERE) for more info about the operator. 
+This guide uses the official aws-lambda operator to deploy and manage deployments. Check the [aws-lambda operator docs](./cloud-deployment-reference/aws-lambda.md) for more info about the operator. 
 
-> Note: If you want to deploy to any other service check out the available operators in [Operator List](PUT LINK HERE) and follow along. Sections that need attention when using a different operator will be mentioned. Refer to the specific operator documentation in that case.
+> Note: If you want to deploy to any other service check out the available operators [here](./cloud-deployment-reference) and follow along. Sections that need attention when using a different operator will be mentioned. Refer to the specific operator documentation in that case.
 
 Run the following command to install the operator and its dependencies to your local system
 
@@ -120,17 +120,55 @@ The push refers to repository [192023623294.dkr.ecr.us-west-1.amazonaws.com/quic
 
 Now you have configured the deployment and built the bento and pushed it into the registry. Now you can run `bentoctl apply` command to deploy the bento as an endpoint in the cloud. 
 
-The `apply` under the hood runs the terraform commands for you. Before applying the changes Terraform will list the changes it is planning to make and ask for permission to create this. This is a good chance to verify the resource that is being created for you and if everything looks good approve it. For most custom deployment strategies refer to [Customize deployments with Terraform guide](LINK HERE). 
+The `apply` under the hood runs the terraform commands for you. Before applying
+the changes Terraform will list the changes it is planning to make and ask for
+permission to create this. This is a good chance to verify the resource that is
+being created for you and if everything looks good approve it. For most custom
+deployment strategies refer to [Customize deployments with Terraform
+guide](./customizing-deployments.md). 
 
 ```bash
 bentoctl apply -f deployment_config.yaml
 
-[UPDATE LOGS HERE]
+data.aws_ecr_repository.service: Reading...
+data.aws_ecr_repository.service: Read complete after 2s [id=testlambda]
+data.aws_ecr_image.service_image: Reading...
+data.aws_ecr_image.service_image: Read complete after 1s [id=sha256:b0637046b983acc0f52d4b387ddabcf8bec9d61b214b169cf36cd299854701c5]
+
+Terraform used the selected providers to generate the following execution plan. Resource
+actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_apigatewayv2_api.lambda will be created
+  + resource "aws_apigatewayv2_api" "lambda" {
+      + api_endpoint                 = (known after apply)
+      + api_key_selection_expression = "$request.header.x-api-key"
+      + arn                          = (known after apply)
+
+... aother output from terraform
+
+aws_apigatewayv2_integration.lambda: Creation complete after 2s [id=jeaalbk]
+aws_apigatewayv2_route.services: Creating...
+aws_apigatewayv2_route.root: Creating...
+aws_cloudwatch_log_group.lg: Creation complete after 4s [id=/aws/lambda/testlambda-function]
+aws_apigatewayv2_route.root: Creation complete after 3s [id=z8i4az1]
+aws_apigatewayv2_route.services: Creation complete after 3s [id=zpxehl0]
+
+Apply complete! Resources: 11 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+endpoint = "https://ti7d9u5jkl.execute-api.us-west-1.amazonaws.com/"
+function_name = "testlambda-function"
+image_tag = "213386773652.dkr.ecr.us-west-1.amazonaws.com/testlambda:of7al2xz6g2vh74c"
+
 ```
 
 ### step 7: Make a prediction
 
-The `iris_classifier` uses the `/classify` endpoint for receiving requests so the full URL for the classifier will be in the form `{EndpointUrl}/classify`
+The `iris_classifier` uses the `/classify` endpoint for receiving requests so the full URL for the classifier will be in the form `{endpoint}/classify`
 
 ```bash
 URL=$(terraform output -json | jq -r .endpoint.value)/classify
@@ -150,9 +188,14 @@ apigw-requestid: Ql8zbicdSK4EM5g=
 ```
 ### Optional Step: Update Deployment
 
-The section is optional but we will walk through the updatation steps for bentoctl. If you have some experience with [bentoml's quickstart](PUT LINK HERE) feel free to try it. 
+The section is optional but we will walk through the updatation steps for
+bentoctl. If you have some experience with [bentoml's
+quickstart](https://docs.bentoml.org/en/latest/tutorial.html) feel free to try
+it. 
 
-Make a small modification to the bentoml service file and build the bentoml service again. Note down the tag that is generated. Now let's deploy the new bento.
+Make a small modification to the bentoml service file and build the bentoml
+service again. Note down the tag that is generated. Now let's deploy the new
+bento.
 
 First, we have to run the build step again. This will create the new docker image to deploy and push it into the registry. It will also modify the terraform files so that they point to the new image instead of the old one.
 ```bash
@@ -166,13 +209,17 @@ With the new bento uploaded, we can run `bentoctl apply` to deploy the latest ch
 
 ### Step 8: Cleanup Deployment
 
-To delete deployment, run the `bentoctl destroy` command. bentoctl will run `terraform destroy command that will shut down and remove all the services created. Running `bentoctl destroy` will also delete the docker repository created and all the images in it.
+To delete deployment, run the `bentoctl destroy` command. bentoctl will run `terraform destroy` command that will shut down and remove all the services created. Running `bentoctl destroy` will also delete the docker repository created and all the images in it.
 
 ```bash
 bentoctl destroy -f deployment_config.yaml
 ```
 
-Congrats! hopefully, you have successfully deployed your bento in the cloud. To learn more, feel free to check out: 
-- the [Core Concepts](LINK HERE) page to know more about the internals of bentoctl. 
-- the [aws-lambda reference](LINK HERE) to know more about deploying to AWS Lambda or 
-- other cloud services that are supported are documented in [Cloud Service Guild](LINK HERE)
+Congrats! hopefully, you have successfully deployed your bento in the cloud. To
+learn more, feel free to check out: 
+- the [Core Concepts](./core-concepts.md) page to know more about the internals
+  of bentoctl. 
+- the [aws-lambda reference](./cloud-deployment-reference/aws-lambda.md) to know
+  more about deploying to AWS Lambda or 
+- other cloud services that are supported are documented in [Cloud Service
+  Guild](./cloud-deployment-reference)
