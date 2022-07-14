@@ -42,7 +42,7 @@
 
 ## Install bentoctl
 ```bash
-pip install --pre bentoctl
+pip install bentoctl
 ```
 
 | 💡 bentoctl designed to work with BentoML version 1.0.0 and above. For BentoML 0.13 or below, you can use the `pre-v1.0` branch in the operator repositories and follow the instruction in the README. You can also check out the quickstart guide for 0.13 [here](./docs/013-deployment.md).
