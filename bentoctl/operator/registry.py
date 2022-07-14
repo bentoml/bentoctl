@@ -157,10 +157,6 @@ class OperatorRegistry:
     def update_operator(self, name: str, version: t.Optional[str] = None):
         operator = self.get(name)
         version = version if version else self.get_operator_latest_version(name)
-        if version is None:
-            raise BentoctlException(
-                f"Unable to find the latest version of {name} operator"
-            )
 
         # make sure updation is possible
         if operator.metadata["is_local"]:
@@ -172,7 +168,11 @@ class OperatorRegistry:
 
         repo_name = OFFICIAL_OPERATORS[name]
 
-        if isinstance(version, str):
+        if version is None:
+            raise BentoctlException(
+                f"Unable to find the latest version of {name} operator"
+            )
+        elif isinstance(version, str):
             updated_version_str = f"v{version.strip('v')}"
         elif isinstance(version, Version):
             updated_version_str = f"v{version}"
