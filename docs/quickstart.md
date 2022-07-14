@@ -16,8 +16,8 @@ This quickstart will use the iris classifier bento with `/classify` API endpoint
 
 Import the iris-classifier bento from s3 to your local machine by running
 ```bash
-pip install fs-s3fs
-bentoml import s3://bentoml.com/quickstart/iris_classifier.bento
+> pip install fs-s3fs
+> bentoml import s3://bentoml.com/quickstart/iris_classifier.bento
 ```
 The code for this bento can be found in [bentoml/gallery/quickstart](https://github.com/bentoml/gallery/tree/main/quickstart). This bento has a `/classify` endpoint that exposes an sklearn model trained on the iris dataset.
 
