@@ -1,4 +1,7 @@
+# Azure Container Instance Deployment
 Azure Container Instances is a great deployment strategy for deploying ML model endpoints that you know will get consistent traffic or want to take advantage of accelerators like GPUs. You can also add autoscaling capabilities.
+
+[Github Repo](https://github.com/bentoml/azure-container-instances-deploy)
 
 ## Installation
 ```
