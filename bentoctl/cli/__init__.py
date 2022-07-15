@@ -151,11 +151,11 @@ def build(
     )
 
     if not dry_run:
-        repository_url, _, _ = deployment_config.create_repository()
+        repository_url, username, password = deployment_config.create_repository()
         console.print(f"Created the repository {deployment_config.repository_name}")
         remote_tag = deployment_config.generate_image_tag(repository_url)
         generate_tag(local_tag, remote_tag)
-        push_to_repository(remote_tag)
+        push_to_repository(remote_tag, username=username, password=password)
 
         generated_files = deployment_config.generate(values_only=True)
         print_generated_files_list(generated_files)

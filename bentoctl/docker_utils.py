@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import os
 
 from bentoml._internal.utils import buildx
 
@@ -11,6 +12,20 @@ from bentoctl.utils.temp_dir import TempDirectory
 
 # default location were dockerfile can be found
 DOCKERFILE_PATH = "env/docker/Dockerfile"
+
+
+def run_subprocess_cmd(cmd: list[str], env: dict[str, str] | None = None) -> None:
+
+    subprocess_env = os.environ.copy()
+    if env is not None:
+        subprocess_env.update(env)
+
+    try:
+        subprocess.check_output(list(map(str, cmd)), env=env)
+    except subprocess.CalledProcessError as e:
+        raise BentoctlDockerException(
+            f"Failed to push Docker image, {e.stderr.decode('utf-8')}"
+        )
 
 
 def generate_deployable_container(
@@ -58,28 +73,26 @@ def generate_deployable_container(
 
 
 def generate_tag(image_name: str, image_tag: str) -> None:
-    cmd = ["docker", "tag", image_name, image_tag]
-    try:
-        subprocess.check_output(list(map(str, cmd)))
-    except subprocess.CalledProcessError as e:
-        raise BentoctlDockerException(
-            f"Failed to tag Docker image, {e.stderr.decode('utf-8')}"
-        )
+    run_subprocess_cmd(["docker", "tag", image_name, image_tag])
 
 
 def push_to_repository(
     image_tag: str,
     disable_content_trust: bool | None = None,
+    *,
+    username: str | None = None,
+    password: str | None = None,
 ) -> None:
-    cmd = ["docker", "push"]
-    if disable_content_trust:
-        cmd.extend(["--disable-content-trust"])
-    cmd.append(image_tag)
+    if username:
+        assert password, "password is required when username is provided"
+        login_cmd = ["docker", "login"]
+        login_cmd.extend(["-u", username, "-p", password])
+        run_subprocess_cmd(login_cmd)
 
-    try:
-        subprocess.check_output(list(map(str, cmd)))
-        console.print(f"Successfully pushed {image_tag}")
-    except subprocess.CalledProcessError as e:
-        raise BentoctlDockerException(
-            f"Failed to push Docker image, {e.stderr.decode('utf-8')}"
-        )
+    push_cmd = ["docker", "push"]
+    if disable_content_trust:
+        push_cmd.extend(["--disable-content-trust"])
+    push_cmd.append(image_tag)
+    run_subprocess_cmd(push_cmd)
+
+    console.print(f"Successfully pushed {image_tag}")
