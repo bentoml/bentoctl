@@ -2,7 +2,10 @@ import json
 import logging
 import os
 import shutil
+import typing as t
 from pathlib import Path
+
+from semantic_version import Version
 
 from bentoctl.exceptions import (
     BentoctlException,
@@ -62,6 +65,12 @@ class OperatorRegistry:
             json.dump(self.operators_list, f)
 
     def _download_install_official_operator(self, repo_name: str, version: str):
+        """
+        Download from github releases and installs the dependencies
+        Args:
+            repo_name: github repo name
+            version: the github tag to download. Eg('v0.2.2')
+        """
         with TempDirectory(cleanup=False) as temp_dir:
             content_path = download_github_release(
                 repo_name=repo_name, output_dir=temp_dir.__fspath__(), tag=version
@@ -145,23 +154,48 @@ class OperatorRegistry:
         self._write_to_file()
         return operator_name
 
-    def update_operator(self, name, version=None):
+    def update_operator(self, name: str, version: t.Optional[str] = None):
+        operator = self.get(name)
+        version = version if version else self.get_operator_latest_version(name)
+
+        # make sure updation is possible
+        if operator.metadata["is_local"]:
+            logger.info("Local Operator need not be updated!")
+            return
+        if get_semver_version(operator.version) == get_semver_version(version):
+            logger.info(f"Operator is already on version {version}!")
+            return
+
+        repo_name = OFFICIAL_OPERATORS[name]
+
+        if version is None:
+            raise BentoctlException(
+                f"Unable to find the latest version of {name} operator"
+            )
+        elif isinstance(version, str):
+            updated_version_str = f"v{version.strip('v')}"
+        elif isinstance(version, Version):
+            updated_version_str = f"v{version}"
+
+        operator_path = _get_operator_dir_path(operator.name)
+        tmp_operator_dir = TempDirectory(cleanup=False)
+        tmp_operator_dir_path = tmp_operator_dir.create()
         try:
-            operator = self.get(name)
-            if operator.metadata["is_local"]:
-                logger.info("Local Operator need not be updated!")
-                return
-            if get_semver_version(operator.version) == get_semver_version(version):
-                logger.info(f"Operator is already on version {version}!")
-                return
-            repo_name = OFFICIAL_OPERATORS[name]
-            version = version if version else self.get_operator_latest_version(name)
-            self._download_install_official_operator(repo_name, version)
-            self.operators_list[name]["version"] = version
-            self._write_to_file()
+            # move the old operator to tmp location and perform updation
+            shutil.move(operator_path, tmp_operator_dir_path)
+            self._download_install_official_operator(repo_name, updated_version_str)
+            self.operators_list[name]["version"] = updated_version_str
+
             return name
-        except BentoctlException as e:
+        except Exception as e:
+            # undo all the changes
+            shutil.move(
+                os.path.join(tmp_operator_dir_path, operator.name), operator_path
+            )
+            self.operators_list[name]["version"] = f"v{operator.version}"
             raise OperatorNotUpdated(f"Error while updating operator {name} - {e}")
+        finally:
+            self._write_to_file()
 
     def remove_operator(self, name):
         if name not in self.operators_list:

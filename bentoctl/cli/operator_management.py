@@ -18,7 +18,7 @@ def get_operator_management_subcommands():
     @click.group(name="operator", cls=BentoctlCommandGroup)
     def operator_management():
         """
-        Sub-commands to install, list, remove and update operators.
+        Sub-commands to install, list, uninstall and update operators.
 
         To see the list of all the operators available and their comparisons check out
         <link to comparisons>.
@@ -105,12 +105,35 @@ def get_operator_management_subcommands():
     @click.argument("name", type=click.STRING)
     def remove(name, skip_confirm):  # pylint: disable=unused-variable
         """
-        Remove operators.
+        [Deprecated] remove the given operator.
 
-        This will remove the operator from the list and also remove_operator the local
-        codebase. Pass the flag `--keep-locally` to keep the operator codebase in the
-        local director.
+        This will remove the operator from the list. If the operator was
+        installed locally this will not clear the codebase.
         """
+        console.print(
+            "[red]This command will be removed soon"
+            "Use the 'operator uninstall' command.[/]"
+        )
+        uninstall_operator(name=name, skip_confirm=skip_confirm)
+
+    @operator_management.command()
+    @click.option(
+        "-y",
+        "skip_confirm",
+        is_flag=True,
+        help="skip the prompt asking if you are sure.",
+    )
+    @click.argument("name", type=click.STRING)
+    def uninstall(name, skip_confirm):  # pylint: disable=unused-variable
+        """
+        Uninstall the given operator.
+
+        This will remove the operator from the list. If the operator was
+        installed locally this will not clear the codebase.
+        """
+        uninstall_operator(name=name, skip_confirm=skip_confirm)
+
+    def uninstall_operator(name: str, skip_confirm: bool) -> None:
         if not skip_confirm:
             proceed_with_delete = Confirm.ask(
                 f"Are you sure you want to delete '{name}' operator"
@@ -125,9 +148,10 @@ def get_operator_management_subcommands():
 
     @operator_management.command()
     @click.argument("name")
-    def update(name):  # pylint: disable=unused-variable
+    @click.option("--version", "-v", type=click.STRING)
+    def update(name, version):  # pylint: disable=unused-variable
         """
-        Update an operator given its name.
+        Update the given operator to the latest version.
 
         This only works for operators that have a URL associated with them. When passed
         the name of an available operator it goes and fetches the latest code from
@@ -137,7 +161,7 @@ def get_operator_management_subcommands():
             if local_operator_registry.is_operator_on_latest_version(name):
                 click.echo(f"Operator '{name}' is already on the latest version.")
             else:
-                local_operator_registry.update_operator(name)
+                local_operator_registry.update_operator(name, version)
                 click.echo(f"Operator '{name}' updated!")
         except BentoctlException as e:
             e.show()
