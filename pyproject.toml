@@ -28,20 +28,19 @@ python = "^3.7"
 bentoml = {version="^1.0.0*", allow-prereleases=true}
 click = "^8"
 cerberus = "^1"
-rich = ""
-PyYaml = "^6"
+rich = ">=11.2.0"
+PyYaml = ">=5.0"
 simple-term-menu = "0.4.4"
 importlib-metadata = { version = "", python = "<3.8" }
-docker = "^5"
 semantic_version = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.2"
-pylint = "^2.6.2"
-black = "*"
-isort = "^5"
-pytest = "^6"
-pytest-cov = "^3"
+pylint = ">=2.11.2"
+black = "22.3.0"
+isort = ">=5.0.0"
+pytest = ">=6.2.0"
+pytest-cov = ">=3.0.0"
 
 [tool.isort]
 profile = "black"

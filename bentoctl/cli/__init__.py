@@ -15,8 +15,8 @@ from bentoctl.console import (
 from bentoctl.deployment_config import DeploymentConfig
 from bentoctl.docker_utils import (
     generate_deployable_container,
-    push_docker_image_to_repository,
-    tag_docker_image,
+    generate_tag,
+    push_to_repository,
 )
 from bentoctl.utils import get_debug_mode
 from bentoctl.utils.terraform import (
@@ -142,36 +142,26 @@ def build(
 
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     deployment_config.set_bento(bento_tag)
-    local_docker_tag = deployment_config.generate_local_image_tag()
+    local_tag = deployment_config.generate_local_image_tag()
 
     generate_deployable_container(
-        tag=local_docker_tag,
+        tag=local_tag,
         deployment_config=deployment_config,
         cleanup=get_debug_mode(),
     )
 
     if not dry_run:
-        (
-            repository_url,
-            username,
-            password,
-        ) = deployment_config.create_repository()
-
+        repository_url, _, _ = deployment_config.create_repository()
         console.print(f"Created the repository {deployment_config.repository_name}")
-        repository_image_tag = deployment_config.generate_docker_image_tag(
-            repository_url
-        )
-        tag_docker_image(local_docker_tag, repository_image_tag)
-        push_docker_image_to_repository(
-            repository=repository_image_tag,
-            username=username,
-            password=password,
-        )
+        remote_tag = deployment_config.generate_image_tag(repository_url)
+        generate_tag(local_tag, remote_tag)
+        push_to_repository(remote_tag)
+
         generated_files = deployment_config.generate(values_only=True)
         print_generated_files_list(generated_files)
         print_post_build_help_message(template_type=deployment_config.template_type)
     else:
-        console.print(f"[green]Created docker image: {local_docker_tag}[/]")
+        console.print(f"[green]Created docker image: {local_tag}[/]")
     return deployment_config
 
 
