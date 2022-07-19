@@ -62,3 +62,36 @@ It will update the package version and publish to testpypi registry.
 For pypi release:
 It will create a new commit on the main branch and a new tag. Both will push to the remote.
 And then publish to pypi registry.
+
+
+### End2End Testing
+
+bentoctl depends on a lot of external dependencies like Terraform, different
+Terraform Providers, Cloud Service Providers and its APIs. This makes End2End
+testing very usefull.
+
+There is a bentoml service in ./tests/testbento that can be used as the bento
+you deploy into the cloud providers. 
+
+1. Build this bento locally. `bentoml build ./tests/testbento`
+2. Serve the bento locally if you want. `bentoml serve
+   bentoctl-test-service:latest`
+3. Run the end2end test with pytest. `pytest tests/integration --url
+   http://localhost:3000`
+   The `--url` flag is used to pass the URL of the endpoint where the bento
+   service is available.
+
+Now lets deploy this `bentoctl-test-service` into the cloud with the operator to
+test. In this example, lets use `aws-lambda`.
+
+1. Install operator `bentoctl operator install aws-lambda`. Make sure to
+   configure the AWS CLI (or others based on the cloud that you are deploying
+   into)
+2. Run `bentoctl init` and configure the deployment.
+3. Run `bentoctl build -b bentoctl-test-service:latest` and `bentoctl apply` to
+   deploy to the cloud service
+4. After the deployment is done. Note down the `endpoint` URL and run `pytest
+   tests/integration --url <endpoint url>`. This will run the test on the
+   endpoint and different paths.
+
+Perform these steps for each of the opeators you want to test.
