@@ -1,3 +1,5 @@
+import os
+
 import bentoml
 import numpy as np
 from bentoml.io import JSON, File, Multipart, NumpyNdarray, Text
@@ -28,3 +30,11 @@ def test_multipart(arr, file):
 @svc.api(input=NumpyNdarray(), output=NumpyNdarray())
 def sklearn_runner(input_series: np.ndarray) -> np.ndarray:
     return iris_clf_runner.run(input_series)
+
+
+@svc.api(input=JSON(), output=JSON())
+def test_included_files(_):
+    return {
+        "anotherfile": os.path.exists("./anotherfile.pyx"),
+        "testfile": os.path.exists("./testfile.txt"),
+    }
