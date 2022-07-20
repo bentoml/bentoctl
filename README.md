@@ -71,3 +71,16 @@ There are many ways to contribute to the project:
 - If you have any feedback on the project, share it with the community in [Github Discussions](https://github.com/bentoml/BentoML/discussions) under the [BentoML repo](https://github.com/bentoml/BentoML/).
 - Report issues you're facing and "Thumbs up" on issues and feature requests that are relevant to you.
 - Investigate bugs and reviewing other developer's pull requests.
+
+## Usage Reporting
+
+BentoML and bentoctl collects anonymous usage data that helps our team to
+improve the product. Only bentoctl's CLI commands calls are being reported. We
+strip out as much potentially sensitive information as possible, and we will
+never collect user code, model data, model names, or stack traces. Here's the
+[code](./bentoctl/utils/usage_stats.py) for usage tracking. You can opt-out of
+usage tracking by setting environment variable `BENTOML_DO_NOT_TRACK=True`:
+
+```bash
+export BENTOML_DO_NOT_TRACK=True
+```
