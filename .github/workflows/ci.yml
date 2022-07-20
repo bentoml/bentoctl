@@ -8,6 +8,10 @@ on:
 #  schedule:
 #    - cron '0 2 * * *'
 
+env:
+  BENTOCTL_DO_NOT_TRACK: True
+  BENTOML_DO_NOT_TRACK: True
+
 jobs:
 
   lint_and_format:
