@@ -14,7 +14,7 @@ def set_debug_mode(is_enabled: bool):
         logging.getLogger("bentoml").setLevel(logging.WARNING)
 
 
-def get_debug_mode():
+def is_debug_mode():
     if DEBUG_ENV_VAR in os.environ:
         return os.environ[DEBUG_ENV_VAR].lower() == "true"
     return False

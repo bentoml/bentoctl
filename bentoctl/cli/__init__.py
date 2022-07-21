@@ -18,7 +18,7 @@ from bentoctl.docker_utils import (
     push_docker_image_to_repository,
     tag_docker_image,
 )
-from bentoctl.utils import get_debug_mode
+from bentoctl.utils import is_debug_mode
 from bentoctl.utils.terraform import (
     is_terraform_applied,
     terraform_apply,
@@ -147,7 +147,7 @@ def build(
     generate_deployable_container(
         tag=local_docker_tag,
         deployment_config=deployment_config,
-        cleanup=get_debug_mode(),
+        cleanup=False if is_debug_mode() else True,
     )
 
     if not dry_run:
