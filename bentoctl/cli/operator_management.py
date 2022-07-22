@@ -9,7 +9,7 @@ from bentoctl.console import console
 from bentoctl.exceptions import BentoctlException
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.constants import OFFICIAL_OPERATORS
-from bentoctl.utils import get_debug_mode
+from bentoctl.utils import is_debug_mode
 
 local_operator_registry = get_local_operator_registry()
 
@@ -170,7 +170,7 @@ def get_operator_management_subcommands():
 
 
 def print_operator_list(operator_list):
-    if get_debug_mode():
+    if is_debug_mode():
         console.print(operator_list)
     table = Table("Name", "Version", "Location", box=None)
 

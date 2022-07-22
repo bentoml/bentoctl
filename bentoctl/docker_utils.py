@@ -52,8 +52,13 @@ class DockerPushProgressBar:
 
 def generate_deployable_container(
     tag: str, deployment_config: DeploymentConfig, cleanup: bool
-) -> None:
+):
     with TempDirectory(cleanup=cleanup) as dist_dir:
+        if cleanup is False:
+            # --debug flag is passed. show the path for the saved deployable
+            console.print(
+                f"In debug mode. Intermediate bento saved to [b]{dist_dir}[/b]"
+            )
         env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
         buildx_args = {
             "subprocess_env": env,

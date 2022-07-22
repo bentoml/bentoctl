@@ -19,7 +19,7 @@ from bentoctl.exceptions import (
 )
 from bentoctl.operator import get_local_operator_registry
 from bentoctl.operator.utils import _is_official_operator
-from bentoctl.utils import get_debug_mode
+from bentoctl.utils import is_debug_mode
 
 logger = logging.getLogger(__name__)
 local_operator_registry = get_local_operator_registry()
@@ -210,7 +210,7 @@ class DeploymentConfig:
             bento_path=self.bento.path,
             destination_dir=destination_dir,
             bento_metadata=get_bento_metadata(self.bento.path),
-            overwrite_deployable=not get_debug_mode(),
+            overwrite_deployable=not is_debug_mode(),
         )
 
     def create_repository(self):
