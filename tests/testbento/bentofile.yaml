@@ -4,6 +4,8 @@ labels:
   project: bentoctl
 include:
   - service.py
+  - "*.txt"
+  - "*.pyx"
 python:
   packages:
     - scikit-learn

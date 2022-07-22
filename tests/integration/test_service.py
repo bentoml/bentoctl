@@ -45,3 +45,12 @@ def test_sklearn_runner(url):
     resp = r.post(urljoin(url, "sklearn_runner"), json=[[1, 2, 3, 4]])
     assert resp.ok
     assert resp.json() == [2]
+
+
+def test_included_files(url):
+    resp = r.post(urljoin(url, "test_included_files"), json={})
+    assert resp.ok
+    assert resp.json() == {
+        "anotherfile": True,
+        "testfile": True,
+    }
