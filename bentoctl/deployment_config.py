@@ -223,7 +223,7 @@ class DeploymentConfig:
     def delete_repository(self):
         return self.operator.delete_repository(self.repository_name, self.operator_spec)
 
-    def generate_docker_image_tag(self, repository_url: str) -> str:
+    def generate_image_tag(self, repository_url: str) -> str:
         image_tag = f"{repository_url.replace('https://', '')}:{self.bento.tag.version}"
         self.operator_spec["image_tag"] = image_tag
         return image_tag
