@@ -74,7 +74,7 @@ There are many ways to contribute to the project:
 
 ## Usage Reporting
 
-BentoML and bentoctl collects anonymous usage data that helps our team to
+BentoML and bentoctl collects usage data that helps our team to
 improve the product. Only bentoctl's CLI commands calls are being reported. We
 strip out as much potentially sensitive information as possible, and we will
 never collect user code, model data, model names, or stack traces. Here's the
