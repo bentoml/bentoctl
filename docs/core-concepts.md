@@ -48,7 +48,7 @@ Here is a sample deployment config for the EC2 operator.
 Bentoctl uses terraform to define the infrastructure and create the various
 components that are required. Terraform is a mature and popular infrastructure
 as code (IaC) solution. There were a few reasons why we choose Terraform. 
-1. it has a huge collection of plugins (or providers as terraform calls it) that
+1. Terraform has a huge collection of providers (plugins for cloud providers) that
    bentoctl operators can leverage. With this, you can write custom operators
    that can deploy to any cloud service that has a provider in the [terraform
    registry](https://registry.terraform.io/browse/providers). Terraform
