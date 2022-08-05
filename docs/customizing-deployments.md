@@ -50,7 +50,7 @@ configured for you but you can modify them or even add your own resources
 
 Once `main.tf` is generated bentoctl does not perform any modifications on that
 file. However, the `main.tf` has a set of variables that it depends on to
-specify some of the configurations that can change between deployments.  These
+specify some of the configurations that can change between deployments. These
 variables are defined in `bentoctl.tfvars`. Each time you change the deployment
 config or build a new bento to deploy, bentoctl will change the variable values
 in this file in order to reflect those changes. This creates a clear separation
