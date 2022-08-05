@@ -9,7 +9,7 @@ integrate the service with existing deployment pipelines.
 bentoctl simplifies
 - building the bento image for the cloud platform of choice
 - creating the container registry and pushing the bento image into it
-- generating the terraform project with the all required components
+- generating the Terraform project with the all required components
 - facilitating gitops workflow for deploying models thanks to the tight
   integration with bentoml
 
