@@ -62,5 +62,4 @@ as code (IaC) solution. There were a few reasons why we choose Terraform.
    features easier.
 
 Bentoctl generates the terraform files for the cloud service and is designed to
-be modified if need be. Each team will have different requirements for
-deployment. 
+be modified if need be to meet to deployment requirements of each team.
