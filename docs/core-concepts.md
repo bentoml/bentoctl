@@ -13,7 +13,7 @@ Operators are plugins that interact with cloud services, such as AWS Lambda and 
 
 1. Creates a deployable image based on the cloud service's requirements.
 2. Manages the container registries provided by the cloud service.
-3. Generate Terraform projects based on the deployment configuration.
+3. Generates Terraform projects based on the deployment configuration.
 
 The operator also provides a set of schema that bentoctl uses to validate the deployment configuration. [Operators](./cloud-deployment-reference/) page offers more details on supported platforms.
 
