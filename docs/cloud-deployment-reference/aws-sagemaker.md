@@ -22,7 +22,7 @@ The available spec configuration.
 * `initial_sampling_percentage`: The percentage of the data will be captured in S3 bucket.
 
 ## Troubleshooting
-By default, sagemaker is configured with cloudwatch for metrics and logs. To see the cloudwatch logs for the deployment
+By default, SageMaker is configured with cloudwatch for metrics and logs. To see the CloudWatch logs for the deployment
 
 1. Open the Amazon Cloudwatch console at https://console.aws.amazon.com/cloudwatch/.
 2. In the navigation pane, choose Logs -> Log groups.
