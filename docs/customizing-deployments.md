@@ -1,7 +1,7 @@
 # Customizing Deployments
 
 In this guide we will:
-- talk about the different terraform configuration files bentoctl generates.
+- explain about the different terraform configuration files bentoctl generates.
 - how to customize the generated terraform files and how bentoctl + custom
   terraform files can make continuous deployment easier.
 - go through an example where we will deploy a bento into AWS Lambda and
