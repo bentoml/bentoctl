@@ -9,7 +9,7 @@ The goal of bentoctl is to provide an easy-to-use yet flexible tool that can be 
 
 ## Operators
 
-Operators are plugins that interact with the external services, typically a cloud service. It abstracts the specific implementation details of the external service and provides a unified interface for bentoctl. The operator provides 3 core actions that are:
+Operators are plugins that interact with cloud services, such as AWS Lambda and SageMaker. It abstracts the specific implementation details of the cloud service and provides a unified interface for bentoctl. The operator provides 3 core functionality:
 
 1. Create a deployable image or artifact based on the cloud service's requirements.
 2. Manage the registries provided by the cloud service.
