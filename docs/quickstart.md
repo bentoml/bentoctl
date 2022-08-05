@@ -188,7 +188,7 @@ apigw-requestid: Ql8zbicdSK4EM5g=
 ```
 ### Optional Step: Update Deployment
 
-The section is optional but we will walk through the updatation steps for
+The section is optional but we will walk through the update steps for
 bentoctl. If you have some experience with [bentoml's
 quickstart](https://docs.bentoml.org/en/latest/tutorial.html) feel free to try
 it. 
