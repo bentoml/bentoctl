@@ -1,55 +1,41 @@
-# Introduction
+## Welcome to the bentoctl docs
 
-bentoctl is a command line tool for deploying BentoML packaged ML models as API endpoint on popular cloud platforms.
-It automates Bento docker image build, generate terraform project, and easily manage deployments.
+### Introduction
+bentoctl is a command-line tool for deploying BentoML packaged ML models as API
+endpoints on popular cloud platforms. It helps facilitate the handoff of an ML
+model from data scientists to DevOps engineers by providing an easy way to
+integrate the service with existing deployment pipelines.
 
-## Why bentoctl?
-* Supports major cloud providers: AWS, Azure, Google Cloud, and more.
-* Easy to deploy, update and reproduce model deployments.
-* First class integration with Terraform.
-* Optimized for CI/CD workflow.
-* Extensible with custom operators.
-* High performance serving powered by [BentoML](https://github.com/bentoml/BentoML)
-Supported platforms:
+bentoctl simplifies
+- building the bento for the cloud platform of choice
+- creating the registry and pushing the bento into it
+- generating the terraform project with the all required components
+- facilitating gitops workflow for deploying models thanks to the tight
+  integration with bentoml
 
-* [AWS Lambda](https://github.com/bentoml/aws-lambda-deploy)
-* [AWS SageMaker](https://github.com/bentoml/aws-sagemaker-deploy)
-* [AWS EC2](https://github.com/bentoml/aws-ec2-deploy)
-* [Google Cloud Run](https://github.com/bentoml/google-cloud-run-deploy)
-* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-* Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
-* **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
+Bentoctl uses [terraform](https://www.terraform.io/) under the hood to create
+and manage the cloud infrastructure. Terraform is an infrastructure as code
+(IaC) tool that allows you to build, change, and version infrastructure safely
+and efficiently. Bentoctl generates the required terraform files that are
+optimized for your models with minimal configuration from your end. While the
+generated terraform files are a great starting point with sensible defaults, you
+can configure them to meet your specific needs also.
 
-**Upcoming:**
-* [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy) (BentoML 1.0 migration in progress)
-* [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy) (BentoML 1.0 migration in progress)
-* [Heroku](https://github.com/bentoml/heroku-deploy) (BentoML 1.0 migration in progress)
-* [Knative](https://github.com/bentoml/bentoctl/issues/79) (WIP)
+This means bentoctl provides ease of use and flexibility to get your models
+built with bentoml to any cloud service you want.
 
-
-## How to install
-
-Install via pip:
-
-```bash
-pip install bentoctl
-```
-
-## Next steps
-
-- [Quickstart Guide](./quickstart.md) walks through a series of steps to deploy a bento to AWS Lambda as API server.
-- [Core Concepts](./core-concepts.md) explains the core concepts in bentoctl.
-- [Operator List](./operator-list.md) lists official operators and their current status.
-
-## Community
-
-- To report a bug or suggest a feature request, use [GitHub Issues](https://github.com/bentoml/bentoctl/issues/new/choose).
-- To receive release announcements, please subscribe to our mailing list or join us on [Slack](http://join.slack.bentoml.org/).
-
-## Contributing
-
-There are many ways to contribute to the project:
-
-- If you have any feedback on the project, share it with the community in #bentoctl channel in slack.
-- Report issues you're facing and "Thumbs up" on issues and feature requests that are relevant to you.
-- Investigate bugs and review other developer's pull requests.
+### Where to go from here
+1. [Quickstart](./quickstart.md) - See bentoctl in action. This guide walks you
+   through the different steps required for deploying the model into the cloud.
+   Will be using deploying to AWS Lambda as an example.
+2. [Core Concepts](./core-concepts.md) - Introduces the philosophy behind
+   bentoctl and the different components.
+3. [Customising Deployments](./custom-deployments.md) - Explain the different
+   terraform files generated and how to modify them to meet specific deployment
+   setups.
+4. [Managing Deployments](./manage-deployments.md) - Explain what terraform
+   cloud is and how it can help with managing different deployments in a team.
+   We will also go through an example.
+5. [Cloud Deployment Reference](./cloud-guides.md) - Lists all the supported
+   deployment targets and has the references and best practices for these
+   specific targets.
