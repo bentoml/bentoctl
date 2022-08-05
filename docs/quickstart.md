@@ -1,6 +1,6 @@
 # Quickstart
 
-This guide walks through the steps of building a bento and deploying it. For the sake of completion, we will be deploying into AWS Lambda. You can also try deploying to other cloud services. The entire list of cloud services and configuration is mentioned in the [cloud deployment reference](./cloud-deployment-reference/) section.
+This guide walks through the steps of building a bento and deploying it. For completion, we will be deploying into AWS Lambda. You can also try deploying to other cloud services. The entire list of cloud services and configuration is mentioned in the [cloud deployment reference](./cloud-deployment-reference/) section.
 
 This quickstart will use the iris classifier bento with `/classify` API endpoint created in the BentoML quickstart guide as an example bento.
 
