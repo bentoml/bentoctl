@@ -43,7 +43,7 @@ by default will use the AWS provider. You can check out the [AWS provider
 documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 and see the different resources that are available. 
 
-Check the `main.tf` file an you will see resources like `aws_lambda_function`,
+Check the `main.tf` file and you will see resources like `aws_lambda_function`,
 `aws_cloudwatch_group`, `aws_iam_role` etc. These resources are already
 configured for you but you can modify them or even add your own resources
 (check out the next section for an example). 
