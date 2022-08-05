@@ -12,7 +12,7 @@ The goal of bentoctl is to provide an easy-to-use yet flexible tool that can be 
 Operators are plugins that interact with cloud services, such as AWS Lambda and SageMaker. It abstracts the specific implementation details of the cloud service and provides a unified interface for bentoctl. The operator provides 3 core functionality:
 
 1. Creates a deployable image based on the cloud service's requirements.
-2. Manage the registries provided by the cloud service.
+2. Manages the container registries provided by the cloud service.
 3. Generate Terraform projects based on the deployment configuration.
 
 The operator also provides a set of schema that bentoctl uses to validate the deployment configuration. [Operators](./cloud-deployment-reference/) page offers more details on supported platforms.
