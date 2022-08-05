@@ -147,7 +147,7 @@ Terraform will perform the following actions:
       + api_key_selection_expression = "$request.header.x-api-key"
       + arn                          = (known after apply)
 
-... aother output from terraform
+... other output from terraform
 
 aws_apigatewayv2_integration.lambda: Creation complete after 2s [id=jeaalbk]
 aws_apigatewayv2_route.services: Creating...
