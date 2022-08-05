@@ -19,7 +19,7 @@ and manage the cloud infrastructure. Terraform is an infrastructure as code
 and efficiently. Bentoctl generates the required terraform files that are
 optimized for your models with minimal configuration from your end. While the
 generated terraform files are a great starting point with sensible defaults, you
-can configure them to meet your specific needs also.
+can customize them to meet your specific needs.
 
 This means bentoctl provides ease of use and flexibility to get your models
 built with bentoml to any cloud service you want.
