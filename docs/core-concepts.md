@@ -17,7 +17,7 @@ Operators are plugins that interact with cloud services, such as AWS Lambda and 
 
 The operator also provides a set of schema that bentoctl uses to validate the deployment configuration. [Operators](./cloud-deployment-reference/) page offers more details on supported platforms.
 
-The operator is designed to be customizable and extensible. Users can install non-official operators from a local file path. Users can create their own operator from the [operator template on Github](https://github.com/bentoml/bentoctl-operator-template).
+The operator is designed to be extensible. Users can customize the operator behaviors by forking an existing [operators](./cloud-deployment-reference/) or creating a brand new operator based on the [operator template on Github](https://github.com/bentoml/bentoctl-operator-template). The customized operators can be installed from a file path and used with bentoctl.
 
 ## Deployment Configuration
 
