@@ -45,7 +45,7 @@ and see the different resources that are available.
 
 Check the `main.tf` file an you will see resources like `aws_lambda_function`,
 `aws_cloudwatch_group`, `aws_iam_role` etc. These resources are already
-configured for you but you can c modify them or even add your own resources
+configured for you but you can modify them or even add your own resources
 (check out the next section for an example). 
 
 Once `main.tf` is generated bentoctl does not perform any modifications on that
