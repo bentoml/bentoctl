@@ -3,7 +3,7 @@
 ## Why bentoctl?
 
 The goal of bentoctl is to provide an easy-to-use yet flexible tool that can be used used to deploy a bento into the cloud. Bentoctl performs two basic operations:
-1. bentoctl builds deployable images or artifacts based on the cloud service's requirements.
+1. bentoctl builds deployable bento images based on the cloud service's requirements.
 2. bentoctl creates and manages cloud service deployment with Terraform
 
 
