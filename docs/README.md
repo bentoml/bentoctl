@@ -7,7 +7,7 @@ model from data scientists to DevOps engineers by providing an easy way to
 integrate the service with existing deployment pipelines.
 
 bentoctl simplifies
-- building the bento for the cloud platform of choice
+- building the bento image for the cloud platform of choice
 - creating the registry and pushing the bento into it
 - generating the terraform project with the all required components
 - facilitating gitops workflow for deploying models thanks to the tight
