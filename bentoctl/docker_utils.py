@@ -75,7 +75,7 @@ def generate_deployable_container(
             "cgroup_parent": None,
             "iidfile": None,
             "labels": None,
-            "load": None,
+            "load": True,  # loading built container to local registry.
             "metadata_file": None,
             "network": None,
             "no_cache": False,
