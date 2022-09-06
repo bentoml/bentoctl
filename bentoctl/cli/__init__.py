@@ -1,4 +1,5 @@
 import os
+import typing as t
 
 import click
 
@@ -130,11 +131,100 @@ def generate(deployment_config_file, values_only, save_path):
     default="deployment_config.yaml",
 )
 @click.option("--dry-run", is_flag=True, help="Dry run", default=False)
+@click.option(
+    "--allow",
+    multiple=True,
+    default=None,
+    help="Allow extra privileged entitlement (e.g., 'network.host', 'security.insecure').",
+)
+@click.option("--build-arg", multiple=True, help="Set build-time variables.")
+@click.option(
+    "--build-context",
+    multiple=True,
+    help="Additional build contexts (e.g., name=path).",
+)
+@click.option(
+    "--builder",
+    type=click.STRING,
+    default=None,
+    help="Override the configured builder instance.",
+)
+@click.option(
+    "--cache-from",
+    multiple=True,
+    default=None,
+    help="External cache sources (e.g., 'user/app:cache', 'type=local,src=path/to/dir').",
+)
+@click.option(
+    "--cache-to",
+    multiple=True,
+    default=None,
+    help="Cache export destinations (e.g., 'user/app:cache', 'type=local,dest=path/to/dir').",
+)
+@click.option(
+    "--load",
+    is_flag=True,
+    default=True,
+    help="Shorthand for '--output=type=docker'. Note that '--push' and '--load' are mutually exclusive.",
+)
+@click.option(
+    "--no-cache",
+    is_flag=True,
+    default=False,
+    help="Do not use cache when building the image.",
+)
+@click.option(
+    "--output",
+    multiple=True,
+    default=None,
+    help="Output destination (format: 'type=local,dest=path').",
+)
+@click.option(
+    "--platform", default=None, multiple=True, help="Set target platform for build."
+)
+@click.option(
+    "--progress",
+    default="auto",
+    type=click.Choice(["auto", "tty", "plain"]),
+    help="Set type of progress output ('auto', 'plain', 'tty'). Use plain to show container output.",
+)
+@click.option(
+    "--pull",
+    is_flag=True,
+    default=False,
+    help="Always attempt to pull all referenced images.",
+)
+@click.option(
+    "--push",
+    is_flag=True,
+    default=False,
+    help="Shorthand for '--output=type=registry'. Note that '--push' and '--load' are mutually exclusive.",
+)
+@click.option(
+    "--target",
+    type=click.STRING,
+    default=None,
+    help="Set the target build stage to build.",
+)
 @handle_bentoctl_exceptions
 def build(
-    bento_tag,
-    deployment_config_file,
-    dry_run,
+    bento_tag: str,
+    deployment_config_file: str,
+    dry_run: bool,
+    allow: t.Iterable[str],
+    build_arg: t.List[str],
+    build_context: t.List[str],
+    builder: str,
+    cache_from: t.List[str],
+    cache_to: t.List[str],
+    load: bool,
+    no_cache: bool,
+    output: t.List[str],
+    platform: t.List[str],
+    progress: t.Literal["auto", "tty", "plain"],
+    pull: bool,
+    push: bool,
+    target: str,
 ):
     """
     Build the Docker image for the given deployment config file and bento.
@@ -144,10 +234,61 @@ def build(
     deployment_config.set_bento(bento_tag)
     local_docker_tag = deployment_config.generate_local_image_tag()
 
+    # parse buildx args
+    allow_ = []
+    if allow:
+        allow_ = list(allow)
+
+    build_args = {}
+    if build_arg:
+        for build_arg_str in build_arg:
+            key, value = build_arg_str.split("=")
+            build_args[key] = value
+
+    build_context_ = {}
+    if build_context:
+        for build_context_str in build_context:
+            key, value = build_context_str.split("=")
+            build_context_[key] = value
+
+    output_ = None
+    if output:
+        output_ = {}
+        for arg in output:
+            if "," in arg:
+                for val in arg.split(","):
+                    k, v = val.split("=")
+                    output_[k] = v
+            key, value = arg.split("=")
+            output_[key] = value
+
+    load = True
+    if platform and len(platform) > 1:
+        if not push:
+            click.echo(
+                "Multiple '--platform' arguments were found. Make sure to also use '--push' to push images to a repository or generated images will not be saved. For more information, see https://docs.docker.com/engine/reference/commandline/buildx_build/#load."
+            )
+    if push:
+        load = False
+
     generate_deployable_container(
         tag=local_docker_tag,
         deployment_config=deployment_config,
         cleanup=False if is_debug_mode() else True,
+        allow=allow_,
+        build_args=build_args,
+        build_context=build_context_,
+        builder=builder,
+        cache_from=cache_from,
+        cache_to=cache_to,
+        load=load,
+        no_cache=no_cache,
+        output=output_,
+        platform=platform,
+        progress=progress,
+        pull=pull,
+        push=push,
+        target=target,
     )
 
     if not dry_run:
