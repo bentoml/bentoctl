@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as t
 from collections import OrderedDict
 
@@ -52,19 +54,19 @@ class DockerPushProgressBar:
 
 
 def generate_deployable_container(
-    tag: str,
+    tags: list[str],
     deployment_config: DeploymentConfig,
     cleanup: bool,
-    allow: t.List[str],
-    build_args: t.Dict[str, str],
-    build_context: t.Dict[str, str],
+    allow: list[str],
+    build_args: dict[str, str],
+    build_context: dict[str, str],
     builder: str,
-    cache_from: t.List[str],
-    cache_to: t.List[str],
+    cache_from: list[str],
+    cache_to: list[str],
     load: bool,
     no_cache: bool,
-    output: t.Optional[t.Dict[str, str]],
-    platform: t.List[str],
+    output: dict[str, str] | None,
+    platform: list[str],
     progress: t.Literal["auto", "tty", "plain"],
     pull: bool,
     push: bool,
@@ -81,7 +83,7 @@ def generate_deployable_container(
             "subprocess_env": env,
             "cwd": deployment_config.create_deployable(destination_dir=str(dist_dir)),
             "file": DOCKERFILE_PATH,
-            "tags": tag,
+            "tags": tags,
             "add_host": None,
             "allow": allow,
             "build_args": build_args,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import typing as t
 
@@ -25,6 +27,12 @@ from bentoctl.utils.terraform import (
     terraform_apply,
     terraform_destroy,
 )
+
+try:
+    from bentoml._internal.utils.docker import validate_tag
+except ImportError:
+    from bentoctl.cli.utils import dummpy_validate_tag as validate_tag
+
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -125,6 +133,14 @@ def generate(deployment_config_file, values_only, save_path):
     "--bento-tag", "-b", help="Bento tag to use for deployment.", required=True
 )
 @click.option(
+    "-t",
+    "--docker-image-tag",
+    help="Name and optionally a tag (format: 'name:tag'), defaults to bento tag.",
+    required=False,
+    callback=validate_tag,
+    multiple=True,
+)
+@click.option(
     "--deployment-config-file",
     "-f",
     help="path to deployment_config file",
@@ -209,18 +225,19 @@ def generate(deployment_config_file, values_only, save_path):
 @handle_bentoctl_exceptions
 def build(
     bento_tag: str,
+    docker_image_tag: list[str],
     deployment_config_file: str,
     dry_run: bool,
     allow: t.Iterable[str],
-    build_arg: t.List[str],
-    build_context: t.List[str],
+    build_arg: list[str],
+    build_context: list[str],
     builder: str,
-    cache_from: t.List[str],
-    cache_to: t.List[str],
+    cache_from: list[str],
+    cache_to: list[str],
     load: bool,
     no_cache: bool,
-    output: t.List[str],
-    platform: t.List[str],
+    output: list[str],
+    platform: list[str],
     progress: t.Literal["auto", "tty", "plain"],
     pull: bool,
     push: bool,
@@ -235,6 +252,8 @@ def build(
     local_docker_tag = deployment_config.generate_local_image_tag()
 
     # parse buildx args
+    tags = [local_docker_tag, *docker_image_tag]
+
     allow_ = []
     if allow:
         allow_ = list(allow)
@@ -269,10 +288,14 @@ def build(
                 "Multiple '--platform' arguments were found. Make sure to also use '--push' to push images to a repository or generated images will not be saved. For more information, see https://docs.docker.com/engine/reference/commandline/buildx_build/#load."
             )
     if push:
+        click.echo(
+            "'--push' flag detected. bentoctl will not attempt to create repository and push image into it."
+        )
         load = False
+        dry_run = True
 
     generate_deployable_container(
-        tag=local_docker_tag,
+        tags=tags,
         deployment_config=deployment_config,
         cleanup=False if is_debug_mode() else True,
         allow=allow_,
