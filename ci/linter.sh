@@ -22,23 +22,6 @@ fi
 
 # The first line of the tests are
 # always empty if there are no linting errors
-
-echo "Running flake8 on bentoctl module.."
-output=$( poetry run flake8 --config=.flake8 bentoctl )
-first_line=$(echo "${output}" | head -1)
-echo "$output"
-if [ -n "$first_line" ]; then
-  has_errors=1
-fi
-
-echo "Running flake8 on test module.."
-output=$( poetry run flake8 --config=.flake8 tests )
-first_line=$(echo "${output}" | head -1)
-echo "$output"
-if [ -n "$first_line" ]; then
-  has_errors=1
-fi
-
 echo "Running pylint on bentoctl module.."
 output=$( poetry run pylint --rcfile="./pylintrc" bentoctl )
 first_line=$(echo "${output}" | head -1)
