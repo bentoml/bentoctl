@@ -113,7 +113,6 @@ def generate_deployable_container(
             "ulimit": None,
         }
 
-        breakpoint()
         # run health check whether buildx is install locally
         buildx.health()
         buildx.build(**buildx_args)

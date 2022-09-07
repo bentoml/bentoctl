@@ -4,7 +4,6 @@ import functools
 import os
 import sys
 import time
-import typing as t
 
 import click
 
@@ -16,9 +15,6 @@ from bentoctl.utils.usage_stats import (
     cli_events_map,
     track,
 )
-
-if t.TYPE_CHECKING:
-    from click import Context, Parameter
 
 DEBUG_ENV_VAR = "BENTOCTL_DEBUG"
 
@@ -124,9 +120,3 @@ class BentoctlCommandGroup(click.Group):
             return super(BentoctlCommandGroup, self).command(*args, **kwargs)(func)
 
         return wrapper
-
-
-def dummpy_validate_tag(
-    ctx: Context, param: Parameter, tag: str | tuple[str] | None
-) -> str | tuple[str] | None:
-    return tag

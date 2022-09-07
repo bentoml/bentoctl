@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import typing as t
+import logging
 
 import click
 
@@ -28,10 +29,14 @@ from bentoctl.utils.terraform import (
     terraform_destroy,
 )
 
+logger = logging.getLogger(__name__)
 try:
     from bentoml._internal.utils.docker import validate_tag
 except ImportError:
-    from bentoctl.cli.utils import dummpy_validate_tag as validate_tag
+    logger.warning(
+        "'bentoml._internal.utils.docker.validate_tag not imported. Using dummy validation"
+    )
+    validate_tag = None
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
