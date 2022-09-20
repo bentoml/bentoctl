@@ -24,7 +24,7 @@ bentoctl = "bentoctl.cli:bentoctl"
 "Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
 
 [tool.poetry.dependencies]
-python = "3.*"
+python = ">=3.7,<4.0"
 bentoml = "1.*"
 click = "^8"
 cerberus = "^1"
