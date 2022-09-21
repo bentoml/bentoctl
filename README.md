@@ -1,4 +1,4 @@
-# 🚀 Deploy any ML model to the cloud
+# 🚀 Fast model deployment on any cloud
 
 [![actions_status](https://github.com/bentoml/bentoctl/workflows/Bentoctl-CI/badge.svg)](https://github.com/bentoml/yatai/actions)
 [![docs](https://badgen.net/badge/%F0%9F%93%96/Documentation/blue)](https://github.com/bentoml/bentoctl/tree/main/docs)
