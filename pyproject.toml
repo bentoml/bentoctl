@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bentoctl"
-version = "0.3.3"
+version = "0.3.4"
 description = "Fast model deployment with BentoML on cloud platforms."
 authors = ["bentoml.org <contact@bentoml.com>"]
 homepage = "https://github.com/bentoml/bentoctl"
@@ -24,14 +24,14 @@ bentoctl = "bentoctl.cli:bentoctl"
 "Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<4.0"
 bentoml = "1.*"
 click = "^8"
 cerberus = "^1"
-rich = ""
+rich = "12.*"
 PyYaml = "^6"
 simple-term-menu = "0.4.4"
-importlib-metadata = { version = "", python = "<3.8" }
+importlib-metadata = { version = "4.*", python = "<3.8" }
 docker = "^5"
 semantic_version = "^2.9.0"
 
