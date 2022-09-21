@@ -11,7 +11,7 @@ bentoctl helps deploy any machine learning models as production-ready API endpoi
 * Framework-agnostic model deployment for Tensorflow, PyTorch, XGBoost, Scikit-Learn, ONNX, and many more via
  [BentoML: the unified model serving framework](https://github.com/bentoml/bentoml).
 * Simplify the deployment lifecycle of deploy, update, delete, and rollback.
-* Take full benefit of BentoML's performance optimizations and cloud platform features out-of-the-box.
+* Take full advantage of BentoML's performance optimizations and cloud platform features out-of-the-box.
 * Tailor bentoctl to your DevOps needs by customizing deployment operator and Terraform templates.
 
 
@@ -32,12 +32,16 @@ bentoctl helps deploy any machine learning models as production-ready API endpoi
 * [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
 * [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
 * [Heroku](https://github.com/bentoml/heroku-deploy)
-* Looking for **Kubernetes**? Try out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
-* **Customize deploy target** by creating bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template).
 
-**Upcoming:**
+### Upcoming
 * [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-* [Knative](https://github.com/bentoml/bentoctl/issues/79)
+
+### Custom Operator
+
+Users can built custom bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template)
+to deploy to cloud platforms not yet supported or to internal infrastructure.
+
+If you are looking for deploying with **Kubernetes**, check out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
 
 
 ## Installation
