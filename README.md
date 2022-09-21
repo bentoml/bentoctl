@@ -32,8 +32,6 @@ bentoctl helps deploy any machine learning models as production-ready API endpoi
 * [Google Compute Engine](https://github.com/bentoml/google-compute-engine-deploy)
 * [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
 * [Heroku](https://github.com/bentoml/heroku-deploy)
-
-### Upcoming
 * [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
 
 ### Custom Operator
