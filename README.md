@@ -20,7 +20,7 @@ bentoctl helps deploy any machine learning models as production-ready API endpoi
 - [💻 Quickstart Guide](./docs/quickstart.md) - Deploy your first model to AWS Lambda as a serverless API endpoint.
 - [📖 Core Concepts](./docs/core-concepts.md) - Learn the core concepts in bentoctl.
 - [🕹️ Operators List](./docs/operator-list.md) - List of official operators and advanced configuration options.
-- [💬 Join Community Slack](https://l.linklyhq.com/l/ktPp) - Get help from our community and maintainers
+- [💬 Join Community Slack](https://l.linklyhq.com/l/ktPp) - Get help from our community and maintainers.
 
 
 ## Supported Platforms:
