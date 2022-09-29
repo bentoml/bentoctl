@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
 import typing as t
-import logging
 
 import click
 
@@ -31,12 +31,12 @@ from bentoctl.utils.terraform import (
 
 logger = logging.getLogger(__name__)
 try:
-    from bentoml._internal.utils.docker import validate_tag
+    from bentoml_cli.utils import validate_docker_tag
 except ImportError:
     logger.warning(
-        "'bentoml._internal.utils.docker.validate_tag not imported. Using dummy validation"
+        "'bentoml._internal.utils.docker.validate_tag not imported. Validation dissabled"
     )
-    validate_tag = None
+    validate_docker_tag = None
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -142,7 +142,7 @@ def generate(deployment_config_file, values_only, save_path):
     "--docker-image-tag",
     help="Name and optionally a tag (format: 'name:tag'), defaults to bento tag.",
     required=False,
-    callback=validate_tag,
+    callback=validate_docker_tag,
     multiple=True,
 )
 @click.option(
