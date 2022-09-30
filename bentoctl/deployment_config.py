@@ -54,6 +54,20 @@ deployment_config_schema = {
     "spec": {
         "required": True,
     },
+    "env": {
+        "required": False,
+        "type": "dict",
+        "keysrules": {
+            "type": "string",
+            "regex": "[a-zA-Z_]{1,}[a-zA-Z0-9_]{0,}",
+            "help_message": "An environment variable name to set for deployment",
+        },
+        "valuesrules": {
+            "type": "string",
+            "help_message": "An environment variable value to set for deployment",
+        },
+        "help_message": "Used to set runtime environment variables for deployment"
+    },
 }
 
 
