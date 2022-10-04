@@ -171,7 +171,7 @@ def prompt_input(
             if "schema" in rule:
                 for key in rule["schema"].keys():
                     input_value[key] = prompt_input(
-                        key, rule.get("schema").get(key), indent_level + 1
+                        key, rule["schema"].get(key, {}), indent_level + 1
                     )
             else:
                 # We don't have a schema so this is a dict with arbitrary keys.
@@ -181,8 +181,8 @@ def prompt_input(
                         f"Do you want to add item to {field_name}"
                     )
                 while should_add_item_to_dict:
-                    key = prompt_input_value("key", rule.get("keysrules"))
-                    value = prompt_input_value("value", rule.get("valuesrules"))
+                    key = prompt_input_value("key", rule.get("keysrules", {}))
+                    value = prompt_input_value("value", rule.get("valuesrules", {}))
                     display_input_result = f"{key}: {value}"
                     indented_print(display_input_result, indent_level=indent_level + 1)
                     input_value[key] = value
@@ -192,10 +192,10 @@ def prompt_input(
                             f"Do you want to add item to {field_name}"
                         )
         else:
-            for i, key in enumerate(rule.get("schema").keys()):
+            for i, key in enumerate(rule["schema"].keys()):
                 input_value[key] = prompt_input(
                     key,
-                    rule.get("schema").get(key),
+                    rule["schema"].get(key, {}),
                     indent_level,
                     belongs_to_list,
                     i == 0,  # require display '-' for first item of a dict

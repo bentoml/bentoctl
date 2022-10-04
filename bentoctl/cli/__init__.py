@@ -219,3 +219,6 @@ def apply(deployment_config_file):
 
 # subcommands
 bentoctl.add_command(get_operator_management_subcommands())
+
+if __name__ == "__main__":
+    bentoctl()

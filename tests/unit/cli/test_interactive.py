@@ -44,7 +44,7 @@ def test_deployment_config_builder(
 ):
     operator1 = mock_operator(name="operator1", schema={})
     get_mock_operator_registry.get = lambda _: operator1
-    stdin = StringIO("testdeployment\n")
+    stdin = StringIO("testdeployment\ny\nBENTOML_API_WORKERS\n1\nn\n")
     monkeypatch.setattr("sys.stdin", stdin)
     monkeypatch.setattr(
         interactive_cli, "dropdown_select", lambda field, options: "operator1"
@@ -97,6 +97,19 @@ nested_dict = {
     },
 }
 
+single_map = {
+    "rule": {
+        "type": "dict",
+        "keysrules": {"type": "string"},
+        "valuesrules": {"type": "integer", "coerce": int},
+    },
+    "user_input": "y\nkey_1\n1\ny\nkey_2\n2\nn",
+    "expected_output": {
+        "key_1": 1,
+        "key_2": 2,
+    },
+}
+
 all_values = {
     "rule": {
         "type": "dict",
@@ -118,6 +131,7 @@ all_values = {
         list_of_strings_required,
         list_of_strings_required_with_nested_dict,
         nested_dict,
+        single_map,
         all_values,
     ],
 )
