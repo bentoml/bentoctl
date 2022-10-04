@@ -67,7 +67,7 @@ deployment_config_schema = {
             "type": "string",
             "help_message": "An environment variable value to set for deployment",
         },
-        "help_message": "Used to set runtime environment variables for deployment"
+        "help_message": "Used to set runtime environment variables for deployment",
     },
 }
 
@@ -87,9 +87,9 @@ def remove_help_message(schema):
                 if key in rules:
                     rules[key] = remove_help_message(rules[key])
         elif rules.get("type") == "list":
-            rules["schema"] = remove_help_message({"list_item": rules.get("schema", {})})[
-                "list_item"
-            ]
+            rules["schema"] = remove_help_message(
+                {"list_item": rules.get("schema", {})}
+            )["list_item"]
         schema[field] = rules
     return schema
 
