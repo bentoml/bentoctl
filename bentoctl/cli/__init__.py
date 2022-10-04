@@ -201,7 +201,10 @@ def generate(deployment_config_file, values_only, save_path):
     help="Output destination (format: 'type=local,dest=path').",
 )
 @click.option(
-    "--platform", default=None, multiple=True, help="Set target platform for build."
+    "--platform",
+    default=["linux/amd64"],
+    multiple=True,
+    help="Set target platform for build.",
 )
 @click.option(
     "--progress",
