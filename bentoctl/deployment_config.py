@@ -54,6 +54,21 @@ deployment_config_schema = {
     "spec": {
         "required": True,
     },
+    "env": {
+        "required": False,
+        "nullable": True,
+        "type": "dict",
+        "keysrules": {
+            "type": "string",
+            "regex": "[a-zA-Z_]{1,}[a-zA-Z0-9_]{0,}",
+            "help_message": "An environment variable name to set for deployment",
+        },
+        "valuesrules": {
+            "type": "string",
+            "help_message": "An environment variable value to set for deployment",
+        },
+        "help_message": "Used to set runtime environment variables for deployment",
+    },
 }
 
 
@@ -62,14 +77,19 @@ def remove_help_message(schema):
     Remove the help_messages in the validation dict.
     """
     for field, rules in schema.items():
+        if not isinstance(rules, dict):
+            continue
+
         if "help_message" in rules:
             del rules["help_message"]
         if rules.get("type") == "dict":
-            rules["schema"] = remove_help_message(rules.get("schema"))
+            for key in ("schema", "keysrules", "valuesrules"):
+                if key in rules:
+                    rules[key] = remove_help_message(rules[key])
         elif rules.get("type") == "list":
-            rules["schema"] = remove_help_message({"list_item": rules.get("schema")})[
-                "list_item"
-            ]
+            rules["schema"] = remove_help_message(
+                {"list_item": rules.get("schema", {})}
+            )["list_item"]
         schema[field] = rules
     return schema
 
@@ -103,6 +123,7 @@ class DeploymentConfig:
         self._set_name()
         self._set_operator()
         self._set_template_type()
+        self._set_env()
         self._set_operator_spec()
 
     def _set_name(self):
@@ -143,6 +164,19 @@ class DeploymentConfig:
                 )
             )
 
+    def _set_env(self):
+        copied_env = copy.deepcopy(self.deployment_config.get("env"))
+        validated_env = None
+        if copied_env is not None:
+            v = cerberus.Validator()
+            env_schema = remove_help_message(
+                {"env": copy.deepcopy(deployment_config_schema["env"])}
+            )
+            validated_env = v.validated({"env": copied_env}, env_schema)["env"]
+            if validated_env is None:
+                raise InvalidDeploymentConfig(config_errors=v.errors)
+        self.env = validated_env
+
     def _set_operator_spec(self):
         # cleanup operator_schema by removing 'help_message' field
         operator_schema = remove_help_message(schema=self.operator.schema)
@@ -151,6 +185,13 @@ class DeploymentConfig:
         validated_spec = v.validated(copied_operator_spec, schema=operator_schema)
         if validated_spec is None:
             raise InvalidDeploymentConfig(config_errors=v.errors)
+
+        # We add `env` through the operator spec to avoid introducing an
+        # additional argument to every operator which would be a breaking change.
+        # TODO: introduce the breaking change to clean up the interface.
+        if self.env is not None:
+            validated_spec["env"] = self.env
+
         self.operator_spec = validated_spec
 
     def set_bento(self, bento_tag: str):

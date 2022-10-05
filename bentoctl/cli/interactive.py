@@ -168,15 +168,34 @@ def prompt_input(
         input_value = {}
         if not belongs_to_list:
             indented_print(f"{field_name}:", indent_level)
-            for key in rule.get("schema").keys():
-                input_value[key] = prompt_input(
-                    key, rule.get("schema").get(key), indent_level + 1
-                )
+            if "schema" in rule:
+                for key in rule["schema"].keys():
+                    input_value[key] = prompt_input(
+                        key, rule["schema"].get(key, {}), indent_level + 1
+                    )
+            else:
+                # We don't have a schema so this is a dict with arbitrary keys.
+                help_message = rule.get("help_message")
+                with display_console_message(PromptMsg(help_message, None)):
+                    should_add_item_to_dict = prompt_confirmation(
+                        f"Do you want to add item to {field_name}"
+                    )
+                while should_add_item_to_dict:
+                    key = prompt_input_value("key", rule.get("keysrules", {}))
+                    value = prompt_input_value("value", rule.get("valuesrules", {}))
+                    display_input_result = f"{key}: {value}"
+                    indented_print(display_input_result, indent_level=indent_level + 1)
+                    input_value[key] = value
+
+                    with display_console_message(PromptMsg(help_message, None)):
+                        should_add_item_to_dict = prompt_confirmation(
+                            f"Do you want to add item to {field_name}"
+                        )
         else:
-            for i, key in enumerate(rule.get("schema").keys()):
+            for i, key in enumerate(rule["schema"].keys()):
                 input_value[key] = prompt_input(
                     key,
-                    rule.get("schema").get(key),
+                    rule["schema"].get(key, {}),
                     indent_level,
                     belongs_to_list,
                     i == 0,  # require display '-' for first item of a dict
@@ -275,5 +294,8 @@ def deployment_config_builder():
     console.print("[bold]spec: [/]")
     spec = generate_spec(operator.schema)
     deployment_config["spec"] = dict(spec)
+
+    env = prompt_input("[b]env", deployment_config_schema.get("env"), indent_level=0)
+    deployment_config["env"] = dict(env)
 
     return DeploymentConfig(deployment_config)
