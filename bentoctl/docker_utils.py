@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import typing as t
 from collections import OrderedDict
 
 import docker
@@ -51,7 +54,23 @@ class DockerPushProgressBar:
 
 
 def generate_deployable_container(
-    tag: str, deployment_config: DeploymentConfig, cleanup: bool
+    tags: list[str],
+    deployment_config: DeploymentConfig,
+    cleanup: bool,
+    allow: list[str],
+    build_args: dict[str, str],
+    build_context: dict[str, str],
+    builder: str,
+    cache_from: list[str],
+    cache_to: list[str],
+    load: bool,
+    no_cache: bool,
+    output: dict[str, str] | None,
+    platform: list[str],
+    progress: t.Literal["auto", "tty", "plain"],
+    pull: bool,
+    push: bool,
+    target: str,
 ):
     with TempDirectory(cleanup=cleanup) as dist_dir:
         if cleanup is False:
@@ -64,33 +83,33 @@ def generate_deployable_container(
             "subprocess_env": env,
             "cwd": deployment_config.create_deployable(destination_dir=str(dist_dir)),
             "file": DOCKERFILE_PATH,
-            "tags": tag,
+            "tags": tags,
             "add_host": None,
-            "allow": None,
-            "build_args": None,
-            "build_context": None,
-            "builder": None,
-            "cache_from": None,
-            "cache_to": None,
+            "allow": allow,
+            "build_args": build_args,
+            "build_context": build_context,
+            "builder": builder,
+            "cache_from": cache_from,
+            "cache_to": cache_to,
             "cgroup_parent": None,
             "iidfile": None,
             "labels": None,
-            "load": True,  # loading built container to local registry.
+            "load": load,  # loading built container to local registry.
             "metadata_file": None,
             "network": None,
-            "no_cache": False,
+            "no_cache": no_cache,
             "no_cache_filter": None,
-            "output": None,
-            "platform": "linux/amd64",
-            "progress": "auto",
-            "pull": False,
-            "push": False,
+            "output": output,
+            "platform": platform,
+            "progress": progress,
+            "pull": pull,
+            "push": push,
             "quiet": False,
             "secrets": None,
             "shm_size": None,
             "rm": False,
             "ssh": None,
-            "target": None,
+            "target": target,
             "ulimit": None,
         }
 

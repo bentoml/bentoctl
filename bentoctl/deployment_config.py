@@ -8,7 +8,7 @@ import bentoml
 import cerberus
 import fs
 import yaml
-from bentoml._internal.bento import Bento
+from bentoml import Bento
 from bentoml.exceptions import NotFound
 
 from bentoctl.exceptions import (
