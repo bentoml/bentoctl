@@ -174,7 +174,6 @@ class DeploymentConfig:
             env_schema = remove_help_message(
                 {"env": copy.deepcopy(deployment_config_schema["env"])}
             )
-            breakpoint()
             validated_env = v.validated({"env": copied_env}, env_schema)["env"]
             if validated_env is None:
                 raise InvalidDeploymentConfig(config_errors=v.errors)
