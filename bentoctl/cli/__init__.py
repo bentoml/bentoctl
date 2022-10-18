@@ -354,8 +354,14 @@ def build(
     help="path to deployment_config file",
     default="deployment_config.yaml",
 )
+@click.option(
+    "--auto-approve",
+    is_flag=True,
+    default=False,
+    help="auto approves the terraform plan generated.",
+)
 @handle_bentoctl_exceptions
-def destroy(deployment_config_file):
+def destroy(deployment_config_file, auto_approve):
     """
     Destroy all the resources created and remove the registry.
     """
@@ -364,7 +370,7 @@ def destroy(deployment_config_file):
         deployment_config.template_type.startswith("terraform")
         and is_terraform_applied()
     ):
-        terraform_destroy()
+        terraform_destroy(auto_approve)
     deployment_config.delete_repository()
     console.print(f"Deleted the repository {deployment_config.repository_name}")
     return deployment_config
@@ -377,14 +383,20 @@ def destroy(deployment_config_file):
     help="path to deployment_config file",
     default="deployment_config.yaml",
 )
+@click.option(
+    "--auto-approve",
+    is_flag=True,
+    default=False,
+    help="auto approves the terraform plan generated.",
+)
 @handle_bentoctl_exceptions
-def apply(deployment_config_file):
+def apply(deployment_config_file, auto_approve):
     """
     [Experimental] Apply the generated template file to create/update the deployment.
     """
     deployment_config = DeploymentConfig.from_file(deployment_config_file)
     if deployment_config.template_type.startswith("terraform"):
-        terraform_apply()
+        terraform_apply(auto_approve)
 
     return deployment_config
 
