@@ -87,7 +87,7 @@ def remove_help_message(schema):
                 rules["schema"] = remove_help_message(rules.get("schema"))
             for key in ("keysrules", "valuesrules"):
                 if key in rules:
-                    del rules[key]["help_message"]
+                    remove_help_message(rules[key])
         elif rules.get("type") == "list":
             rules["schema"] = remove_help_message(
                 {"list_item": rules.get("schema", {})}
