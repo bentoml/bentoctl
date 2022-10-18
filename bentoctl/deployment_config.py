@@ -87,7 +87,7 @@ def remove_help_message(schema):
                 rules["schema"] = remove_help_message(rules.get("schema"))
             for key in ("keysrules", "valuesrules"):
                 if key in rules:
-                    remove_help_message(rules[key])
+                    rules[key] = remove_help_message({key: rules[key]})[key]
         elif rules.get("type") == "list":
             rules["schema"] = remove_help_message(
                 {"list_item": rules.get("schema", {})}
@@ -174,6 +174,7 @@ class DeploymentConfig:
             env_schema = remove_help_message(
                 {"env": copy.deepcopy(deployment_config_schema["env"])}
             )
+            breakpoint()
             validated_env = v.validated({"env": copied_env}, env_schema)["env"]
             if validated_env is None:
                 raise InvalidDeploymentConfig(config_errors=v.errors)
