@@ -19,7 +19,7 @@ classifiers = [
 bentoctl = "bentoctl.cli:bentoctl"
 
 [tool.poetry.urls]
-"Source" =  "https://github.com/bentoml/bentoctl"
+"Source" = "https://github.com/bentoml/bentoctl"
 "User Slack community" = "http://join.slack.bentoml.org"
 "Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
 
@@ -29,10 +29,10 @@ bentoml = "1.*"
 click = "^8"
 cerberus = "^1"
 rich = "12.*"
-PyYaml = "^6"
+PYYAML = ">=6"
 simple-term-menu = "0.4.4"
 importlib-metadata = { version = "4.*", python = "<3.8" }
-docker = "^5"
+docker = ">=5"
 semantic_version = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
@@ -65,9 +65,11 @@ exclude = '''
 '''
 
 [tool.pytest.ini_options]
-asyncio_mode="strict"
+asyncio_mode = "strict"
 
 [build-system]
 # Use the latest poetry build system to enable the use of `pip install -e`. After this change is released, we can switch back to "poetry_core>=1.0.0"
-requires = ["poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master"]
+requires = [
+    "poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master",
+]
 build-backend = "poetry.core.masonry.api"
