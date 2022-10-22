@@ -8,4 +8,4 @@ exit
 
 :: cmd script
 :WINDOWS
-poetry install
+C:\Users\runneradmin\.local\bin\poetry install

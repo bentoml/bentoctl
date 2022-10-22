@@ -12,9 +12,14 @@ from tests.conftest import TESTOP_PATH
 def assert_no_help_message_in_schema(schema):
     for _, rules in schema.items():
         assert "help_message" not in rules
-        if rules["type"] == "dict":
-            assert_no_help_message_in_schema(rules["schema"])
-        elif rules["type"] == "list":
+        if rules.get("type") == "dict":
+            if "schema" in rules:
+                assert_no_help_message_in_schema(rules["schema"])
+            if "keysrules" in rules:
+                assert_no_help_message_in_schema({"keysrules": rules["keysrules"]})
+            if "valuesrules" in rules:
+                assert_no_help_message_in_schema({"valuesrules": rules["valuesrules"]})
+        elif rules.get("type") == "list":
             assert_no_help_message_in_schema({"list_item": rules["schema"]})
 
 
@@ -22,6 +27,18 @@ def test_remove_help_message():
     operator_config = _import_module("operator_config", TESTOP_PATH)
     schema = operator_config.OPERATOR_SCHEMA
     schema_without_help_msg = dconf.remove_help_message(schema)
+    assert_no_help_message_in_schema(schema_without_help_msg)
+
+
+def test_remove_help_message_from_deployment_schema():
+    from bentoctl.deployment_config import deployment_config_schema
+
+    schema_without_help_msg = dconf.remove_help_message(deployment_config_schema)
+    assert_no_help_message_in_schema(schema_without_help_msg)
+
+    schema_without_help_msg = dconf.remove_help_message(
+        {"env": deployment_config_schema["env"]}
+    )
     assert_no_help_message_in_schema(schema_without_help_msg)
 
 

@@ -1,3 +1,4 @@
+import json
 from collections import UserDict
 
 DEPLOYMENT_PARAMS_WARNING = """# This file is maintained automatically by
@@ -35,7 +36,13 @@ class DeploymentValues(UserDict):
     def generate_terraform_tfvars_file(self, file_path):
         params = []
         for param_name, param_value in self.items():
-            params.append(f'{param_name} = "{param_value}"')
+            if isinstance(param_value, (dict, list)):
+                write_value = json.dumps(param_value)
+            elif isinstance(param_value, bool):
+                write_value = str(param_value).lower()
+            else:
+                write_value = f'"{param_value}"'
+            params.append(f"{param_name} = {write_value}")
 
         with open(file_path, "w", encoding="utf-8") as params_file:
             params_file.write(DEPLOYMENT_PARAMS_WARNING)
