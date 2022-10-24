@@ -27,27 +27,41 @@ def terraform_run(cmd: list, return_output: bool = False):
         )
 
 
-def terraform_destroy():
+def terraform_destroy(auto_approve):
     if not is_terraform_initialised():
         raise BentoctlException("terraform is not initialised")
     if not os.path.exists(os.path.join(os.curdir, TERRAFORM_VALUES_FILE)):
         raise BentoctlException(
             f"{TERRAFORM_VALUES_FILE} not found in current directory."
         )
-    terraform_run(
-        ["apply", "-destroy", "-var-file", TERRAFORM_VALUES_FILE, "-auto-approve"]
-    )
+
+    terraform_cmd = [
+        "apply",
+        "-destroy",
+        "-var-file",
+        TERRAFORM_VALUES_FILE,
+    ]
+    if auto_approve:
+        terraform_cmd.append("-auto-approve")
+    terraform_run(terraform_cmd)
 
 
 def is_terraform_initialised():
     return os.path.exists(os.path.join(os.curdir, TERRAFORM_INIT_FOLDER))
 
 
-def terraform_apply():
+def terraform_apply(auto_approve):
     if not is_terraform_initialised():
         terraform_run(["init"])
 
-    terraform_run(["apply", "-var-file", TERRAFORM_VALUES_FILE, "-auto-approve"])
+    terraform_cmd = [
+        "apply",
+        "-var-file",
+        TERRAFORM_VALUES_FILE,
+    ]
+    if auto_approve:
+        terraform_cmd.append("-auto-approve")
+    terraform_run(terraform_cmd)
 
 
 def terraform_output():
