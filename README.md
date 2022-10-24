@@ -6,6 +6,12 @@
 
 bentoctl helps deploy any machine learning models as production-ready API endpoints on the cloud, supporting AWS SageMaker, AWS Lambda, EC2, Google Compute Engine, Azure, Heroku and more.
 
+👉 [Join our Slack community today!](https://l.bentoml.com/join-slack)
+
+✨ Looking deploy your ML service quickly? You can checkout [BentoML Cloud](https://www.bentoml.com/bentoml-cloud/)
+for the easiest and fastest way to deploy your bento. It's a full featured, serverless environment with a model repository and built in monitoring and logging.
+
+
 ## Highlights
 
 * Framework-agnostic model deployment for Tensorflow, PyTorch, XGBoost, Scikit-Learn, ONNX, and many more via
