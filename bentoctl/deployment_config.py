@@ -74,7 +74,7 @@ deployment_config_schema = {
 
 def remove_help_message(schema):
     """
-    Remove the help_messages in the validation dict.
+    Recursively remove the help_messages from the cerberus schema
     """
     for field, rules in schema.items():
         if not isinstance(rules, dict):
@@ -83,9 +83,11 @@ def remove_help_message(schema):
         if "help_message" in rules:
             del rules["help_message"]
         if rules.get("type") == "dict":
-            for key in ("schema", "keysrules", "valuesrules"):
+            if "schema" in rules:
+                rules["schema"] = remove_help_message(rules.get("schema"))
+            for key in ("keysrules", "valuesrules"):
                 if key in rules:
-                    rules[key] = remove_help_message(rules[key])
+                    rules[key] = remove_help_message({key: rules[key]})[key]
         elif rules.get("type") == "list":
             rules["schema"] = remove_help_message(
                 {"list_item": rules.get("schema", {})}
