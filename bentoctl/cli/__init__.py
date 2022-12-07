@@ -31,12 +31,12 @@ from bentoctl.utils.terraform import (
 
 logger = logging.getLogger(__name__)
 try:
-    from bentoml_cli.utils import validate_docker_tag
+    from bentoml_cli.utils import validate_container_tag
 except ImportError:
     logger.warning(
-        "'bentoml._internal.utils.docker.validate_tag not imported. Validation dissabled"
+        "'bentoml_cli.utils.validate_container_tag failed to import. Validation disabled."
     )
-    validate_docker_tag = None
+    validate_container_tag = None
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -142,7 +142,7 @@ def generate(deployment_config_file, values_only, save_path):
     "--docker-image-tag",
     help="Name and optionally a tag (format: 'name:tag'), defaults to bento tag.",
     required=False,
-    callback=validate_docker_tag,
+    callback=validate_container_tag,
     multiple=True,
 )
 @click.option(
