@@ -1,10 +1,19 @@
+from __future__ import annotations
+
 import json
 import subprocess
+from shutil import which
 
 
-def run_shell_command(command, cwd=None, env=None, shell_mode=False):
+def run_shell_command(
+    command: list[str],
+    cwd: str | None = None,
+    env: dict | None = None,
+    shell_mode: bool = False,
+):
+    exec_path = which(command[0])
     proc = subprocess.Popen(
-        command,
+        exec_path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         shell=shell_mode,
