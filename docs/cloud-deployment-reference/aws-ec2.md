@@ -4,7 +4,7 @@ AWS EC2 is great if you want to have larger models that require GPUs for inferen
 
 [Github Repo](https://github.com/bentoml/aws-ec2-deploy)
 
-## Instalation
+## Installation
 ```
 > bentoctl operator install aws-ec2
 ```
