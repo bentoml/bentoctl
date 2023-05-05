@@ -9,10 +9,17 @@ license = "Apache-2.0"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Software Development",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
 ]
 
 [tool.poetry.scripts]
@@ -28,11 +35,10 @@ python = ">=3.7,<4.0"
 bentoml = "1.*"
 click = "^8"
 cerberus = "^1"
-rich = "12.*"
-PYYAML = ">=6"
+rich = "*"
+PYYAML = "*"
 simple-term-menu = "0.4.4"
-importlib-metadata = { version = "4.*", python = "<3.8" }
-docker = ">=5"
+importlib-metadata = { version = "*", python = "<3.8" }
 semantic_version = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
@@ -48,7 +54,7 @@ profile = "black"
 
 [tool.black]
 line-length = 88
-target-version = ["py37", "py38", "py39", "py310"]
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
