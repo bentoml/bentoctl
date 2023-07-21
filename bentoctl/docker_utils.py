@@ -4,7 +4,7 @@ import typing as t
 from collections import OrderedDict
 
 import docker
-from bentoml._internal.utils import buildx
+from bentoml import container
 from rich.live import Live
 
 from bentoctl.console import console
@@ -78,12 +78,12 @@ def generate_deployable_container(
             console.print(
                 f"In debug mode. Intermediate bento saved to [b]{dist_dir}[/b]"
             )
-        env = {"DOCKER_BUILDKIT": "1", "DOCKER_SCAN_SUGGEST": "false"}
         buildx_args = {
-            "subprocess_env": env,
-            "cwd": deployment_config.create_deployable(destination_dir=str(dist_dir)),
+            "context_path": deployment_config.create_deployable(
+                destination_dir=str(dist_dir)
+            ),
             "file": DOCKERFILE_PATH,
-            "tags": tags,
+            "tag": tags,
             "add_host": None,
             "allow": allow,
             "build_args": build_args,
@@ -112,10 +112,12 @@ def generate_deployable_container(
             "target": target,
             "ulimit": None,
         }
+        buildx_args = {k: v or None for k, v in buildx_args.items()}
 
         # run health check whether buildx is install locally
-        buildx.health()
-        buildx.build(**buildx_args)
+        container.health("buildx")
+        backend = container.get_backend("buildx")
+        backend.build(**buildx_args)
 
 
 def tag_docker_image(image_name, image_tag):
