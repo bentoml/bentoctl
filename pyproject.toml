@@ -1,3 +1,46 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "bentoctl"
+description = "Fast model deployment with BentoML on cloud platforms."
+authors = [
+    {name = "bentoml.org", email = "contact@bentoml.com"},
+]
+requires-python = ">=3.8,<4.0"
+dependencies = [
+    "bentoml>=1.0.24,<2",
+    "click>=8",
+    "cerberus<2,>=1",
+    "rich==12.*",
+    "PYYAML>=6",
+    "simple-term-menu==0.4.4",
+    "docker>=5",
+    "semantic-version<3.0.0,>=2.9.0",
+]
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development",
+]
+license = {text = "Apache-2.0"}
+dynamic = ["version"]
+
+[project.urls]
+Source = "https://github.com/bentoml/bentoctl"
+"User Slack community" = "http://join.slack.bentoml.org"
+"Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
+homepage = "https://github.com/bentoml/bentoctl"
+
+[project.scripts]
+bentoctl = "bentoctl.cli:bentoctl"
+
 [tool.isort]
 profile = "black"
 
@@ -31,53 +74,13 @@ dev = [
 [tool.pdm.build]
 includes = ["bentoctl"]
 
+[tool.pdm.version]
+source = "scm"
+
 [tool.pdm.scripts]
 lint.shell = "black -S --check . && flake8 ."
 format = "black -S ."
 test = "pytest tests/unit --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:unit.xml"
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-[project]
-authors = [
-    {name = "bentoml.org", email = "contact@bentoml.com"},
-]
-requires-python = ">=3.8,<4.0"
-dependencies = [
-    "bentoml>=1.0.24,<2",
-    "click>=8",
-    "cerberus<2,>=1",
-    "rich==12.*",
-    "PYYAML>=6",
-    "simple-term-menu==0.4.4",
-    "docker>=5",
-    "semantic-version<3.0.0,>=2.9.0",
-]
-name = "bentoctl"
-version = "0.3.4"
-description = "Fast model deployment with BentoML on cloud platforms."
-readme = "README.md"
-classifiers = [
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development",
-]
-license = {text = "Apache-2.0"}
-
-[project.urls]
-Source = "https://github.com/bentoml/bentoctl"
-"User Slack community" = "http://join.slack.bentoml.org"
-"Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
-homepage = "https://github.com/bentoml/bentoctl"
-
-[project.scripts]
-bentoctl = "bentoctl.cli:bentoctl"
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
