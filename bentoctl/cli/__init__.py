@@ -34,7 +34,8 @@ try:
     from bentoml_cli.utils import validate_docker_tag
 except ImportError:
     logger.warning(
-        "'bentoml._internal.utils.docker.validate_tag not imported. Validation dissabled"
+        "'bentoml._internal.utils.docker.validate_tag' not imported. "
+        "Validation dissabled."
     )
     validate_docker_tag = None
 
@@ -156,7 +157,8 @@ def generate(deployment_config_file, values_only, save_path):
     "--allow",
     multiple=True,
     default=None,
-    help="Allow extra privileged entitlement (e.g., 'network.host', 'security.insecure').",
+    help="Allow extra privileged entitlement "
+    "(e.g., 'network.host', 'security.insecure').",
 )
 @click.option("--build-arg", multiple=True, help="Set build-time variables.")
 @click.option(
@@ -174,19 +176,22 @@ def generate(deployment_config_file, values_only, save_path):
     "--cache-from",
     multiple=True,
     default=None,
-    help="External cache sources (e.g., 'user/app:cache', 'type=local,src=path/to/dir').",
+    help="External cache sources "
+    "(e.g., 'user/app:cache', 'type=local,src=path/to/dir').",
 )
 @click.option(
     "--cache-to",
     multiple=True,
     default=None,
-    help="Cache export destinations (e.g., 'user/app:cache', 'type=local,dest=path/to/dir').",
+    help="Cache export destinations "
+    "(e.g., 'user/app:cache', 'type=local,dest=path/to/dir').",
 )
 @click.option(
     "--load",
     is_flag=True,
     default=True,
-    help="Shorthand for '--output=type=docker'. Note that '--push' and '--load' are mutually exclusive.",
+    help="Shorthand for '--output=type=docker'. "
+    "Note that '--push' and '--load' are mutually exclusive.",
 )
 @click.option(
     "--no-cache",
@@ -210,7 +215,8 @@ def generate(deployment_config_file, values_only, save_path):
     "--progress",
     default="auto",
     type=click.Choice(["auto", "tty", "plain"]),
-    help="Set type of progress output ('auto', 'plain', 'tty'). Use plain to show container output.",
+    help="Set type of progress output ('auto', 'plain', 'tty'). "
+    "Use plain to show container output.",
 )
 @click.option(
     "--pull",
@@ -222,7 +228,8 @@ def generate(deployment_config_file, values_only, save_path):
     "--push",
     is_flag=True,
     default=False,
-    help="Shorthand for '--output=type=registry'. Note that '--push' and '--load' are mutually exclusive.",
+    help="Shorthand for '--output=type=registry'. "
+    "Note that '--push' and '--load' are mutually exclusive.",
 )
 @click.option(
     "--target",
@@ -293,11 +300,15 @@ def build(
     if platform and len(platform) > 1:
         if not push:
             click.echo(
-                "Multiple '--platform' arguments were found. Make sure to also use '--push' to push images to a repository or generated images will not be saved. For more information, see https://docs.docker.com/engine/reference/commandline/buildx_build/#load."
+                "Multiple '--platform' arguments were found. "
+                "Make sure to also use '--push' to push images to a repository or "
+                "generated images will not be saved. For more information, see "
+                "https://docs.docker.com/engine/reference/commandline/buildx_build/#load."  # noqa: E501
             )
     if push:
         click.echo(
-            "'--push' flag detected. bentoctl will not attempt to create repository and push image into it."
+            "'--push' flag detected. bentoctl will not attempt to "
+            "create repository and push image into it."
         )
         load = False
         dry_run = True
