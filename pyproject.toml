@@ -1,54 +1,52 @@
-[tool.poetry]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
 name = "bentoctl"
-version = "0.3.4"
 description = "Fast model deployment with BentoML on cloud platforms."
-authors = ["bentoml.org <contact@bentoml.com>"]
-homepage = "https://github.com/bentoml/bentoctl"
-readme = "./README.md"
-license = "Apache-2.0"
+authors = [
+    {name = "bentoml.org", email = "contact@bentoml.com"},
+]
+requires-python = ">=3.8,<4.0"
+dependencies = [
+    "bentoml>=1.0.24,<2",
+    "click>=8",
+    "cerberus<2,>=1",
+    "rich==12.*",
+    "PYYAML>=6",
+    "simple-term-menu==0.4.4",
+    "docker>=5",
+    "semantic-version<3.0.0,>=2.9.0",
+]
+readme = "README.md"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Software Development",
 ]
+license = {text = "Apache-2.0"}
+dynamic = ["version"]
 
-[tool.poetry.scripts]
-bentoctl = "bentoctl.cli:bentoctl"
-
-[tool.poetry.urls]
-"Source" = "https://github.com/bentoml/bentoctl"
+[project.urls]
+Source = "https://github.com/bentoml/bentoctl"
 "User Slack community" = "http://join.slack.bentoml.org"
 "Bug Reports" = "https://github.com/bentoml/bentoctl/issues"
+Homepage = "https://github.com/bentoml/bentoctl"
 
-[tool.poetry.dependencies]
-python = ">=3.7,<4.0"
-bentoml = "1.*"
-click = "^8"
-cerberus = "^1"
-rich = "12.*"
-PYYAML = ">=6"
-simple-term-menu = "0.4.4"
-importlib-metadata = { version = "4.*", python = "<3.8" }
-docker = ">=5"
-semantic_version = "^2.9.0"
-
-[tool.poetry.dev-dependencies]
-flake8 = "^3.8.2"
-pylint = "^2.6.2"
-black = "*"
-isort = "^5"
-pytest = "^6"
-pytest-cov = "^3"
+[project.scripts]
+bentoctl = "bentoctl.cli:bentoctl"
 
 [tool.isort]
 profile = "black"
 
 [tool.black]
 line-length = 88
-target-version = ["py37", "py38", "py39", "py310"]
+target-version = ["py38", "py39", "py310", "py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -64,12 +62,26 @@ exclude = '''
 )/
 '''
 
+[tool.pdm.dev-dependencies]
+dev = [
+    "flake8>=3.8.2",
+    "black",
+    "isort>=5",
+    "pytest>=7",
+    "pytest-cov>=3",
+]
+
+[tool.pdm.build]
+includes = ["bentoctl"]
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.scripts]
+lint.shell = "black -S --check . && flake8 ."
+format = "black -S ."
+test = "pytest tests/unit --cov=bentoctl --cov-config=.coveragerc --cov-report=xml:unit.xml"
+
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 
-[build-system]
-# Use the latest poetry build system to enable the use of `pip install -e`. After this change is released, we can switch back to "poetry_core>=1.0.0"
-requires = [
-    "poetry-core @ git+https://github.com/python-poetry/poetry-core.git@master",
-]
-build-backend = "poetry.core.masonry.api"

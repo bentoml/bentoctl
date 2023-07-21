@@ -257,7 +257,11 @@ class DeploymentConfig:
         )
 
     def create_repository(self):
-        (repository_url, username, password,) = self.operator.create_repository(
+        (
+            repository_url,
+            username,
+            password,
+        ) = self.operator.create_repository(
             repository_name=self.repository_name,
             operator_spec=self.operator_spec,
         )

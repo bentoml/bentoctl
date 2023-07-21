@@ -52,7 +52,6 @@ bentomock.tag.version = "mock_version"
 
 @dataclass
 class DeploymentConfigMock:
-
     directory: "Path" = None
     repository_name: str = None
     template_type: str = "terraform"
@@ -163,7 +162,6 @@ def test_cli_build(
     monkeypatch,
     change_test_dir,
 ):
-
     monkeypatch.setattr(
         bentoctl.cli,
         "DeploymentConfig",
