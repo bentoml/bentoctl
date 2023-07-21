@@ -17,44 +17,42 @@ jobs:
   lint_and_format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v3
         with:
-          python-version: 3.7
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+          python-version: '3.10'
+          cache: 'true'
+
       - name: Install test dependencies
-        run: ./ci/install_test_deps.sh.cmd
+        run: pdm install
       - name: Run linting script
-        run: ./ci/linter.sh
+        run: pdm lint
 
   unit_tests:
     name: ${{ matrix.os }} Python ${{ matrix.python-version }} Unit Tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+        python-version: [ '3.8', '3.11' ]
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # fetch all tags and branches
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: pdm-project/setup-pdm@v3
         with :
           python-version: ${{ matrix.python-version }}
           architecture: x64
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+          cache: 'true'
 
       - name: Install test dependencies
-        run: ./ci/install_test_deps.sh.cmd
+        run: pdm install
 
       - name: Run unit-tests
-        run: ./ci/unit_tests.sh
+        run: pdm test
         shell: bash
 
       - name: Upload test coverage to Codecov

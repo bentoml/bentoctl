@@ -31,7 +31,6 @@ class Generate:
 
     @staticmethod
     def generate_terraform_values(name: str, spec: dict, destination_dir: str):
-
         params = DeploymentValues(name, spec, "terraform")
         values_file = os.path.join(destination_dir, TERRAFORM_VALUES_FILE_NAME)
         params.to_params_file(values_file)

@@ -17,7 +17,6 @@ class TempDirectory(object):
         cleanup=True,
         prefix="temp",
     ):
-
         self._cleanup = cleanup
         self._prefix = prefix
         self.path = None
