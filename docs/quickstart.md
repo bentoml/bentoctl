@@ -6,7 +6,7 @@ This quickstart will use the iris classifier bento with `/classify` API endpoint
 
 ## Prerequisites
 
-1. Bentoml - BentoML version 1.0 and greater. Please follow the [Installation guide](https://docs.bentoml.org/en/latest/quickstart.html#installation).
+1. Bentoml - BentoML version 1.0 and greater. Please follow the [Installation guide](https://docs.bentoml.com/en/latest/installation.html).
 2. Terraform - [Terraform](https://www.terraform.io/) is a tool for building, configuring, and managing infrastructure.
 3. AWS CLI installed and configured with an AWS account with permission to the Cloudformation, Lamba, API Gateway and ECR. Please follow the [Installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
