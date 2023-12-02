@@ -4,6 +4,7 @@ import os
 import typing as t
 from contextlib import contextmanager
 from pathlib import Path
+import shutil
 
 import bentoml
 import cerberus
@@ -244,17 +245,26 @@ class DeploymentConfig:
 
         return generated_files
 
-    @contextmanager
     def _prepare_bento_dir(self) -> t.Generator[str, None, None]:
+        """
+        Copy models in the bento before deployment.
+        """
         assert self.bento is not None
-        with fs.open_fs("temp://") as temp_fs, fs.open_fs(self.bento.path) as bento_fs:
-            fs.mirror.mirror(bento_fs, temp_fs)
-            models_fs = temp_fs.makedirs("models", recreate=True)
-            for model_info in self.bento.info.models:
-                model = get_model(model_info.tag)
-                model_fs = models_fs.makedirs(model_info.tag.path())
-                fs.mirror.mirror(model.path, model_fs)
-            yield temp_fs.getsyspath("/")
+        bento_models_directory_path = os.path.join(self.bento.path, "models")
+
+        for model_info in self.bento.info.models:
+            new_model_directory_path = os.path.join(
+                bento_models_directory_path, model_info.tag.path()
+            )
+            os.makedirs(new_model_directory_path, exist_ok=True)
+
+            path_to_model_in_store = os.path.expanduser(
+                os.path.join("~/bentoml/models/", model_info.tag.path())
+            )
+            # Update model if it already exists
+            if os.path.exists(new_model_directory_path):
+                shutil.rmtree(new_model_directory_path)
+            shutil.copytree(path_to_model_in_store, new_model_directory_path)
 
     def create_deployable(self, destination_dir=os.curdir) -> str:
         """
@@ -264,13 +274,14 @@ class DeploymentConfig:
         # NOTE: In the case of debug mode, we want to keep the deployable
         # for debugging purpose. So by setting overwrite_deployable to false,
         # we don't delete the deployable after the build.
-        with self._prepare_bento_dir() as bento_path:
-            return self.operator.create_deployable(
-                bento_path=bento_path,
-                destination_dir=destination_dir,
-                bento_metadata=get_bento_metadata(bento_path),
-                overwrite_deployable=not is_debug_mode(),
-            )
+        self._prepare_bento_dir()
+
+        return self.operator.create_deployable(
+            bento_path=self.bento.path,
+            destination_dir=destination_dir,
+            bento_metadata=get_bento_metadata(self.bento.path),
+            overwrite_deployable=not is_debug_mode(),
+        )
 
     def create_repository(self):
         (
