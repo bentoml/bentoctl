@@ -2,7 +2,6 @@ import copy
 import logging
 import os
 import typing as t
-from contextlib import contextmanager
 from pathlib import Path
 import shutil
 
@@ -13,7 +12,6 @@ import fs.mirror
 import yaml
 from bentoml import Bento
 from bentoml.exceptions import NotFound
-from bentoml.models import get as get_model
 
 from bentoctl.exceptions import (
     BentoNotFound,
