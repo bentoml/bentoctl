@@ -243,7 +243,7 @@ class DeploymentConfig:
 
         return generated_files
 
-    def _prepare_bento_dir(self) -> t.Generator[str, None, None]:
+    def _prepare_bento_dir(self) -> None:
         """
         Copy models in the bento before deployment.
         """
