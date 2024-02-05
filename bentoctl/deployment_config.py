@@ -1,6 +1,7 @@
 import copy
 import logging
 import os
+import shutil
 import typing as t
 from contextlib import contextmanager
 from pathlib import Path
@@ -254,7 +255,9 @@ class DeploymentConfig:
                 model = get_model(model_info.tag)
                 model_fs = models_fs.makedirs(model_info.tag.path())
                 fs.mirror.mirror(model.path, model_fs)
-            yield temp_fs.getsyspath("/")
+            new_temp_dir = temp_fs.getsyspath("/")[:-1] + "-copy"
+            shutil.copytree(temp_fs.getsyspath("/"), new_temp_dir)
+            yield new_temp_dir
 
     def create_deployable(self, destination_dir=os.curdir) -> str:
         """
