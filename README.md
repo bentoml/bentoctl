@@ -1,7 +1,11 @@
-# 🚀 Fast model deployment on any cloud
+## ⚠️ BentoCTL project has been deprecated
 
-[![actions_status](https://github.com/bentoml/bentoctl/workflows/Bentoctl-CI/badge.svg)](https://github.com/bentoml/yatai/actions)
-[![docs](https://badgen.net/badge/%F0%9F%93%96/Documentation/blue)](https://github.com/bentoml/bentoctl/tree/main/docs)
+Plese see the latest BentoML documentation on OCI-container based deployment workflow: https://docs.bentoml.com/
+
+## 🚀 Fast model deployment on any cloud
+
+
+
 [![join_slack](https://badgen.net/badge/Join/Community%20Slack/cyan?icon=slack&style=flat-square)](https://join.slack.bentoml.org)
 
 bentoctl helps deploy any machine learning models as production-ready API endpoints on the cloud, supporting AWS SageMaker, AWS Lambda, EC2, Google Compute Engine, Azure, Heroku and more.
@@ -39,25 +43,6 @@ for the easiest and fastest way to deploy your bento. It's a full featured, serv
 * [Azure Container Instances](https://github.com/bentoml/azure-container-instances-deploy)
 * [Heroku](https://github.com/bentoml/heroku-deploy)
 
-### Upcoming
-* [Azure Functions](https://github.com/bentoml/azure-functions-deploy)
-
-### Custom Operator
-
-Users can built custom bentoctl plugin from the [deployment operator template](https://github.com/bentoml/bentoctl-operator-template)
-to deploy to cloud platforms not yet supported or to internal infrastructure.
-
-If you are looking for deploying with **Kubernetes**, check out [Yatai: Model deployment at scale on Kubernetes](https://github.com/bentoml/Yatai).
-
-
-## Installation
-
-```bash
-pip install bentoctl
-```
-
-| 💡 bentoctl designed to work with BentoML version 1.0.0 and above. For BentoML 0.13 or below, you can use the `pre-v1.0` branch in the operator repositories and follow the instruction in the README. You can also check out the quickstart guide for 0.13 [here](./docs/013-deployment.md).
-
 
 ## Community
 
@@ -75,18 +60,6 @@ There are many ways to contribute to the project:
 - Report issues you're facing and "Thumbs up" on issues and feature requests that are relevant to you.
 - Investigate bugs and reviewing other developer's pull requests.
 
-## Usage Reporting
-
-BentoML and bentoctl collects usage data that helps our team to
-improve the product. Only bentoctl's CLI commands calls are being reported. We
-strip out as much potentially sensitive information as possible, and we will
-never collect user code, model data, model names, or stack traces. Here's the
-[code](./bentoctl/utils/usage_stats.py) for usage tracking. You can opt-out of
-usage tracking by setting environment variable `BENTOML_DO_NOT_TRACK=True`:
-
-```bash
-export BENTOML_DO_NOT_TRACK=True
-```
 
 ## Licence
 
