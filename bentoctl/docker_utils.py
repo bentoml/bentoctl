@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import typing as t
 from collections import OrderedDict
 
@@ -118,6 +119,7 @@ def generate_deployable_container(
         container.health("buildx")
         backend = container.get_backend("buildx")
         backend.build(**buildx_args)
+        shutil.rmtree(buildx_args["context_path"])
 
 
 def tag_docker_image(image_name, image_tag):
